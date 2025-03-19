@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <h1>Welcome to Your Dashboard</h1>
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="booking-history.html">Booking History</a>
+            <a href="membership-confirmation.html">Membership</a>
+            <a href="#" id="logout">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="profile">
+            <h2>User Profile</h2>
+            <p><strong>Name:</strong> <span id="username">Loading...</span></p>
+            <p><strong>Email:</strong> <span id="user-email">Loading...</span></p>
+            <p><strong>Membership Status:</strong> <span id="membership-status">Loading...</span></p>
+        </section>
+
+        <section class="recent-bookings">
+            <h2>Recent Bookings</h2>
+            <ul id="booking-list">
+                <li>Loading...</li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
