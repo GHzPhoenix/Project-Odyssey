@@ -127,3 +127,12 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("some-form-id");
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        // form logic
+      });
+    }
+  });
+  

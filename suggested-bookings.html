@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suggested Bookings</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .suggested-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+      }
+      .suggested-container h2 {
+        text-align: center;
+      }
+      .suggestion-box {
+        background: white;
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 8px;
+      }
+      .suggestion-box h3 {
+        margin: 0 0 10px;
+      }
+      .suggestion-box a {
+        color: #007bff;
+        text-decoration: none;
+      }
+      .suggestion-box a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1 style="text-align: center">Suggested Bookings</h1>
+    </header>
+
+    <div class="suggested-container" id="suggestions">
+      <h2>Top Travel Picks for You</h2>
+      <!-- Suggestions will be inserted here -->
+    </div>
+
+    <script>
+      // Dummy suggestions - replace with live API integration later
+      const suggestions = [
+        {
+          title: "Sunny Beach Resort - Cyprus",
+          price: "From €85/night",
+          link: "https://www.booking.com",
+        },
+        {
+          title: "Athens City Apartments",
+          price: "From €60/night",
+          link: "https://www.hotels.com",
+        },
+        {
+          title: "Rome Historic Stays",
+          price: "From €90/night",
+          link: "https://www.expedia.com",
+        },
+      ];
+
+      const container = document.getElementById("suggestions");
+
+      suggestions.forEach((s) => {
+        const div = document.createElement("div");
+        div.className = "suggestion-box";
+        div.innerHTML = `
+        <h3>${s.title}</h3>
+        <p>${s.price}</p>
+        <a href="${s.link}" target="_blank">View Deal</a>
+      `;
+        container.appendChild(div);
+      });
+    </script>
+  </body>
+</html>
