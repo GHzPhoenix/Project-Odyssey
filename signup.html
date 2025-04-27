@@ -105,38 +105,29 @@
           const password = document.getElementById("new-password").value;
           const confirmPassword =
             document.getElementById("confirm-password").value;
-          const message = document.getElementById("signup-message");
 
           if (password !== confirmPassword) {
-            message.style.color = "red";
-            message.textContent = "Passwords do not match.";
+            alert("Passwords do not match");
             return;
           }
 
           try {
             const res = await fetch("http://127.0.0.1:5000/api/register", {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ name, email, password }),
             });
 
             const data = await res.json();
-
             if (res.ok) {
-              message.style.color = "green";
-              message.textContent = "Registration successful!";
-              // Optional redirect:
-              // window.location.href = "client-area.html";
+              alert("Signup successful!");
+              window.location.href = "client-area.html";
             } else {
-              message.style.color = "red";
-              message.textContent = data.error || "Registration failed.";
+              alert(data.error || "Signup failed.");
             }
-          } catch (error) {
-            console.error("Error:", error);
-            message.style.color = "red";
-            message.textContent = "Server error. Please try again.";
+          } catch (err) {
+            console.error(err);
+            alert("Server error. Try again.");
           }
         });
     </script>

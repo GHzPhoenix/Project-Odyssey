@@ -2,19 +2,174 @@ header {
   color: white;
   background-color: purple;
 }
-h1 {
-  font-size: 2em;
-  display: absolute;
+h1,
+h2 {
   text-align: center;
+  margin-top: 20px;
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  color: purple;
+  font-weight: 700;
+}
+
 }
 body {
   display: flex;
   flex-direction: column;
-  height: 0;
   margin: 0;
   font-family: "Merriweather", serif;
   font-weight: 400;
   font-style: normal;
+}
+.trending-deals {
+  padding: 50px 20px;
+  background: #f8f8f8;
+}
+
+.trending-deals h2 {
+  font-size: 2.5rem;
+  color: purple;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.deals-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.deal-card {
+  position: relative; /* ✨ Add this */
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  width: 300px;
+  text-align: center;
+  padding-bottom: 20px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.deal-card:hover {
+  transform: translateY(-10px);
+}
+
+.deal-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.deal-card-body {
+  padding: 20px;
+}
+
+.deal-card-body h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: purple;
+}
+
+.deal-card-body p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.deal-card-body a {
+  display: inline-block;
+  background-color: purple;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.deal-card-body a:hover {
+  background-color: rgb(148, 0, 148);
+}
+.rating {
+  margin-top: 8px;
+  font-size: 0.95rem;
+  color: #555;
+  font-weight: bold;
+}
+
+.badge {
+  position: absolute;
+  background-color: #ff6f61; /* Coral Color */
+  color: white;
+  font-size: 0.8rem;
+  padding: 5px 10px;
+  border-radius: 20px;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.badge.hot-deal {
+  background-color: purple;
+}
+
+.trending-deals .small-box {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  width: 300px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease-in-out;
+}
+
+.trending-deals .small-box:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.trending-deals .small-box h3 {
+  font-size: 1.5rem;
+  color: purple;
+  margin-bottom: 10px;
+}
+
+.trending-deals .small-box p {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #666;
+}
+
+.trending-deals .small-box a {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: purple;
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  transition: background 0.3s ease-in-out;
+}
+
+.trending-deals .small-box a:hover {
+  background: #5e0c5e;
+}
+
+@media (max-width: 768px) {
+  .trending-deals .container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .trending-deals .small-box {
+    width: 80%;
+  }
 }
 /* Careers Section */
 .careers-container {
@@ -131,20 +286,12 @@ ol {
   display: grid;
   text-align: start;
 }
+
 main {
   text-align: center;
-  align-items: center;
-  margin: 20px;
-  padding: 15px;
+  padding: 40px 20px;
 }
-#booking-form {
-  box-sizing: border-box;
-  text-align: center;
-  width: 300px;
-  height: auto;
-  font-family: Arial, Helvetica, sans-serif;
-  line-height: normal;
-}
+
 #room-type,
 #room-number,
 #guests {
@@ -194,7 +341,39 @@ input {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
+
+#booking-form {
+  width: 100%;
+  max-width: 700px; /* much larger */
+  background-color: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  text-align: left;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: purple;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
 footer {
   background-color: purple;
   color: white;
@@ -209,10 +388,7 @@ a {
   text-decoration: none;
   color: #007bff;
 }
-.small-box {
-  flex: 1;
-  min-width: 250px;
-}
+
 .container {
   display: flex;
   justify-content: space-around;
@@ -232,24 +408,15 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: linear-gradient(
-    135deg,
-    rgb(128, 0, 128) 30%,
-    rgb(148, 0, 148) 100%
-  );
-  border: 3px solid rgb(128, 0, 128);
+  background: linear-gradient(135deg, purple 30%, rgb(148, 0, 148) 100%);
+  border: 3px solid purple;
   padding: 40px;
   margin: 50px auto;
   border-radius: 20px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  color: white;
   width: 90%;
   max-width: 1100px;
-  min-height: 60vh;
   text-align: center;
-  position: relative;
-  overflow: auto;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  color: white;
 }
 
 .big-box:hover {
@@ -294,18 +461,22 @@ a {
   text-transform: uppercase;
   font-weight: bold;
 }
-.submit {
-  margin-top: 25px;
-  background: linear-gradient(135deg, #ffffff 0%, #dddddd 100%);
-  border: 2px solid rgb(128, 0, 128);
-  color: rgb(128, 0, 128);
+.suggested-bookings {
   text-align: center;
-  border-radius: 35px;
-  font-size: 22px;
-  cursor: pointer;
-  padding: 16px 36px;
-  transition: background 0.3s ease-in-out, transform 0.2s, color 0.3s;
+  margin: 40px 0;
+}
+.submit {
+  margin-top: 20px;
+  width: 100%;
+  background: linear-gradient(135deg, #ffffff 0%, #dddddd 100%);
+  border: 2px solid purple;
+  color: purple;
+  font-size: 18px;
   font-weight: bold;
+  border-radius: 30px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
 }
 
 .submit:hover {
@@ -315,7 +486,7 @@ a {
     rgb(211, 66, 214) 100%
   );
   color: white;
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 /* Responsive Membership Box */
@@ -348,16 +519,41 @@ a {
 
 .small-box {
   background-color: #947fff;
-  border: 1px solid #ccc;
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  flex: 1;
+  min-width: 250px;
+  max-width: 300px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.small-box:last-child {
-  margin-bottom: 0;
+.small-box h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
 }
+
+.small-box p {
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+.small-box a {
+  display: inline-block;
+  background-color: white;
+  color: purple;
+  padding: 10px 20px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.3s, color 0.3s;
+}
+
+.small-box a:hover {
+  background-color: purple;
+  color: white;
+}
+
 .booking {
   background-color: #f0f0f0;
   border: 1px solid #ddd;
@@ -747,6 +943,21 @@ nav ul li:hover .dropdown {
 .newsletter button:hover {
   background-color: #e5d8f3;
   color: rgb(128, 0, 128);
+}
+
+.button-link {
+  padding: 12px 25px;
+  background-color: purple;
+  color: white;
+  border-radius: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.button-link:hover {
+  background-color: rgb(148, 0, 148);
 }
 
 /* Footer Bottom */

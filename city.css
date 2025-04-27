@@ -1,0 +1,317 @@
+/* Reset basic styles */
+body,
+h1,
+h2,
+p,
+ul {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Merriweather", serif;
+  background-color: #f8f8f8;
+  color: #333;
+}
+
+/* Header and Navigation */
+header {
+  background-color: purple;
+  color: white;
+}
+/* Perfect Matching Nav Styles */
+nav {
+  background-color: purple;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  color: white;
+  position: relative;
+}
+
+nav .logo {
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+}
+
+nav .logo img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul li {
+  position: relative;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-size: 16px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background 0.3s ease-in-out;
+  display: block;
+}
+
+nav ul li a:hover {
+  background-color: #cd75ce;
+  color: yellow;
+}
+
+/* Dropdown Menu */
+nav ul li .dropdown {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  background-color: white;
+  min-width: 180px;
+  border-radius: 5px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s, transform 0.3s ease-in-out;
+}
+
+nav ul li .dropdown a {
+  display: block;
+  padding: 12px;
+  color: #333;
+  transition: background 0.3s ease-in-out;
+  white-space: nowrap;
+}
+
+nav ul li .dropdown a:hover {
+  background-color: #f4f4f9;
+}
+
+/* Show Dropdown on Hover */
+nav ul li:hover .dropdown {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Mobile Menu */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.menu-toggle div {
+  width: 30px;
+  height: 3px;
+  background-color: white;
+  margin: 5px;
+}
+
+/* Responsive Navigation */
+@media (max-width: 768px) {
+  nav ul {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background-color: purple;
+    padding: 10px 0;
+    z-index: 1000;
+  }
+
+  nav ul.active {
+    display: flex;
+  }
+
+  nav ul li {
+    text-align: center;
+  }
+
+  .menu-toggle {
+    display: flex;
+  }
+
+  nav ul li .dropdown {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: none;
+  }
+}
+
+/* Main */
+main {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+/* Title */
+h1 {
+  font-size: 2.5rem;
+  color: purple;
+  font-weight: 700;
+  margin-bottom: 40px;
+}
+
+/* Big Box for the blog */
+.big-box {
+  background: linear-gradient(135deg, purple 30%, rgb(148, 0, 148) 100%);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  margin: 20px auto;
+  width: 90%;
+  max-width: 1200px;
+}
+
+/* Container for city cards */
+.container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.small-box {
+  background-color: #ffffff;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease-in-out;
+}
+
+.small-box:hover {
+  transform: translateY(-10px);
+}
+
+.image-box img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.small-box h2 {
+  font-size: 1.8rem;
+  margin: 15px 0;
+  color: purple;
+}
+
+.small-box p {
+  font-size: 1rem;
+  padding: 0 20px 20px;
+  color: #555;
+}
+
+.small-box button {
+  background: purple;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  border-radius: 25px;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.small-box button:hover {
+  background: #5e0c5e;
+}
+
+/* Responsive Grid */
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Footer */
+.footer {
+  background: linear-gradient(135deg, purple 30%, rgb(148, 0, 148) 100%);
+  color: white;
+  padding: 50px 0;
+  font-family: "Merriweather", serif;
+  margin-top: 50px;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 200px;
+  margin: 20px;
+  text-align: left;
+}
+
+.footer-section h3 {
+  color: #ffd700;
+  margin-bottom: 15px;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 10px;
+}
+
+.footer-section ul li a {
+  color: #e5d8f3;
+  text-decoration: none;
+}
+
+.footer-section ul li a:hover {
+  color: #ffd700;
+}
+
+.social-icons a {
+  font-size: 24px;
+  color: white;
+  margin-right: 15px;
+  transition: 0.3s;
+}
+
+.social-icons a:hover {
+  color: #ffd700;
+}
+
+.footer-bottom {
+  margin-top: 30px;
+  font-size: 0.9rem;
+  color: #e5d8f3;
+}
+
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}

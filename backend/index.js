@@ -1,28 +1,29 @@
 const express = require("express");
 const cors = require("cors");
-const app = express();
 const dotenv = require("dotenv");
 const { Pool } = require("pg");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 dotenv.config();
+const app = express();
 const port = process.env.PORT || 5000;
 
-const corsOptions = {
-    origin: "http://127.0.0.1:5500",
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  };
-  
-  app.use(cors(corsOptions));
-  
-  // 🔁 Preflight request fix (avoid wildcard)
-  app.options("/api/register", cors(corsOptions));
-  app.options("/api/login", cors(corsOptions));
-  app.options("/api/bookings", cors(corsOptions));
-  
+// ✅ Manual CORS middleware (solves all issues)
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200); // ✅ Respond to preflight request
+  }
+  next();
+});
+
+// ✅ JSON parser
+app.use(express.json());
+
+
 // ✅ PostgreSQL Connection
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -37,8 +38,12 @@ pool.connect()
   .then(() => console.log("✅ Connected to PostgreSQL"))
   .catch((err) => console.error("❌ Database connection error:", err));
 
-// 🔐 AUTH
+// ✅ Root test
+app.get("/", (req, res) => {
+  res.send("Travel Odyssey Backend is running ✅");
+});
 
+// 🔐 User Registration
 app.post("/api/register", async (req, res) => {
   const { name, email, password } = req.body;
   try {
@@ -54,6 +59,7 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
+// 🔐 User Login
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -71,7 +77,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// 🔐 Middleware
+// 🔐 JWT Auth Middleware
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -84,7 +90,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// 📅 Bookings
+// 📅 Add Booking
 app.post("/api/bookings", authenticateToken, async (req, res) => {
   const { destination, checkin_date, checkout_date, guests } = req.body;
   try {
@@ -99,6 +105,7 @@ app.post("/api/bookings", authenticateToken, async (req, res) => {
   }
 });
 
+// 📋 Get User Bookings
 app.get("/api/bookings", authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
@@ -112,6 +119,7 @@ app.get("/api/bookings", authenticateToken, async (req, res) => {
   }
 });
 
+// 🚀 Start Server
 app.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`);
+  console.log(`🚀 Server running on http://localhost:${port}`);
 });
