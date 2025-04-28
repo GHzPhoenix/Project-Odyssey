@@ -22,30 +22,29 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 
-// ✅ JSON parser
 app.use(express.json());
 
-// ✅ PostgreSQL Connection
+
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASS,
   port: process.env.DB_PORT || 5432,
-  ssl: false, // Local connection, no SSL needed
+  ssl: false, 
 });
 
-// ✅ Test database connection
+
 pool.connect()
   .then(() => console.log("✅ Connected to PostgreSQL Database"))
   .catch((err) => console.error("❌ Database connection error:", err));
 
-// ✅ Root Route
+
 app.get("/", (req, res) => {
   res.send("🚀 Travel Odyssey Backend is Running!");
 });
 
-// 🔒 Authentication Middleware
+
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -58,7 +57,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// 📝 Register New User
+
 app.post("/api/register", async (req, res) => {
   const { name, email, password } = req.body;
   
@@ -79,7 +78,6 @@ app.post("/api/register", async (req, res) => {
     console.error("🔥 Registration Error:", err);
 
     if (err.code === '23505') {
-      // Duplicate email constraint violation
       return res.status(409).json({ error: "Email already registered" });
     }
 
@@ -87,7 +85,6 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// 🔑 Login User
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
   
@@ -121,7 +118,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// 📅 Create Booking
+
 app.post("/api/bookings", authenticateToken, async (req, res) => {
   const { destination, checkin_date, checkout_date, guests } = req.body;
 
@@ -142,7 +139,7 @@ app.post("/api/bookings", authenticateToken, async (req, res) => {
   }
 });
 
-// 📋 Get User's Bookings
+
 app.get("/api/bookings", authenticateToken, async (req, res) => {
   try {
     const bookings = await pool.query(
@@ -157,7 +154,7 @@ app.get("/api/bookings", authenticateToken, async (req, res) => {
   }
 });
 
-// 🚀 Start Server
+
 app.listen(port, () => {
   console.log(`🚀 Server running at: http://localhost:${port}`);
 });
