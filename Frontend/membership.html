@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Customize Your Dream Trip</title>
-    <link rel="stylesheet" href="dream.css" />
+    <title>Membership Types</title>
+    <link rel="stylesheet" href="/Frontend/css/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -28,7 +28,7 @@
     <header>
       <nav>
         <div class="logo">
-          <img src="your-logo.png" alt="Logo" />
+          <img src="./assets/your-logo.png" alt="Logo" />
           Travel Odyssey
         </div>
 
@@ -56,57 +56,55 @@
 
     <main>
       <div class="big-box">
-        <div class="form-container">
-          <form id="booking-form">
-            <div>
-              <label for="destination">Destination</label>
-              <input
-                id="destination"
-                type="text"
-                placeholder="e.g., Paris, Tokyo, Sahara..."
-                required
-              />
-            </div>
+        <!-- Air Membership -->
+        <div class="big-box">
+          <h2>Air Membership</h2>
+          <p>
+            Experience the freedom of the skies and exclusive air travel
+            benefits.
+          </p>
+          <a href="air.html"><button class="submit">Join Air</button> </a>
+          <table>
+            <tr>
+              <th>Price</th>
+            </tr>
+            <tr>
+              <td>799$</td>
+            </tr>
+          </table>
+        </div>
 
-            <div>
-              <label for="checkin-date">Check-in:</label>
-              <input type="date" id="checkin-date" name="checkin" required />
-            </div>
+        <!-- Earth Membership -->
+        <div class="big-box">
+          <h2>Earth Membership</h2>
+          <p>Connect with nature and enjoy unique terrestrial adventures.</p>
+          <a href="earth.html"> <button class="submit">Join Earth</button></a>
+          <table>
+            <tr>
+              <th>Price</th>
+            </tr>
+            <tr>
+              <td>699$</td>
+            </tr>
+          </table>
+        </div>
 
-            <div>
-              <label for="checkout-date">Check-out:</label>
-              <input type="date" id="checkout-date" name="checkout" required />
-            </div>
-
-            <div>
-              <label for="preferences">Travel Preferences</label><br />
-              <textarea
-                style="width: 300px; height: 40px"
-                id="preferences"
-                placeholder="Describe your ideal trip..."
-              ></textarea>
-            </div>
-
-            <div>
-              <label for="budget">Budget</label>
-              <input
-                id="budget"
-                type="number"
-                placeholder="Estimated budget in USD"
-                min="0"
-                value="0"
-                required
-              />
-            </div>
-
-            <div>
-              <button class="submit" type="submit">
-                Submit Your Dreamtrip
-              </button>
-            </div>
-
-            <p id="booking-message" style="margin-top: 10px"></p>
-          </form>
+        <!-- Water Membership -->
+        <div class="big-box">
+          <h2>Water Membership</h2>
+          <p>
+            Explore the depths of the oceans with our exclusive aquatic
+            experiences.
+          </p>
+          <a href="water.html"> <button class="submit">Join Water</button></a>
+          <table>
+            <tr>
+              <th>Price</th>
+            </tr>
+            <tr>
+              <td>999$</td>
+            </tr>
+          </table>
         </div>
       </div>
     </main>
@@ -182,56 +180,10 @@
     ></script>
 
     <script>
-      document
-        .getElementById("booking-form")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-
-          const token = localStorage.getItem("token");
-          if (!token) {
-            alert("Please log in to make a booking.");
-            return;
-          }
-
-          const destination = document.getElementById("destination").value;
-          const checkin_date = document.getElementById("checkin-date").value;
-          const checkout_date = document.getElementById("checkout-date").value;
-          const guests = 2; // You can make this a field if needed
-          const message = document.getElementById("booking-message");
-
-          try {
-            const res = await fetch("http://localhost:5000/api/bookings", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                destination,
-                checkin_date,
-                checkout_date,
-                guests,
-              }),
-            });
-
-            const data = await res.json();
-
-            if (res.ok) {
-              message.style.color = "green";
-              message.textContent = "🎉 Booking successful!";
-            } else {
-              message.style.color = "red";
-              message.textContent = data.error || "Booking failed.";
-            }
-          } catch (err) {
-            console.error("Error:", err);
-            message.style.color = "red";
-            message.textContent = "Server error. Please try again.";
-          }
-        });
       function toggleMenu() {
         document.querySelector("nav ul").classList.toggle("active");
       }
     </script>
+    <script src="script.js"></script>
   </body>
 </html>

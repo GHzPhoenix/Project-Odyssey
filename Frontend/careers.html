@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Air Membership</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Careers</title>
+    <link rel="stylesheet" href="/Frontend/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
@@ -16,7 +16,7 @@
     <header>
       <nav>
         <div class="logo">
-            <img src="your-logo.png" alt="Logo">
+            <img src="/Frontend/assets/your-logo.png" alt="Logo">
             Travel Odyssey
         </div>
     
@@ -41,47 +41,57 @@
         </ul>
     </nav>
     </header>
-    <main>
-        <h1>Air Mebmership Offers</h1>
-        <div class="big-box">
-        <p>Destinations: Air Membership is tailored for travelers who wish to explore countries associated with the element of air, which typically includes nations known for their vast skies, high-altitude landscapes, or cultural significance related to air travel.<br>
-            <br>
-            <b>Features:</b>
-            <ol type="I">
-            <li><b>Flight Discounts:</b> Members enjoy exclusive discounts on airfare, making travel more affordable and accessible.</li>
-    
-           <li><b>Priority Boarding:</b> Access to priority boarding ensures a seamless travel experience, allowing members to avoid queues and settle in comfortably.</li>
-    
-           <li><b>Airport Lounge Access:</b> Enjoy access to premium airport lounges worldwide, providing a tranquil environment to relax or catch up on work before flights.</li>
-            <li><b>Flight Upgrades:</b> Members may have opportunities for complimentary or discounted upgrades to higher classes of service, enhancing the overall travel experience.</li>
-    
-            </ol>
-            <b>Extras:</b> Some Air Memberships might include additional perks such as concierge services, expedited security clearance, or complimentary Wi-Fi during flights. </p>
-        </div>
-       <h1> Join Now!</h1>
-    <div class="big-box">
-    
-            <form id="booking-form">
-                <label for="name">Full Name</label>
-                <input  type="text" id="name" name="name" required>
-           <br>
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
-            <br>
-            <table class="subs">
-                <br>
-                Memberships
-                <tr>
-            <th><label for="period">Single</label></th>
-            <td><input type="radio" id="Monthly" name="period" value="Monthly"></td>
-            <th><label for="period">Yearly</label></th>
-            <td><input type="radio" id="Yearly" name="period" value="Yearly" checked></td>
-            </tr>
-            </table>
-            <a href="checkout.html" style="color: white;"> <button class="submit">Join Now!</button></a>
-</form>
-</main>
-<footer class="footer">
+    <main class="careers-container">
+        <div class="box">
+            <div id="carouselExample" class="carousel slide">
+              <div class="carousel-inner">
+                <div class="carousel-item active">
+                  <img src="travel2.jpg" class="d-block w-100" alt="...">
+                </div>
+                <div class="carousel-item">
+                  <img src="travel.jpg" class="d-block w-100" alt="...">
+                </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+            </div>
+
+    <div class="careers-footer">
+        <p>We believe in fostering a dynamic and inclusive work environment where creativity thrives. Whether you're an experienced professional or just starting your career journey, we want you on our team!</p>
+    </div>
+      <!-- Job Listings -->
+      <div class="careers-grid">
+          <div class="career-card">
+              <h3>Back-End Developer</h3>
+              <p>Build and maintain server-side logic, databases, and APIs. Experience in Python, Java, or Node.js preferred.</p>
+              <a href="#" class="apply-button">Apply Now</a>
+          </div>
+  
+          <div class="career-card">
+              <h3>UI/UX Designer</h3>
+              <p>Design engaging interfaces with Figma, Adobe XD, or Sketch. Improve user experience across platforms.</p>
+              <a href="#" class="apply-button">Apply Now</a>
+          </div>
+  
+          <div class="career-card">
+              <h3>Full-Stack Developer</h3>
+              <p>Work on front-end and back-end development. Proficiency in JavaScript, Python, or Ruby required.</p>
+              <a href="#" class="apply-button">Apply Now</a>
+          </div>
+      </div>
+  
+      <!-- Image Carousel -->
+
+  </main>
+  
+  
+  <footer class="footer">
     <div class="footer-container">
         <!-- Company Info -->
         <div class="footer-section">
@@ -148,5 +158,5 @@
       document.querySelector("nav ul").classList.toggle("active");
   }
 </script>
-</body>
+</body>   
 </html>

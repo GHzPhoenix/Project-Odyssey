@@ -1,4 +1,3 @@
-/* Reset basic styles */
 body,
 h1,
 h2,
@@ -20,7 +19,7 @@ header {
   background-color: purple;
   color: white;
 }
-/* Perfect Matching Nav Styles */
+
 nav {
   background-color: purple;
   display: flex;
@@ -74,7 +73,6 @@ nav ul li a:hover {
   color: yellow;
 }
 
-/* Dropdown Menu */
 nav ul li .dropdown {
   display: none;
   position: absolute;
@@ -102,14 +100,12 @@ nav ul li .dropdown a:hover {
   background-color: #f4f4f9;
 }
 
-/* Show Dropdown on Hover */
 nav ul li:hover .dropdown {
   display: block;
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Mobile Menu */
 .menu-toggle {
   display: none;
   flex-direction: column;
@@ -123,7 +119,6 @@ nav ul li:hover .dropdown {
   margin: 5px;
 }
 
-/* Responsive Navigation */
 @media (max-width: 768px) {
   nav ul {
     display: none;
@@ -158,13 +153,11 @@ nav ul li:hover .dropdown {
   }
 }
 
-/* Main */
 main {
   text-align: center;
   padding: 40px 20px;
 }
 
-/* Title */
 h1 {
   font-size: 2.5rem;
   color: purple;
@@ -172,7 +165,6 @@ h1 {
   margin-bottom: 40px;
 }
 
-/* Big Box for the blog */
 .big-box {
   background: linear-gradient(135deg, purple 30%, rgb(148, 0, 148) 100%);
   padding: 40px;
@@ -183,7 +175,6 @@ h1 {
   max-width: 1200px;
 }
 
-/* Container for city cards */
 .container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -236,14 +227,12 @@ h1 {
   background: #5e0c5e;
 }
 
-/* Responsive Grid */
 @media (max-width: 768px) {
   .container {
     grid-template-columns: 1fr;
   }
 }
 
-/* Footer */
 .footer {
   background: linear-gradient(135deg, purple 30%, rgb(148, 0, 148) 100%);
   color: white;

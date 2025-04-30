@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earth Membership</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Air Membership</title>
+    <link rel="stylesheet" href="/Frontend/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
@@ -13,71 +13,73 @@
 </head>
 
 <body>
-  <header>
-    <nav>
-      <div class="logo">
-          <img src="your-logo.png" alt="Logo">
-          Travel Odyssey
-      </div>
-  
-      <div class="menu-toggle" onclick="toggleMenu()">
-          <div></div>
-          <div></div>
-          <div></div>
-      </div>
-  
-      <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="city.html">Blog</a></li>
-          <li>
-              <a href="#">Services ▼</a>
-              <div class="dropdown">
-                  <a href="membership.html">Memberships</a>
-                  <a href="dream.html">Plan your Trip</a>
-                  <a href="client-area.html">Client Area</a>
-              </div>
-          </li>
-          <li><a href="contact.html">Contact</a></li>
-      </ul>
-  </nav>
+    <header>
+      <nav>
+        <div class="logo">
+            <img src="./assets/your-logo.png" alt="Logo">
+            Travel Odyssey
+        </div>
+    
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="city.html">Blog</a></li>
+            <li>
+                <a href="#">Services ▼</a>
+                <div class="dropdown">
+                    <a href="membership.html">Memberships</a>
+                    <a href="dream.html">Plan your Trip</a>
+                    <a href="client-area.html">Client Area</a>
+                </div>
+            </li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
     </header>
     <main>
-        <h1>Earth Mebmership Offers</h1>
+        <h1>Air Mebmership Offers</h1>
         <div class="big-box">
-        <p><b>Destinations:</b> Earth Membership caters to travelers interested in exploring countries associated with the element of earth, which typically includes destinations known for their natural beauty, diverse landscapes, or cultural heritage deeply connected to the land.<br>
+        <p>Destinations: Air Membership is tailored for travelers who wish to explore countries associated with the element of air, which typically includes nations known for their vast skies, high-altitude landscapes, or cultural significance related to air travel.<br>
             <br>
             <b>Features:</b>
             <ol type="I">
-            <li><b>Nature Tours:</b> Members have access to curated nature tours and experiences, allowing them to immerse themselves in the stunning landscapes and ecosystems of Earth-aligned countries.</li>
-           <li> <b>Accommodation Discounts:</b> Enjoy discounts on accommodations ranging from eco-lodges to luxury resorts, providing options for every style of traveler.</li>
-           <li><b>Cultural Experiences:</b> Earth Membership may offer opportunities to engage with local cultures through activities such as cooking classes, traditional crafts workshops, or indigenous community visits.</li>
-            <li><b>Adventure Travel:</b> For the more adventurous, Earth Membership may include access to activities like hiking, wildlife safaris, or extreme sports in breathtaking natural settings.</li>
+            <li><b>Flight Discounts:</b> Members enjoy exclusive discounts on airfare, making travel more affordable and accessible.</li>
+    
+           <li><b>Priority Boarding:</b> Access to priority boarding ensures a seamless travel experience, allowing members to avoid queues and settle in comfortably.</li>
+    
+           <li><b>Airport Lounge Access:</b> Enjoy access to premium airport lounges worldwide, providing a tranquil environment to relax or catch up on work before flights.</li>
+            <li><b>Flight Upgrades:</b> Members may have opportunities for complimentary or discounted upgrades to higher classes of service, enhancing the overall travel experience.</li>
     
             </ol>
-            <b>Extras:</b> Some Earth Memberships might include eco-friendly travel initiatives, such as carbon offset programs or partnerships with conservation organizations. </p>
+            <b>Extras:</b> Some Air Memberships might include additional perks such as concierge services, expedited security clearance, or complimentary Wi-Fi during flights. </p>
         </div>
-        <h1> Join Now!</h1>
-        <div class="big-box">
-        
-                <form id="booking-form">
-                    <label for="name">Full Name</label>
-                    <input  type="text" id="name" name="name" required>
-               <br>
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
+       <h1> Join Now!</h1>
+    <div class="container">
+    
+            <form id="booking-form">
+                <label for="name">Full Name</label>
+                <input  type="text" id="name" name="name" required>
+           <br>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            <br>
+            <table class="subs">
                 <br>
-                <table class="subs">
-                    <br>
-                    Memberships
-                    <tr>
-                <th><label for="period">Single</label></th>
-                <td><input type="radio" id="Monthly" name="period" value="Monthly"></td>
-                <th><label for="period">Yearly</label></th>
-                <td><input type="radio" id="Yearly" name="period" value="Yearly" checked></td>
-                </tr>
-                </table>
-                <a href="checkout.html" style="text-decoration: none; color: white;"> <button class="submit">Join Now!</button></a>
-    </form>
+                Memberships
+                <tr>
+            <th><label for="period">Single</label></th>
+            <td><input type="radio" id="Monthly" name="period" value="Monthly"></td>
+            <th><label for="period">Yearly</label></th>
+            <td><input type="radio" id="Yearly" name="period" value="Yearly" checked></td>
+            </tr>
+            </table>
+            <a href="checkout.html" style="color: white;"> <button class="submit">Join Now!</button></a>
+</form>
 </main>
 <footer class="footer">
     <div class="footer-container">
