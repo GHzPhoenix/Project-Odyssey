@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Booking History</title>
     <link rel="stylesheet" href="/Frontend/css/dashboard.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <header>
@@ -26,7 +30,7 @@
               <th>Destination</th>
               <th>Check-in</th>
               <th>Check-out</th>
-              <th>Status</th>
+              <th>Guests</th>
             </tr>
           </thead>
           <tbody id="booking-table">
@@ -37,57 +41,52 @@
         </table>
       </section>
     </main>
+
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
         const token = localStorage.getItem("token");
         const tableBody = document.getElementById("booking-table");
 
         if (!token) {
-          tableBody.innerHTML =
-            '<tr><td colspan="4">Please log in to view your bookings.</td></tr>';
+          alert("Please log in to view your bookings.");
+          window.location.href = "client-area.html";
           return;
         }
 
         try {
-          const res = await fetch("http://localhost:5000/api/bookings", {
+          const res = await fetch("http://127.0.0.1:5000/api/bookings", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
 
           const bookings = await res.json();
+          tableBody.innerHTML = "";
 
-          if (res.ok && bookings.length > 0) {
-            tableBody.innerHTML = "";
-            bookings.forEach((booking) => {
+          if (Array.isArray(bookings) && bookings.length > 0) {
+            bookings.forEach((b) => {
               const row = document.createElement("tr");
               row.innerHTML = `
-                  <td>${booking.destination}</td>
-                  <td>${new Date(
-                    booking.checkin_date
-                  ).toLocaleDateString()}</td>
-                  <td>${new Date(
-                    booking.checkout_date
-                  ).toLocaleDateString()}</td>
-                  <td>Confirmed</td>
-                `;
+                <td>${b.destination}</td>
+                <td>${new Date(b.checkin_date).toLocaleDateString()}</td>
+                <td>${new Date(b.checkout_date).toLocaleDateString()}</td>
+                <td>${b.guests}</td>
+              `;
               tableBody.appendChild(row);
             });
           } else {
-            tableBody.innerHTML =
-              '<tr><td colspan="4">No bookings found.</td></tr>';
+            tableBody.innerHTML = `<tr><td colspan="4">No bookings found.</td></tr>`;
           }
-        } catch (error) {
-          console.error("Error fetching bookings:", error);
+        } catch (err) {
+          console.error("Error fetching bookings:", err);
           tableBody.innerHTML =
-            '<tr><td colspan="4">Error loading bookings. Try again later.</td></tr>';
+            "<tr><td colspan='4'>Error loading bookings.</td></tr>";
         }
       });
 
-      // Logout handler (optional)
-      document.getElementById("logout")?.addEventListener("click", () => {
+      document.getElementById("logout").addEventListener("click", function () {
         localStorage.removeItem("token");
-        window.location.href = "client-area.html"; // Redirect to login
+        window.location.href = "client-area.html";
       });
     </script>
   </body>

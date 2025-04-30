@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign Up</title>
+    <title>Sign Up - Travel Odyssey</title>
     <link rel="stylesheet" href="/Frontend/css/login.css" />
     <link rel="stylesheet" href="/Frontend/css/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,31 +12,28 @@
       href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap"
       rel="stylesheet"
     />
-
-    <!-- Bootstrap -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      crossorigin="anonymous"
-    />
   </head>
 
   <body>
     <header>
       <nav>
         <div class="logo">
-          <img src="./assets/your-logo.png" alt="Logo" />
+          <img src="./assets/your-logo.png" alt="Travel Odyssey Logo" />
           Travel Odyssey
         </div>
-        <div class="menu-toggle" onclick="toggleMenu()">
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
-        <ul>
+        <button
+          class="menu-toggle"
+          aria-label="Toggle navigation"
+          onclick="toggleMenu()"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <ul class="nav-menu">
           <li><a href="index.html">Home</a></li>
           <li><a href="city.html">Blog</a></li>
-          <li>
+          <li class="dropdown-parent">
             <a href="#">Services ▼</a>
             <div class="dropdown">
               <a href="membership.html">Memberships</a>
@@ -49,93 +46,146 @@
       </nav>
     </header>
 
-    <img src="avatar.jpg" alt="avatar" class="avatar" />
+    <main class="auth-container">
+      <img src="./assets/avatar.jpg" alt="User avatar" class="avatar" />
 
-    <div class="login-container">
-      <form class="login-form" id="signup-form">
-        <h2>Sign Up</h2>
+      <div class="login-container">
+        <form class="login-form" id="signup-form">
+          <h2 class="auth-title">Create Account</h2>
 
-        <div class="input-group">
-          <label for="new-username">Full Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            autocomplete="name"
-          />
-        </div>
+          <div class="input-group">
+            <label for="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              minlength="2"
+              placeholder="Enter your full name"
+            />
+          </div>
 
-        <div class="input-group">
-          <label for="new-email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            autocomplete="email"
-          />
-        </div>
+          <div class="input-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              autocomplete="email"
+              placeholder="example@domain.com"
+            />
+          </div>
 
-        <div class="input-group">
-          <label for="new-password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            required
-            autocomplete="new-password"
-          />
-        </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              minlength="8"
+              autocomplete="new-password"
+              placeholder="At least 8 characters"
+            />
+          </div>
 
-        <button type="submit" class="signup-button">Sign Up</button>
+          <button type="submit" class="btn-primary signup-button">
+            Create Account
+          </button>
 
-        <p class="signup-text">
-          Already have an account? <a href="client-area.html">Login</a>
-        </p>
+          <p class="auth-alt-text">
+            Already have an account?
+            <a href="client-area.html" class="auth-link">Log in here</a>
+          </p>
 
-        <p id="signup-message" style="margin-top: 10px"></p>
-      </form>
-    </div>
+          <div id="signup-message" class="alert-message"></div>
+        </form>
+      </div>
+    </main>
 
-    <!-- Main Script -->
     <script>
       function toggleMenu() {
-        document.querySelector("nav ul").classList.toggle("active");
+        const menu = document.querySelector(".nav-menu");
+        menu.classList.toggle("active");
       }
 
-      document.addEventListener("DOMContentLoaded", function () {
-        document
-          .getElementById("signup-form")
-          ?.addEventListener("submit", async function (e) {
-            e.preventDefault();
+      document
+        .getElementById("signup-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-            const name = document.getElementById("name").value;
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+          const nameInput = document.getElementById("name");
+          const emailInput = document.getElementById("email");
+          const passwordInput = document.getElementById("password");
+          const messageElement = document.getElementById("signup-message");
 
-            try {
-              const res = await fetch("http://127.0.0.1:5000/api/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, email, password }),
-              });
+          messageElement.textContent = "";
+          messageElement.classList.remove("error", "success");
 
-              const data = await res.json();
-              if (res.ok) {
-                alert("Registration successful!");
-                window.location.href = "client-area.html";
-              } else {
-                alert(data.error || "Registration failed.");
-              }
-            } catch (err) {
-              console.error(err);
-              alert("Server error. Try again.");
+          const name = nameInput.value.trim();
+          const email = emailInput.value.trim();
+          const password = passwordInput.value.trim();
+
+          if (!name || !email || !password) {
+            showMessage("All fields are required", "error");
+            return;
+          }
+
+          if (password.length < 8) {
+            showMessage("Password must be at least 8 characters", "error");
+            return;
+          }
+
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+            const response = await fetch("http://127.0.0.1:5000/api/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ name, email, password }),
+              mode: "cors",
+            });
+
+            clearTimeout(timeoutId);
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              throw new Error(
+                data.error || `Registration failed (${response.status})`
+              );
             }
-          });
-      });
-    </script>
 
-    <script src="script.js"></script>
+            showMessage("Registration successful! Redirecting...", "success");
+            setTimeout(() => {
+              window.location.href = "client-area.html";
+            }, 1500);
+          } catch (error) {
+            console.error("Registration error:", error);
+            const message =
+              error.name === "AbortError"
+                ? "Request timed out. Please try again."
+                : error.message || "Registration failed. Please try again.";
+            showMessage(message, "error");
+          }
+        });
+
+      function showMessage(text, type = "info") {
+        const messageElement = document.getElementById("signup-message");
+        messageElement.textContent = text;
+        messageElement.className = `alert-message ${type}`;
+
+        if (type === "error") {
+          setTimeout(() => {
+            messageElement.textContent = "";
+            messageElement.classList.remove("error");
+          }, 5000);
+        }
+      }
+    </script>
   </body>
 </html>
