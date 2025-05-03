@@ -51,205 +51,121 @@
     </header>
 
     <main>
-      <h2>Create the Lifestyle of Your Dreams</h2>
+      <h2>Welcome to Travel Odyssey</h2>
 
       <div class="box">
-        <div id="carouselExample" class="carousel slide">
-          <div class="carousel-inner">
-            <div class="carousel-item active">
-              <img
-                src="/Frontend/assets/London.jpg"
-                class="d-block w-100"
-                alt="London"
-              />
+        <div class="box-content">
+          <div class="deal-card" style="width:100%">
+            <div class="top-pick badge">Top Pick</div>
+            <div class="badge hot-deal">Hot Deal 🔥</div>
+            <img src="/Frontend/assets/tokyo.jpg" alt="Tokyo" />
+            <div class="deal-card-body">
+              <h3>Tokyo Discovery</h3>
+              <div class="rating">⭐ 4.9 (1400 reviews)</div>
+              <p>7-Day Experience from €999</p>
+              <a href="trip-tokyo.html" target="_blank">View Trip</a>
             </div>
-            <div class="carousel-item">
-              <img
-                src="/Frontend/assets/paris.jpg"
-                class="d-block w-100"
-                alt="Paris"
-              />
-            </div>
-            <div class="carousel-item">
-              <img
-                src="/Frontend/assets/madrid.jpg"
-                class="d-block w-100"
-                alt="Madrid"
-              />
-            </div>
-          </div>
-          <button
-            class="carousel-control-prev"
-            type="button"
-            data-bs-target="#carouselExample"
-            data-bs-slide="prev"
-          >
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button
-            class="carousel-control-next"
-            type="button"
-            data-bs-target="#carouselExample"
-            data-bs-slide="next"
-          >
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="big-box">
-        <p>
-          Discover and book a vacation that suits your style, and start living
-          the adventure you've always imagined.
-        </p>
-
-        <div class="form-container">
-          <form id="booking-form">
-            <div class="form-group">
-              <label for="search">Location</label>
-              <input type="search" id="search" name="location" required />
-            </div>
-
-            <div class="form-group">
-              <label for="checkin-date">Check-in</label>
-              <input type="date" id="checkin-date" name="checkin" required />
-            </div>
-
-            <div class="form-group">
-              <label for="checkout-date">Check-out</label>
-              <input type="date" id="checkout-date" name="checkout" required />
-            </div>
-
-            <div class="form-group">
-              <label for="room-type">Room Type</label>
-              <select id="room-type" name="room-type">
-                <option value="single">Single</option>
-                <option value="double">Double</option>
-                <option value="suite">Suite</option>
-                <option value="deluxe">Deluxe</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="guests">Guests</label>
-              <select id="guests" name="guests">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="rooms">Number of Rooms</label>
-              <select id="rooms" name="rooms">
-                <option value="1">1 Room</option>
-                <option value="2">2 Rooms</option>
-                <option value="3">3 Rooms</option>
-                <option value="4">4 Rooms</option>
-                <option value="5">5 Rooms</option>
-                <option value="6">6 Rooms</option>
-              </select>
-            </div>
-
-            <button type="submit" class="submit">Search</button>
-          </form>
         </div>
       </div>
 
       <section class="trending-deals">
-        <h2>Trending Destinations</h2>
+        <h2>Trending Gateways</h2>
         <div class="deals-container">
           <div class="deal-card">
-            <div class="badge">Top Choice</div>
-            <img src="/Frontend/assets/London.jpg" alt="London" />
+            <div class="badge">Top Pick</div>
+            <img src="/Frontend/assets/swiss-alps.jpg" alt="Swiss Alps" />
             <div class="deal-card-body">
-              <h3>London</h3>
-              <div class="rating">⭐ 4.8 (1200 reviews)</div>
-              <p>From €110/night</p>
-              <a
-                href="https://www.booking.com/city/gb/london.html"
-                target="_blank"
-                >Book Now</a
+              <h3>7-Day Swiss Alps Getaway</h3>
+              <div class="rating">⭐ 4.9 (1,200 reviews)</div>
+              <p>Includes hotel, train passes, ski passes, and guided hikes</p>
+              <p>From €899 per person</p>
+              <a href="/Frontend/trip-swiss.html" target="_blank">Explore</a>
+            </div>
+          </div>
+
+          <div class="deal-card">
+            <div class="badge hot-deal">Hot Deal</div>
+            <img src="/Frontend/assets/rome.jpg" alt="Rome" />
+            <div class="deal-card-body">
+              <h3>5-Day Rome City & Culture Tour</h3>
+              <div class="rating">⭐ 4.7 (950 reviews)</div>
+              <p>Includes hotel, Colosseum pass, Vatican tour & meals</p>
+              <p>From €749 per person</p>
+              <a href="/Frontend/trip-rome.html" target="_blank">Explore</a>
+            </div>
+          </div>
+
+          <div class="deal-card">
+            <img src="/Frontend/assets/iceland.jpg" alt="Iceland" />
+            <div class="deal-card-body">
+              <h3>4-Day Iceland Adventure</h3>
+              <div class="rating">⭐ 4.8 (890 reviews)</div>
+              <p>Golden Circle, Blue Lagoon, Northern Lights + Hotel</p>
+              <p>From €820 per person</p>
+              <a href="/Frontend/trip-iceland.html" target="_blank">Explore</a>
+            </div>
+          </div>
+
+          <div class="deal-card">
+            <img src="/Frontend/assets/santorini.jpg" alt="Santorini" />
+            <div class="deal-card-body">
+              <h3>3-Night Romantic Santorini</h3>
+              <div class="rating">⭐ 4.6 (1,100 reviews)</div>
+              <p>Includes luxury villa, sunset cruise, wine tasting</p>
+              <p>From €670 per person</p>
+              <a href="/Frontend/trip-santorini.html" target="_blank"
+                >Explore</a
               >
             </div>
           </div>
 
           <div class="deal-card">
-            <div class="badge hot-deal">Hot Deal 🔥</div>
-            <img src="/Frontend/assets/paris.jpg" alt="Paris" />
+            <img src="/Frontend/assets/amsterdam.jpg" alt="Amsterdam" />
             <div class="deal-card-body">
-              <h3>Paris</h3>
-              <div class="rating">⭐ 4.6 (950 reviews)</div>
-              <p>From €95/night</p>
-              <a
-                href="https://www.booking.com/city/fr/paris.html"
-                target="_blank"
-                >Book Now</a
+              <h3>4-Day Amsterdam Biking Experience</h3>
+              <div class="rating">⭐ 4.5 (980 reviews)</div>
+              <p>Includes bike rental, museum passes, canal cruise</p>
+              <p>From €610 per person</p>
+              <a href="/Frontend/trip-amsterdam.html" target="_blank"
+                >Explore</a
               >
             </div>
           </div>
-
           <div class="deal-card">
-            <img src="/Frontend/assets/madrid.jpg" alt="Madrid" />
+            <img src="/Frontend/assets/prague.jpg" alt="Prague" />
             <div class="deal-card-body">
-              <h3>Madrid</h3>
-              <div class="rating">⭐ 4.5 (800 reviews)</div>
-              <p>From €80/night</p>
-              <a
-                href="https://www.booking.com/city/es/madrid.html"
-                target="_blank"
-                >Book Now</a
-              >
+              <h3>4-Night Prague Cultural Escape</h3>
+              <div class="rating">⭐ 4.6 (890 reviews)</div>
+              <p>Old Town tour, castle visit, jazz river cruise, 3-star hotel</p>
+              <p>From €540 per person</p>
+              <a href="/Frontend/trip-prague.html" target="_blank">Explore</a>
             </div>
           </div>
-        </div>
-
-        <h2 style="margin-top: 60px">Weekend Deals</h2>
-        <div class="deals-container">
           <div class="deal-card">
-            <img src="/Frontend/assets/barcelona.jpg" alt="Barcelona" />
+            <div class="badge hot-deal">Top Value</div>
+            <img src="/Frontend/assets/dubrovnik.jpg" alt="Dubrovnik" />
             <div class="deal-card-body">
-              <h3>Barcelona – 3 Nights</h3>
-              <div class="rating">⭐ 4.7 (1100 reviews)</div>
-              <p>From €150 total</p>
-              <a
-                href="https://www.booking.com/city/es/barcelona.html"
-                target="_blank"
-                >Grab Deal</a
-              >
+              <h3>3-Night Dubrovnik Adriatic Retreat</h3>
+              <div class="rating">⭐ 4.8 (780 reviews)</div>
+              <p>Seaside resort, Old Town tour, cable car, wine tasting</p>
+              <p>From €590 per person</p>
+              <a href="/Frontend/trip-dubrovnik.html" target="_blank">Explore</a>
             </div>
           </div>
+          
 
           <div class="deal-card">
-            <div class="badge hot-deal">Limited Offer</div>
-            <img src="/Frontend/assets/lisbon.jpg" alt="Lisbon" />
+            <div class="badge hot-deal">Limited</div>
+            <img src="/Frontend/assets/edinburgh.jpg" alt="Edinburgh" />
             <div class="deal-card-body">
-              <h3>Lisbon – 2 Nights</h3>
-              <div class="rating">⭐ 4.5 (700 reviews)</div>
-              <p>From €90 total</p>
-              <a
-                href="https://www.booking.com/city/pt/lisbon.html"
-                target="_blank"
-                >Grab Deal</a
-              >
-            </div>
-          </div>
-
-          <div class="deal-card">
-            <img src="/Frontend/assets/vienna.webp" alt="Vienna" />
-            <div class="deal-card-body">
-              <h3>Vienna – 2 Nights</h3>
-              <div class="rating">⭐ 4.6 (860 reviews)</div>
-              <p>From €100 total</p>
-              <a
-                href="https://www.booking.com/city/at/vienna.html"
-                target="_blank"
-                >Grab Deal</a
+              <h3>3-Night Edinburgh Castle Escape</h3>
+              <div class="rating">⭐ 4.7 (1,050 reviews)</div>
+              <p>
+                Castle tour, whisky tasting, hotel & Scottish Highlands day trip
+              </p>
+              <p>From €640 per person</p>
+              <a href="/Frontend/trip-edinburgh.html" target="_blank"
+                >Explore</a
               >
             </div>
           </div>

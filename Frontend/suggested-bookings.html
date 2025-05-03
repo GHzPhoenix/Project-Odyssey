@@ -41,33 +41,27 @@
 
       <div class="suggested-container" id="suggestions"></div>
     </section>
-
     <script>
       const suggestions = [
         {
-          title: "Sunny Beach Resort - Cyprus",
-          price: "From €85/night",
-          link: "https://www.booking.com",
+          title: "Thailand: Bangkok – Phuket & James Bond Island",
+          price: "From €2,195 per person",
+          link: "https://www.plutontravel.com.cy/packages/thailand-autumn-winter-individual/",
         },
         {
-          title: "Athens City Apartments",
-          price: "From €60/night",
-          link: "https://www.hotels.com",
+          title: "Australia: Melbourne – Sydney",
+          price: "Contact for pricing",
+          link: "https://www.plutontravel.com.cy/packages/australia-individual-autumn-winter/",
         },
         {
-          title: "Rome Historic Stays",
-          price: "From €90/night",
-          link: "https://www.expedia.com",
+          title: "Singapore & Maldives: Ultimate Luxury Honeymoon",
+          price: "Contact for pricing",
+          link: "https://www.plutontravel.com.cy/packages/autumn-winter-singapore-maldives-individual/",
         },
         {
-          title: "Paris Boutique Hotels",
-          price: "From €120/night",
-          link: "https://www.booking.com",
-        },
-        {
-          title: "Madrid Urban Escape",
-          price: "From €75/night",
-          link: "https://www.hotels.com",
+          title: "Iceland: The Land of Ice and Fire",
+          price: "Contact for pricing",
+          link: "https://www.plutontravel.com.cy/packages/iceland-autumn-winter-groups/",
         },
       ];
 
@@ -77,12 +71,13 @@
         const div = document.createElement("div");
         div.className = "suggestion-box";
         div.innerHTML = `
-        <h3>${s.title}</h3>
-        <p>${s.price}</p>
-        <a href="${s.link}" target="_blank">View Deal</a>
-      `;
+          <h3>${s.title}</h3>
+          <p>${s.price}</p>
+          <a href="${s.link}" target="_blank">View Deal</a>
+        `;
         container.appendChild(div);
       });
+
       function toggleMenu() {
         document.querySelector("nav ul").classList.toggle("active");
       }
