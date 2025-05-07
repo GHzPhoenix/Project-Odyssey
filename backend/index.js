@@ -5,10 +5,9 @@ const { Pool } = require("pg");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// Load environment variables first
+
 dotenv.config();
 
-// Database configuration
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -18,7 +17,7 @@ const pool = new Pool({
   ssl: false
 });
 
-// Database connection verification
+
 pool.connect()
   .then(() => console.log("✅ Database connected"))
   .catch((err) => {
@@ -29,7 +28,7 @@ pool.connect()
 const app = express();
 const port = process.env.PORT || 5000;
 
-// CORS Configuration
+
 const corsOptions = {
   origin: 'http://127.0.0.1:5500',
   methods: ['GET', 'POST', 'OPTIONS'],
@@ -38,11 +37,11 @@ const corsOptions = {
   optionsSuccessStatus: 204
 };
 
-// Middleware
+
 app.use(express.json());
 app.use(cors(corsOptions));
 
-// Preflight handler for all routes
+
 app.options('*', (req, res) => {
   res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:5500');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -50,17 +49,17 @@ app.options('*', (req, res) => {
   res.sendStatus(204);
 });
 
-// Routes
+
 app.get("/", (req, res) => {
   res.json({ status: "Server is running" });
 });
 
-// Registration endpoint
+
 app.post("/api/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Validation
+
     if (!name?.trim() || !email?.trim() || !password?.trim()) {
       return res.status(400).json({ error: "All fields required" });
     }
@@ -86,7 +85,7 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// Login endpoint
+
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -124,7 +123,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Server setup
+//Test
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });
