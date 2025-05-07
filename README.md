@@ -1,48 +1,102 @@
 # Travel Odyssey - Project Overview
 
 ## Description
-Travel Odyssey is a web-based travel booking platform that allows users to register, log in, and book their dream trips. Users can specify destinations, dates, guests, and preferences, and the data is securely stored using PostgreSQL.
+
+Travel Odyssey is a full-stack travel booking platform designed to offer personalized travel planning and booking experiences. It includes user authentication, booking management, and a customizable front-end for travel enthusiasts. The platform supports a range of travel services, including hotel bookings, trip planning, and membership options for exclusive benefits.
 
 ## Features
-- User authentication (register/login)
-- Booking creation and retrieval
-- Secure password hashing and JWT authentication
-- Responsive frontend with HTML/CSS/JS
-- Backend built with Node.js and Express
 
-## Technologies
-- Frontend: HTML, CSS, JavaScript
-- Backend: Node.js, Express.js
-- Database: PostgreSQL
-- Auth: bcrypt, JWT
+- User Authentication (Registration, Login, JWT)
+- Personalized Trip Planning
+- Custom Membership Options
+- Secure Data Handling with PostgreSQL
+- Dynamic Frontend with HTML, CSS, and JavaScript
+- Backend APIs with Node.js and Express.js
 
-## Setup Instructions
-1. Clone the project
-2. Install dependencies with `npm install`
-3. Set up your `.env` file with database credentials
-4. Run the server: `node index.js`
-5. Use PostgreSQL to import `schema.sql` and create tables
+## Technologies Used
 
-## Folder Structure
+### Frontend:
+
+- HTML, CSS, JavaScript
+- Bootstrap for responsive design
+
+### Backend:
+
+- Node.js, Express.js
+- PostgreSQL for database management
+- bcrypt for password hashing
+- JWT for secure authentication
+
+## Project Structure
+
 ```
-/project-root
+Project-Odyssey-main/
 │
 ├── backend/
-│   ├── index.js
-│   ├── .env
-│   └── schema.sql
+│   ├── server.js          # Main server file
+│   ├── routes/
+│   │   ├── auth.js        # User authentication routes
+│   │   └── booking.js     # Booking routes
+│   ├── models/
+│   │   └── User.js        # User model
+│   ├── db.js              # Database connection
+│   └── .env               # Environment variables
 │
 ├── frontend/
-│   ├── index.html
-│   ├── city.html
-│   ├── client-area.html
-│   ├── signup.html
-│   ├── script.js
-│   ├── style.css
-│   └── login.css
+│   ├── index.html         # Main landing page
+│   ├── city.html          # City information page
+│   ├── client-area.html   # User dashboard
+│   ├── trip pages         # Individual trip pages
+│   ├── css/
+│   │   ├── style.css      # Main styles
+│   │   └── membership.css # Membership page styles
+│   ├── js/
+│   │   └── script.js      # Frontend logic
+│   └── assets/            # Images and logos
 │
-├── README.md
+└── README.md              # Project documentation
+```
+
+## Setup Instructions
+
+1. Clone the project
+
+```
+git clone https://github.com/YOUR_USERNAME/Project-Odyssey.git
+```
+
+2. Navigate to the backend directory and install dependencies:
+
+```
+cd Project-Odyssey-main/backend
+npm install
+```
+
+3. Set up the PostgreSQL database:
+
+- Create a new database.
+- Run the provided SQL scripts to set up the necessary tables.
+
+4. Configure the .env file with your database credentials:
+
+```
+PORT=5000
+DATABASE_URL=postgres://user:password@localhost:5432/yourdatabase
+JWT_SECRET=your_jwt_secret
+```
+
+5. Run the backend server:
+
+```
+npm start
+```
+
+6. Open the frontend in your browser:
+
+```
+http://localhost:5000
 ```
 
 ## License
+
 MIT License
