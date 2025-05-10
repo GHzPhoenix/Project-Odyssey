@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Contact Us</title>
     <link rel="stylesheet" href="/Frontend/css/style.css" />
+    <link rel="stylesheet" href="/Frontend/css/dream.css" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -26,78 +28,33 @@
 
   <body>
     <header>
-      <img src="./assets/your-logo.png" alt="Logo" />
-      <h1>Contact Us!</h1>
-      <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
-        <div class="container-fluid">
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="index.html"
-                  >Home</a
-                >
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="city.html">Blog</a>
-              </li>
-              <li class="nav-item dropdown">
-                <a
-                  class="nav-link dropdown-toggle"
-                  href="#"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Services
-                </a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a class="dropdown-item" href="membership.html"
-                      >Memberships</a
-                    >
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="dream.html"
-                      >Plan your Trip</a
-                    >
-                  </li>
-                  <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="client-area.html"
-                      >Client Area</a
-                    >
-                  </li>
-                </ul>
-              </li>
-            </ul>
-            <form class="d-flex" role="search">
-              <input
-                class="form-control me-2"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-              />
-              <button class="btn btn-outline-primary" type="submit">
-                Search
-              </button>
-            </form>
-          </div>
+      <nav>
+        <div class="logo">
+          <img src="/Frontend/assets/your-logo.png" alt="Logo" />
+          Travel Odyssey
         </div>
+        <div class="menu-toggle" onclick="toggleMenu()">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="city.html">Blog</a></li>
+          <li>
+            <a href="#">Services ▼</a>
+            <div class="dropdown">
+              <a href="membership.html">Memberships</a>
+              <a href="dream.html">Plan your Trip</a>
+              <a href="client-area.html">Client Area</a>
+            </div>
+          </li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
       </nav>
     </header>
     <main>
-      <form>
+      <form class="dream-form">
         <label for="name">Your Name</label>
         <input type="text" id="name" placeholder="Full Name" required />
         <label for="email">Your email:</label><br />
@@ -125,7 +82,7 @@
           placeholder="Comments"
         ></textarea
         ><br />
-        <button type="submit" class="submit">Submit</button>
+        <button id="contact" type="submit" class="submit">Submit</button>
       </form>
     </main>
     <footer class="footer">
@@ -192,10 +149,16 @@
       </div>
     </footer>
 
-    <!-- FontAwesome for icons -->
-    <script
-      src="https://kit.fontawesome.com/a076d05399.js"
-      crossorigin="anonymous"
-    ></script>
+    <script src="script.js"></script>
+    <script>
+      function toggleMenu() {
+        document.querySelector("nav ul").classList.toggle("active");
+      }
+      document.getElementById("contact").addEventListener("click", submitted);
+
+      function submitted() {
+        alert("Your message has been sent successfully!");
+      }
+    </script>
   </body>
 </html>

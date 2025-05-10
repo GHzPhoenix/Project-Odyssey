@@ -56,7 +56,7 @@
 
       <section class="dream-form">
         <form
-          action="https://formspree.io/f/YOUR_FORM_ID"
+          action="https://formspree.io/f/mgejjnod"
           method="POST"
           id="dreamtrip-form"
         >
@@ -120,7 +120,9 @@
             ></textarea>
           </div>
           <div class="button-container">
-            <button class="submit" type="submit">Submit Inquiry</button>
+            <button id="contact" class="submit" type="submit">
+              Submit Inquiry
+            </button>
           </div>
         </form>
       </section>
@@ -194,6 +196,15 @@
       function toggleMenu() {
         document.querySelector("nav ul").classList.toggle("active");
       }
+      document
+        .getElementById("dreamtrip-form")
+        .addEventListener("submit", function (event) {
+          if (this.checkValidity()) {
+            alert("Thank you for your inquiry! We will get back to you soon.");
+          } else {
+            event.preventDefault();
+          }
+        });
     </script>
   </body>
 </html>

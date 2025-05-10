@@ -25,3 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+document.getElementById("contact").addEventListener("click", submitted);
+function submitted() {
+    alert("Your message has been sent successfully!");
+}
