@@ -60,7 +60,6 @@ h2 {
   margin-bottom: 30px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .suggested-container {
     grid-template-columns: 1fr;

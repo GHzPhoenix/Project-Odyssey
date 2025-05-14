@@ -1,4 +1,3 @@
-/* General Reset */
 body {
   margin: 0;
   padding: 0;
@@ -10,7 +9,6 @@ body {
   align-items: center;
 }
 
-/* Header and Navigation */
 header {
   width: 100%;
   background-color: purple;
@@ -64,7 +62,6 @@ nav ul li a:hover {
   color: yellow;
 }
 
-/* Dropdown Styling */
 nav ul li .dropdown {
   display: none;
   position: absolute;
@@ -91,7 +88,6 @@ nav ul li .dropdown a:hover {
   background-color: #f4f4f4;
 }
 
-/* Mobile Navigation */
 .menu-toggle {
   display: none;
   flex-direction: column;
@@ -125,7 +121,6 @@ nav ul li .dropdown a:hover {
   }
 }
 
-/* Avatar */
 .avatar {
   width: 100px;
   height: 100px;
@@ -134,7 +129,6 @@ nav ul li .dropdown a:hover {
   object-fit: cover;
 }
 
-/* Login Container */
 .login-container {
   background: white;
   padding: 40px;
@@ -203,7 +197,6 @@ button[type="submit"]:hover {
   text-decoration: underline;
 }
 
-/* Footer */
 footer {
   margin-top: auto;
   padding: 20px;
@@ -213,7 +206,6 @@ footer {
   font-size: 0.9rem;
 }
 
-/* Responsive Tweaks */
 @media (max-width: 480px) {
   .login-container {
     padding: 30px 20px;

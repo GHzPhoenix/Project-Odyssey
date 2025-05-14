@@ -41,7 +41,7 @@ body {
 }
 
 .deal-card {
-  position: relative; /* ✨ Add this */
+  position: relative;
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
@@ -101,7 +101,7 @@ body {
 
 .badge {
   position: absolute;
-  background-color: #ff6f61; /* Coral Color */
+  background-color: #ff6f61;
   color: white;
   font-size: 0.8rem;
   padding: 5px 10px;
@@ -118,7 +118,7 @@ body {
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #00b894; /* Vibrant teal */
+  background-color: #00b894;
   color: #fff;
   box-shadow: 0 0 15px rgba(0, 184, 148, 0.9);
   font-size: 0.85rem;
@@ -187,7 +187,7 @@ body {
     width: 80%;
   }
 }
-/* Careers Section */
+
 .careers-container {
   width: 90%;
   max-width: 1200px;
@@ -209,7 +209,6 @@ body {
   color: #333;
 }
 
-/* Job Listing Grid */
 .careers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -245,7 +244,6 @@ body {
   transform: scale(1.05);
 }
 
-/* Apply Button */
 .apply-button {
   display: inline-block;
   background: white;
@@ -262,7 +260,6 @@ body {
   color: rgb(128, 0, 128);
 }
 
-/* Career Image Carousel */
 .career-carousel {
   margin: 40px auto;
   display: flex;
@@ -282,7 +279,6 @@ body {
   transform: scale(1.05);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .careers-grid {
     grid-template-columns: 1fr;
@@ -362,7 +358,7 @@ input {
 
 #booking-form {
   width: 100%;
-  max-width: 700px; /* much larger */
+  max-width: 700px;
   background-color: white;
   padding: 30px;
   border-radius: 20px;
@@ -505,7 +501,6 @@ a {
   transform: scale(1.05);
 }
 
-/* Responsive Membership Box */
 @media (max-width: 1024px) {
   .big-box {
     width: 85%;
@@ -713,7 +708,7 @@ th {
 .booking button:hover {
   background-color: blueviolet;
 }
-/* Navigation Bar */
+
 nav {
   background-color: purple;
   display: flex;
@@ -724,7 +719,6 @@ nav {
   position: relative;
 }
 
-/* Logo */
 nav .logo {
   font-size: 24px;
   font-weight: bold;
@@ -741,7 +735,6 @@ nav .logo img {
   margin-right: 10px;
 }
 
-/* Navigation Links */
 nav ul {
   list-style: none;
   display: flex;
@@ -769,7 +762,6 @@ nav ul li a:hover {
   color: yellow;
 }
 
-/* Dropdown Menu */
 nav ul li .dropdown {
   display: none;
   position: absolute;
@@ -797,14 +789,12 @@ nav ul li .dropdown a:hover {
   background-color: #f4f4f9;
 }
 
-/* Show Dropdown on Hover (For Desktop) */
 nav ul li:hover .dropdown {
   display: block;
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Mobile Menu */
 .menu-toggle {
   display: none;
   flex-direction: column;
@@ -818,7 +808,6 @@ nav ul li:hover .dropdown {
   margin: 5px;
 }
 
-/* Responsive Navigation */
 @media (max-width: 768px) {
   nav ul {
     display: none;
@@ -844,7 +833,6 @@ nav ul li:hover .dropdown {
     display: flex;
   }
 
-  /* Mobile Dropdown Fix */
   nav ul li .dropdown {
     position: relative;
     top: 0;
@@ -853,7 +841,7 @@ nav ul li:hover .dropdown {
     box-shadow: none;
   }
 }
-/* Footer Styles */
+
 .footer {
   background: linear-gradient(
     135deg,
@@ -885,12 +873,12 @@ nav ul li:hover .dropdown {
 .footer-section h3 {
   font-size: 1.5rem;
   margin-bottom: 15px;
-  color: #ffd700; /* Gold Accent */
+  color: #ffd700;
 }
 
 .footer-section p {
   font-size: 1rem;
-  color: #e5d8f3; /* Light purple text */
+  color: #e5d8f3;
   margin-bottom: 15px;
 }
 
@@ -904,16 +892,15 @@ nav ul li:hover .dropdown {
 }
 
 .footer-section ul li a {
-  color: #f0e6ff; /* Light pastel purple */
+  color: #f0e6ff;
   text-decoration: none;
   transition: color 0.3s ease-in-out;
 }
 
 .footer-section ul li a:hover {
-  color: #ffd700; /* Gold Accent Hover */
+  color: #ffd700;
 }
 
-/* Social Media Icons */
 .social-icons a {
   display: inline-block;
   font-size: 24px;
@@ -923,11 +910,10 @@ nav ul li:hover .dropdown {
 }
 
 .social-icons a:hover {
-  color: #ffd700; /* Gold Accent */
+  color: #ffd700;
   transform: scale(1.2);
 }
 
-/* Newsletter Subscription */
 .newsletter form {
   display: flex;
   flex-direction: column;
@@ -976,14 +962,12 @@ nav ul li:hover .dropdown {
   background-color: rgb(148, 0, 148);
 }
 
-/* Footer Bottom */
 .footer-bottom {
   margin-top: 30px;
   font-size: 0.9rem;
   color: #e5d8f3;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .footer-container {
     flex-direction: column;
