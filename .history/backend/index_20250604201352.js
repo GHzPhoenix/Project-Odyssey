@@ -5,38 +5,29 @@ const { Pool } = require("pg");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+
 dotenv.config();
-
-
-console.log("ENV VARS:", {
-  DB_USER: process.env.DB_USER,
-  DB_NAME: process.env.DB_NAME,
-  DB_HOST: process.env.DB_HOST,
-  DB_PORT: process.env.DB_PORT,
-  JWT_SECRET: process.env.JWT_SECRET,
-  PORT: process.env.PORT
-});
 
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
-  password: process.env.DB_PASS || "",
+  password: process.env.DB_PASS,
   port: process.env.DB_PORT || 5432,
   ssl: false
 });
 
- pool.connect()
- .then(() => console.log("✅ Database connected"))
- .catch((err) => {
-  console.error("❌ Database connection failed:", err);
-  process.exit(1);
- });
 
+pool.connect()
+  .then(() => console.log("✅ Database connected"))
+  .catch((err) => {
+    console.error("❌ Database connection failed:", err);
+    process.exit(1);
+  });
 
 const app = express();
+const port = process.env.PORT || 5001;
 
-const port = 5001;
 
 const corsOptions = {
   origin: 'http://127.0.0.1:5500',
@@ -46,8 +37,10 @@ const corsOptions = {
   optionsSuccessStatus: 204
 };
 
+
 app.use(express.json());
 app.use(cors(corsOptions));
+
 
 app.options('*', (req, res) => {
   res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:5500');
@@ -56,13 +49,16 @@ app.options('*', (req, res) => {
   res.sendStatus(204);
 });
 
+
 app.get("/", (req, res) => {
   res.json({ status: "Server is running" });
 });
 
+
 app.post("/api/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
 
     if (!name?.trim() || !email?.trim() || !password?.trim()) {
       return res.status(400).json({ error: "All fields required" });
@@ -89,6 +85,7 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
+
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -108,14 +105,14 @@ app.post("/api/login", async (req, res) => {
 
     const user = result.rows[0];
     const validPassword = await bcrypt.compare(password, user.password);
-
+    
     if (!validPassword) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const token = jwt.sign(
-      { id: user.id },
-      process.env.JWT_SECRET,
+      { id: user.id }, 
+      process.env.JWT_SECRET, 
       { expiresIn: "1h" }
     );
 
@@ -126,9 +123,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-
-console.log("🔍 About to start Express server on port", port);
-
+//Test
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });

@@ -26,17 +26,17 @@ const pool = new Pool({
   ssl: false
 });
 
- pool.connect()
- .then(() => console.log("✅ Database connected"))
- .catch((err) => {
-  console.error("❌ Database connection failed:", err);
-  process.exit(1);
- });
+pool.connect()
+  .then(() => console.log("✅ Database connected"))
+  .catch((err) => {
+    console.error("❌ Database connection failed:", err);
 
+    // process.exit(1);
+  });
 
 const app = express();
 
-const port = 5001;
+const port = process.env.PORT || 5050;
 
 const corsOptions = {
   origin: 'http://127.0.0.1:5500',

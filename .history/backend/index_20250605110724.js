@@ -26,13 +26,11 @@ const pool = new Pool({
   ssl: false
 });
 
- pool.connect()
- .then(() => console.log("✅ Database connected"))
- .catch((err) => {
-  console.error("❌ Database connection failed:", err);
-  process.exit(1);
- });
-
+pool.connect()
+  .then(() => console.log("✅ Database connected"))
+  .catch((err) => {
+    console.error("❌ Database connection failed:", err);
+  });
 
 const app = express();
 
