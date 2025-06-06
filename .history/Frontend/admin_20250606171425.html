@@ -70,7 +70,8 @@
     </main>
     <script>
       function toggleMenu() {
-        document.querySelector("nav ul").classList.toggle("active");
+        const menu = document.querySelector(".nav-menu");
+        menu.classList.toggle("active");
       }
       document
         .getElementById("deal-form")

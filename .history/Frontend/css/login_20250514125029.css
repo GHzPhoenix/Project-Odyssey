@@ -16,25 +16,20 @@ header {
 }
 
 nav {
-  background-color: purple;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  color: white;
-  position: relative;
 }
 
-nav .logo {
-  font-size: 24px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.logo {
   display: flex;
   align-items: center;
+  font-size: 24px;
+  font-weight: bold;
 }
 
-nav .logo img {
+.logo img {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -57,10 +52,9 @@ nav ul li a {
   text-decoration: none;
   color: white;
   font-size: 16px;
-  padding: 10px 15px;
+  padding: 8px 15px;
   border-radius: 5px;
-  transition: background 0.3s ease-in-out;
-  display: block;
+  transition: background 0.3s ease;
 }
 
 nav ul li a:hover {
@@ -71,61 +65,27 @@ nav ul li a:hover {
 nav ul li .dropdown {
   display: none;
   position: absolute;
-  left: 0;
-  top: 100%;
   background-color: white;
-  min-width: 180px;
-  border-radius: 5px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.3s, transform 0.3s ease-in-out;
-}
-
-nav ul li .dropdown a {
-  display: block;
-  padding: 12px;
-  color: #333;
-  transition: background 0.3s ease-in-out;
-  white-space: nowrap;
-}
-
-nav ul li .dropdown a:hover {
-  background-color: #f4f4f9;
+  top: 100%;
+  left: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transition: 0.3s;
 }
 
 nav ul li:hover .dropdown {
   display: block;
-  opacity: 1;
-  transform: translateY(0);
 }
 
-.menu-toggle {
-  display: none;
-  flex-direction: column;
-  cursor: pointer;
+nav ul li .dropdown a {
+  color: #333;
+  padding: 10px;
+  display: block;
 }
 
-.menu-toggle div {
-  width: 30px;
-  height: 3px;
-  background-color: white;
-  margin: 5px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.logo img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  margin-right: 10px;
+nav ul li .dropdown a:hover {
+  background-color: #f4f4f4;
 }
 
 .menu-toggle {
@@ -150,7 +110,6 @@ nav ul li:hover .dropdown {
     top: 70px;
     left: 0;
     width: 100%;
-    box-shadow: none;
   }
 
   nav ul.active {
