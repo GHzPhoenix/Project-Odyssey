@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Client Area</title>
+    <link rel="stylesheet" href="/Frontend/css/login.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <div class="logo">
+          <img src="./assets/your-logo.png" alt="Logo" />
+          Travel Odyssey
+        </div>
+
+        <div class="menu-toggle" onclick="toggleMenu()">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="city.html">Blog</a></li>
+          <li>
+            <a href="#">Services ▼</a>
+            <div class="dropdown">
+              <a href="membership.html">Memberships</a>
+              <a href="dream.html">Plan your Trip</a>
+              <a href="client-area.html">Client Area</a>
+            </div>
+          </li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <img class="avatar" src="./assets/avatar.jpg" alt="avatar" />
+
+    <div class="login-container">
+      <form class="login-form" id="login-form">
+        <h2>Login</h2>
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="email@domain.com"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit">Login</button>
+        <p class="signup-text">
+          Don't have an account? <a href="signup.html">Sign up</a>
+        </p>
+        <p id="login-message" style="margin-top: 10px"></p>
+      </form>
+    </div>
+
+    <script>
+      function toggleMenu() {
+        document.querySelector("nav ul").classList.toggle("active");
+      }
+      function toggleMenu() {
+        document.querySelector("nav ul").classList.toggle("active");
+      }
+
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value.trim();
+
+          if (email && password) {
+            window.location.href = "dashboard.html";
+          } else {
+            document.getElementById("login-message").textContent =
+              "Please input your Credentials.";
+          }
+        });
+    </script>
+  </body>
+</html>

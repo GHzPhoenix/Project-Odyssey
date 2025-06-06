@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Client Area - Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/login.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      #login-message {
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+      }
+      #login-message.error {
+        color: #b00020;
+      }
+      #login-message.success {
+        color: #0b6623;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <div class="logo">
+          <img src="./assets/your-logo.png" alt="Logo" />
+          Travel Odyssey
+        </div>
+
+        <button class="menu-toggle" onclick="toggleMenu()">
+          <div></div>
+          <div></div>
+          <div></div>
+        </button>
+
+        <ul class="nav-menu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="city.html">Blog</a></li>
+          <li class="dropdown-parent">
+            <a href="#">Services ▼</a>
+            <div class="dropdown">
+              <a href="membership.html">Memberships</a>
+              <a href="dream.html">Plan your Trip</a>
+              <a href="client-area.html">Client Area</a>
+            </div>
+          </li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <img class="avatar" src="./assets/avatar.jpg" alt="avatar" />
+
+    <div class="login-container">
+      <form class="login-form" id="login-form">
+        <h2>Login</h2>
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="email@domain.com"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            minlength="8"
+            placeholder="At least 8 characters"
+          />
+        </div>
+        <button type="submit" class="btn-primary">Login</button>
+        <p class="signup-text">
+          Don't have an account? <a href="signup.html">Sign up</a>
+        </p>
+        <p id="login-message"></p>
+      </form>
+    </div>
+
+    <script>
+      function toggleMenu() {
+        document.querySelector("nav ul").classList.toggle("active");
+      }
+
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value.trim();
+          const msgEl = document.getElementById("login-message");
+
+          msgEl.textContent = "";
+          msgEl.className = "";
+
+          if (!email || !password) {
+            msgEl.textContent = "Please enter both email and password.";
+            msgEl.classList.add("error");
+            return;
+          }
+
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+            const response = await fetch("http://127.0.0.1:5001/api/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+              signal: controller.signal,
+            });
+
+            clearTimeout(timeoutId);
+
+            const data = await response.json();
+
+            if (response.status === 401) {
+              msgEl.textContent =
+                "Invalid email or password. Please try again.";
+              msgEl.classList.add("error");
+              return;
+            }
+
+            if (!response.ok) {
+              throw new Error(
+                data.error || `Login failed (${response.status})`
+              );
+            }
+
+            localStorage.setItem("token", data.token);
+            msgEl.textContent = "Login successful! Redirecting...";
+            msgEl.classList.add("success");
+
+            setTimeout(() => {
+              window.location.href = "dashboard.html";
+            }, 1000);
+          } catch (err) {
+            console.error("Login error:", err);
+            const message =
+              err.name === "AbortError"
+                ? "Request timed out. Please try again."
+                : err.message || "Login failed. Please try again.";
+            msgEl.textContent = message;
+            msgEl.classList.add("error");
+          }
+        });
+    </script>
+  </body>
+</html>
