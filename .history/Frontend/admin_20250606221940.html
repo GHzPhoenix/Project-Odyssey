@@ -118,6 +118,7 @@
         document.querySelector("nav ul").classList.toggle("active");
       }
 
+      // Show chosen file name
       const fileInput = document.getElementById("image_file");
       const fileChosen = document.getElementById("file-chosen");
       fileInput.addEventListener("change", () => {
@@ -178,6 +179,7 @@
             return;
           }
 
+          // Build payload
           const payload = {
             name,
             location,
@@ -187,6 +189,7 @@
             image_url: imageDataUrl,
           };
 
+          // Get JWT from localStorage
           const token = localStorage.getItem("token");
           if (!token) {
             msgEl.textContent = "No token found. Please log in as admin first.";

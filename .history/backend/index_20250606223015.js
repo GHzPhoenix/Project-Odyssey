@@ -242,7 +242,6 @@ app.post("/api/deals", verifyToken, verifyAdmin, (req, res) => {
 });
 
 
-
 console.log("🔍 About to start Express server on port", port);
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);

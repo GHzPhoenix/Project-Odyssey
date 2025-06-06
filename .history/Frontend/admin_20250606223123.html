@@ -187,6 +187,7 @@
             image_url: imageDataUrl,
           };
 
+          // Get JWT from localStorage
           const token = localStorage.getItem("token");
           if (!token) {
             msgEl.textContent = "No token found. Please log in as admin first.";

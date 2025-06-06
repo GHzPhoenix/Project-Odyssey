@@ -205,43 +205,24 @@ app.get("/api/deals", (req, res) => {
 
 app.post("/api/deals", verifyToken, verifyAdmin, (req, res) => {
   try {
-    const {
-      name,
-      location,
-      activities,
-      start_date,
-      end_date,
-      image_url
-    } = req.body;
-
-    if (
-      !name ||
-      !location ||
-      !activities ||
-      !start_date ||
-      !end_date ||
-      !image_url
-    ) {
+    const { title, rating, description, price, image_url, link, badge } = req.body;
+    if (!title || price == null || !image_url || !link) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
     const info = runExec(
-      `INSERT INTO deals
-         (name, location, activities, start_date, end_date, image_url)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [name, location, activities, start_date, end_date, image_url]
+      `INSERT INTO deals (title, rating, description, price, image_url, link, badge)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [title, rating, description, price, image_url, link, badge]
     );
-
     const dealId = info.lastInsertRowid;
     const newDeal = runAll("SELECT * FROM deals WHERE id = ?", [dealId])[0];
-    return res.status(201).json(newDeal);
+    res.status(201).json(newDeal);
   } catch (err) {
     console.error("Create deal error:", err);
-    return res.status(500).json({ error: "Failed to create deal" });
+    res.status(500).json({ error: "Failed to create deal" });
   }
 });
-
-
 
 console.log("🔍 About to start Express server on port", port);
 app.listen(port, () => {
