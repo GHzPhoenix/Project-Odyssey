@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin-dashboard.html" class="active">Dashboard</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Add Deal</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2>Users & Memberships</h2>
+      <table id="users-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Membership</th>
+            <th>Expires</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 style="margin-top: 2rem">Client Inquiries</h2>
+      <table id="inquiries-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Destination</th>
+            <th>Dates</th>
+            <th>Guests</th>
+            <th>Budget</th>
+            <th>Preferences</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="9">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <script>
+      async function fetchJSON(url, token) {
+        const res = await fetch(url, {
+          headers: token ? { Authorization: "Bearer " + token } : {},
+        });
+        if (!res.ok) throw new Error(`Failed to fetch ${url}`);
+        return res.json();
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const token = localStorage.getItem("token");
+        if (!token) return alert("Please log in as admin.");
+
+        // 1) Users & Memberships
+        try {
+          const [users, memberships] = await Promise.all([
+            fetchJSON("http://127.0.0.1:5001/api/users", token),
+            fetchJSON("http://127.0.0.1:5001/api/memberships/all", token),
+          ]);
+          const memMap = {};
+          memberships.forEach((m) => {
+            memMap[m.user_id] = m;
+          });
+
+          const utBody = document.querySelector("#users-table tbody");
+          utBody.innerHTML = "";
+          users.forEach((u) => {
+            const m = memMap[u.id] || {};
+            utBody.insertAdjacentHTML(
+              "beforeend",
+              `
+              <tr>
+                <td>${u.name}</td>
+                <td>${u.email}</td>
+                <td>${u.role}</td>
+                <td>${m.membership_type || "—"}</td>
+                <td>${m.membership_expires || "—"}</td>
+              </tr>
+            `
+            );
+          });
+        } catch (err) {
+          console.error(err);
+          document.querySelector(
+            "#users-table tbody"
+          ).innerHTML = `<tr><td colspan="5">Could not load users.</td></tr>`;
+        }
+
+        // 2) Inquiries
+        try {
+          const inquiries = await fetchJSON(
+            "http://127.0.0.1:5001/api/inquiries",
+            token
+          );
+          const itBody = document.querySelector("#inquiries-table tbody");
+          itBody.innerHTML = "";
+          inquiries.forEach((inq, i) => {
+            const qs = new URLSearchParams({
+              name: inq.destination,
+              location: inq.destination,
+              activities: inq.preferences,
+            });
+            itBody.insertAdjacentHTML(
+              "beforeend",
+              `
+              <tr>
+                <td>${i + 1}</td>
+                <td>${inq.name}</td>
+                <td>${inq.email}</td>
+                <td>${inq.destination}</td>
+                <td>${inq.dates}</td>
+                <td>${inq.guests}</td>
+                <td>€${inq.budget}</td>
+                <td>${inq.preferences}</td>
+                <td class="inquiry-actions">
+                  <button onclick="location.href='add-deal.html?${qs}'">Make Deal</button>
+                </td>
+              </tr>
+            `
+            );
+          });
+        } catch (err) {
+          console.error(err);
+          document.querySelector(
+            "#inquiries-table tbody"
+          ).innerHTML = `<tr><td colspan="9">Could not load inquiries.</td></tr>`;
+        }
+      });
+    </script>
+  </body>
+</html>

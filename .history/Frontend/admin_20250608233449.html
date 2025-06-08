@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin – Add Deal</title>
+    <link rel="stylesheet" href="/Frontend/css/login.css" />
+    <style>
+      #deal-message {
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+      }
+      #deal-message.error {
+        color: #b00020;
+      }
+      #deal-message.success {
+        color: #0b6623;
+      }
+
+      .file-input-label {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: #007bff;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 0.5rem;
+      }
+      .file-input-label:hover {
+        background: #0056b3;
+      }
+      input[type="file"] {
+        display: none;
+      }
+
+      header nav {
+        background: purple;
+        padding: 1rem;
+      }
+      header nav .logo {
+        color: white;
+        font-weight: bold;
+      }
+      header nav ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        gap: 1rem;
+      }
+      header nav a {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        background: #6c63ff;
+        transition: background 0.2s;
+      }
+      header nav a:hover {
+        background: #5950d4;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul class="nav-menu">
+          <li><a href="admin-dashboard.html">Dashboard</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Add Deal</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="login-container">
+      <form class="login-form" id="deal-form">
+        <h2>Add Deal</h2>
+
+        <div class="input-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" required placeholder="Deal name" />
+        </div>
+
+        <div class="input-group">
+          <label for="location">Location</label>
+          <input
+            type="text"
+            id="location"
+            required
+            placeholder="e.g., Santorini, Greece"
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="activities">Activities</label>
+          <input
+            type="text"
+            id="activities"
+            required
+            placeholder="e.g., Hiking, Wine Tasting"
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="start_date">Start Date</label>
+          <input type="date" id="start_date" required />
+        </div>
+
+        <div class="input-group">
+          <label for="end_date">End Date</label>
+          <input type="date" id="end_date" required />
+        </div>
+
+        <div class="input-group">
+          <label class="file-input-label" for="image_file">Choose Image</label>
+          <input type="file" id="image_file" accept="image/*" />
+          <span id="file-chosen">No file chosen</span>
+        </div>
+
+        <button type="submit">Save Deal</button>
+        <p id="deal-message"></p>
+      </form>
+    </main>
+
+    <script>
+      function toggleMenu() {
+        document.querySelector("nav ul").classList.toggle("active");
+      }
+
+      const fileInput = document.getElementById("image_file");
+      const fileChosen = document.getElementById("file-chosen");
+      fileInput.addEventListener("change", () => {
+        fileChosen.textContent = fileInput.files.length
+          ? fileInput.files[0].name
+          : "No file chosen";
+      });
+
+      document
+        .getElementById("deal-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const msgEl = document.getElementById("deal-message");
+          msgEl.textContent = "";
+          msgEl.className = "";
+
+          const name = document.getElementById("name").value.trim();
+          const location = document.getElementById("location").value.trim();
+          const activities = document.getElementById("activities").value.trim();
+          const start_date = document.getElementById("start_date").value;
+          const end_date = document.getElementById("end_date").value;
+
+          if (!name || !location || !activities || !start_date || !end_date) {
+            msgEl.textContent = "Please fill out all required fields.";
+            msgEl.classList.add("error");
+            return;
+          }
+          if (!fileInput.files.length) {
+            msgEl.textContent = "Please choose an image file.";
+            msgEl.classList.add("error");
+            return;
+          }
+
+          // read image as DataURL
+          const reader = new FileReader();
+          const imageDataUrl = await new Promise((res, rej) => {
+            reader.onerror = () => rej("Error reading file");
+            reader.onload = () => res(reader.result);
+            reader.readAsDataURL(fileInput.files[0]);
+          }).catch((err) => {
+            msgEl.textContent = err;
+            msgEl.classList.add("error");
+          });
+          if (!imageDataUrl) return;
+
+          const payload = {
+            name,
+            location,
+            activities,
+            start_date,
+            end_date,
+            image_url: imageDataUrl,
+          };
+          const token = localStorage.getItem("token");
+          if (!token) {
+            msgEl.textContent = "No token found. Log in as admin first.";
+            msgEl.classList.add("error");
+            return;
+          }
+
+          try {
+            const res = await fetch("http://127.0.0.1:5001/api/deals", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to save deal");
+
+            msgEl.textContent = "Deal saved successfully!";
+            msgEl.classList.add("success");
+            e.target.reset();
+            fileChosen.textContent = "No file chosen";
+          } catch (err) {
+            msgEl.textContent = err.message;
+            msgEl.classList.add("error");
+            console.error(err);
+          }
+        });
+    </script>
+  </body>
+</html>

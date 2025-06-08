@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Dashboard – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html" class="active">Dashboard</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Add Deal</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2 class="section">Client Inquiries</h2>
+      <table id="inquiries-table">
+        <!-- unchanged… -->
+      </table>
+
+      <h2 class="section">Existing Deals</h2>
+      <table id="deals-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Dates</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <!-- modal for edit -->
+    <div id="deal-modal" class="modal-overlay">
+      <div class="modal">
+        <h2>Edit Deal</h2>
+        <form id="modal-form">
+          <div class="input-group">
+            <label>Name</label>
+            <input type="text" name="name" required />
+          </div>
+          <div class="input-group">
+            <label>Location</label>
+            <input type="text" name="location" required />
+          </div>
+          <div class="input-group">
+            <label>Activities</label>
+            <input type="text" name="activities" required />
+          </div>
+          <div class="input-group">
+            <label>Start Date</label>
+            <input type="date" name="start_date" required />
+          </div>
+          <div class="input-group">
+            <label>End Date</label>
+            <input type="date" name="end_date" required />
+          </div>
+          <div class="modal-actions">
+            <button type="button" id="modal-cancel">Cancel</button>
+            <button type="submit" id="modal-save">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const token = localStorage.getItem("token") || "";
+      let deals = [];
+
+      async function fetchJSON(url, opts = {}) {
+        opts.headers = {
+          ...(opts.headers || {}),
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        };
+        const res = await fetch(url, opts);
+        if (!res.ok) throw await res.json();
+        return res.json();
+      }
+
+      // load deals into table
+      async function loadDealsTable() {
+        try {
+          deals = await fetchJSON("http://127.0.0.1:5001/api/deals");
+          const tbody = document.querySelector("#deals-table tbody");
+          if (!deals.length) {
+            tbody.innerHTML = "<tr><td colspan='5'>No deals yet.</td></tr>";
+          } else {
+            tbody.innerHTML = deals
+              .map((d) => {
+                const from = new Date(d.start_date).toLocaleDateString();
+                const to = new Date(d.end_date).toLocaleDateString();
+                return `
+              <tr data-id="${d.id}">
+                <td>${d.id}</td>
+                <td>${d.name}</td>
+                <td>${d.location}</td>
+                <td>${from} – ${to}</td>
+                <td>
+                  <button class="action edit-deal">Edit</button>
+                  <button class="action delete-deal">Delete</button>
+                </td>
+              </tr>`;
+              })
+              .join("");
+          }
+        } catch {
+          document.querySelector("#deals-table tbody").innerHTML =
+            "<tr><td colspan='5'>Error loading deals.</td></tr>";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadDealsTable();
+
+        // modal elements
+        const overlay = document.getElementById("deal-modal");
+        const form = document.getElementById("modal-form");
+        const cancelBtn = document.getElementById("modal-cancel");
+
+        let editingId = null;
+
+        // delegate edit / delete buttons
+        document
+          .getElementById("deals-table")
+          .addEventListener("click", async (e) => {
+            const tr = e.target.closest("tr");
+            if (!tr) return;
+            const id = tr.dataset.id;
+
+            // EDIT
+            if (e.target.matches(".edit-deal")) {
+              editingId = id;
+              const deal = deals.find((d) => d.id == id);
+              // populate form
+              form.name.value = deal.name;
+              form.location.value = deal.location;
+              form.activities.value = deal.activities;
+              form.start_date.value = deal.start_date;
+              form.end_date.value = deal.end_date;
+              overlay.classList.add("active");
+            }
+
+            // DELETE
+            if (e.target.matches(".delete-deal")) {
+              if (!confirm("Delete this deal?")) return;
+              try {
+                await fetchJSON(`http://127.0.0.1:5001/api/deals/${id}`, {
+                  method: "DELETE",
+                });
+                loadDealsTable();
+                alert("Deal deleted.");
+              } catch (err) {
+                alert(err.error || "Delete failed");
+              }
+            }
+          });
+
+        // cancel
+        cancelBtn.onclick = () => overlay.classList.remove("active");
+
+        // save edits
+        form.onsubmit = async (ev) => {
+          ev.preventDefault();
+          const body = {
+            name: form.name.value.trim(),
+            location: form.location.value.trim(),
+            activities: form.activities.value.trim(),
+            start_date: form.start_date.value,
+            end_date: form.end_date.value,
+          };
+          try {
+            await fetchJSON(`http://127.0.0.1:5001/api/deals/${editingId}`, {
+              method: "PUT",
+              body: JSON.stringify(body),
+            });
+            overlay.classList.remove("active");
+            await loadDealsTable();
+            alert("Deal updated.");
+          } catch (err) {
+            alert(err.error || "Update failed");
+          }
+        };
+      });
+    </script>
+  </body>
+</html>

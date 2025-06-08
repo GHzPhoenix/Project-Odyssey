@@ -1,0 +1,79 @@
+body {
+  font-family: "Merriweather", serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #8e44ad, #9b59b6);
+  color: #333;
+}
+
+main {
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.dream-intro {
+  max-width: 700px;
+  margin-bottom: 40px;
+  color: white;
+}
+
+.dream-intro h2 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.dream-intro p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.dream-form {
+  background: #fff;
+  padding: 40px;
+  border-radius: 20px;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.input-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.input-group input,
+.input-group textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.button-container {
+  text-align: center;
+}
+
+.submit {
+  background: #8e44ad;
+  color: #fff;
+  border: none;
+  padding: 12px 30px;
+  font-size: 1rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.submit:hover {
+  background: #732d91;
+}

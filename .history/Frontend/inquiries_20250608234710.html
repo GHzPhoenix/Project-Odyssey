@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin – Inquiries</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="inquiries.html" class="active">Inquiries</a></li>
+          <li><a href="add-deal.html">Add Deal</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2>Client Inquiries</h2>
+      <table id="inq-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Destination</th>
+            <th>Dates</th>
+            <th>Guests</th>
+            <th>Budget</th>
+            <th>Preferences</th>
+            <th>Submitted</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="10">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <script>
+      async function loadInquiries() {
+        const token = localStorage.getItem("token");
+        const tbody = document.querySelector("#inq-table tbody");
+
+        if (!token) {
+          alert("Please log in as admin.");
+          return;
+        }
+
+        try {
+          const res = await fetch("http://127.0.0.1:5001/api/inquiries", {
+            headers: { Authorization: "Bearer " + token },
+          });
+          if (!res.ok) throw new Error("Unauthorized");
+
+          const inqs = await res.json();
+          if (!inqs.length) {
+            tbody.innerHTML =
+              "<tr><td colspan='10'>No inquiries found.</td></tr>";
+            return;
+          }
+
+          tbody.innerHTML = inqs
+            .map((i) => {
+              const date = new Date(i.created_at).toLocaleString();
+              return `
+              <tr>
+                <td>${i.id}</td>
+                <td>${i.name}</td>
+                <td>${i.email}</td>
+                <td>${i.destination}</td>
+                <td>${i.dates}</td>
+                <td>${i.guests}</td>
+                <td>€${i.budget}</td>
+                <td>${i.preferences || ""}</td>
+                <td>${date}</td>
+                <td>
+                  <a
+                    href="add-deal.html?name=${encodeURIComponent(
+                      i.destination
+                    )}&location=${encodeURIComponent(
+                i.destination
+              )}&activities=${encodeURIComponent(i.preferences || "")}"
+                    class="btn-create"
+                  >Create Deal</a>
+                </td>
+              </tr>`;
+            })
+            .join("");
+        } catch (err) {
+          console.error(err);
+          tbody.innerHTML =
+            "<tr><td colspan='10'>Failed to load inquiries.</td></tr>";
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", loadInquiries);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">
+          <img src="/Frontend/assets/your-logo.png" alt="Logo" />
+          Travel Odyssey
+        </div>
+        <button
+          class="menu-toggle"
+          aria-label="Toggle navigation"
+          onclick="toggleMenu()"
+        >
+          <div></div>
+          <div></div>
+          <div></div>
+        </button>
+        <ul class="nav-menu">
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="deals.html">Deals</a></li>
+          <li class="dropdown-parent">
+            <a href="#">Services ▼</a>
+            <div class="dropdown">
+              <a href="membership.html">Memberships</a>
+              <a href="dream.html">Plan Your Trip</a>
+              <a href="client-area.html">Client Area</a>
+            </div>
+          </li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="signup.html" class="signup-btn">Sign Up</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h1>Experience the World with Us</h1>
+          <p>
+            Discover bespoke journeys, exclusive deals, and unforgettable
+            memories.
+          </p>
+          <div class="hero-buttons">
+            <a href="deals.html" class="btn-primary">Browse Deals</a>
+            <a href="membership.html" class="btn-outline">Join Membership</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="preview-deals">
+        <h2>Available Deals</h2>
+        <div class="deals-container" id="home-deals"></div>
+        <a href="deals.html" class="button-link">View All Deals</a>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <h3>About Us</h3>
+          <p>
+            Your gateway to unforgettable journeys. Discover, explore,
+            experience.
+          </p>
+        </div>
+        <div class="footer-section">
+          <h3>Support</h3>
+          <ul>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="terms.html">Terms & Conditions</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Travel Odyssey, Inc. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      function toggleMenu() {
+        document.querySelector(".nav-menu").classList.toggle("active");
+      }
+
+      async function loadHomeDeals() {
+        const container = document.getElementById("home-deals");
+        container.innerHTML = "Loading…";
+        try {
+          const res = await fetch("http://127.0.0.1:5001/api/deals");
+          if (!res.ok) throw new Error();
+          const deals = await res.json();
+          container.innerHTML = "";
+          if (deals.length === 0) {
+            container.innerHTML = "<p class='no-deals'>No deals available.</p>";
+            return;
+          }
+          deals.slice(0, 3).forEach((deal) => {
+            const card = document.createElement("div");
+            card.className = "deal-card";
+            const from = new Date(deal.start_date).toLocaleDateString();
+            const to = new Date(deal.end_date).toLocaleDateString();
+            card.innerHTML = `
+              <img src="${deal.image_url}" alt="${deal.name}" />
+              <div class="deal-card-body">
+                <h3>${deal.name}</h3>
+                <p>${from} – ${to}</p>
+                <a href="client-area.html?deal=${deal.id}" class="card-button">Explore</a>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        } catch {
+          container.innerHTML = "<p class='no-deals'>Failed to load deals.</p>";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadHomeDeals);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin – Add Deal</title>
+    <link rel="stylesheet" href="/Frontend/css/login.css" />
+    <style>
+      body {
+        font-family: "Merriweather", serif;
+        margin: 0;
+      }
+      header nav {
+        background: purple;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      header nav .logo {
+        color: white;
+        font-weight: bold;
+      }
+      header nav ul {
+        list-style: none;
+        display: flex;
+        gap: 1rem;
+        margin: 0;
+      }
+      header nav a {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        background: #6c63ff;
+        border-radius: 4px;
+        transition: background 0.2s;
+      }
+      header nav a.active {
+        background: #ff6f91;
+      }
+      header nav a:hover {
+        background: #5950d4;
+      }
+
+      main {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      h2 {
+        text-align: center;
+        color: purple;
+      }
+      form .input-group {
+        margin-bottom: 1rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.3rem;
+        font-weight: 600;
+      }
+      input[type="text"],
+      input[type="date"],
+      textarea {
+        width: 100%;
+        padding: 0.6rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+      .file-input-label {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: #007bff;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      #file-chosen {
+        margin-left: 0.5rem;
+        font-size: 0.9rem;
+        color: #555;
+      }
+      button[type="submit"] {
+        background: #0b6623;
+        color: white;
+        padding: 0.7rem 1.4rem;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      button[type="submit"]:hover {
+        background: #095a1a;
+      }
+      #deal-message {
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+      }
+      #deal-message.error {
+        color: #b00020;
+      }
+      #deal-message.success {
+        color: #0b6623;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin-dashboard.html">Dashboard</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html" class="active">Add Deal</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2>Add New Deal</h2>
+      <form id="deal-form">
+        <div class="input-group">
+          <label for="name">Deal Name</label>
+          <input type="text" id="name" required />
+        </div>
+        <div class="input-group">
+          <label for="location">Location</label>
+          <input type="text" id="location" required />
+        </div>
+        <div class="input-group">
+          <label for="activities">Activities</label>
+          <input type="text" id="activities" required />
+        </div>
+        <div class="input-group">
+          <label for="start_date">Start Date</label>
+          <input type="date" id="start_date" required />
+        </div>
+        <div class="input-group">
+          <label for="end_date">End Date</label>
+          <input type="date" id="end_date" required />
+        </div>
+        <div class="input-group">
+          <label class="file-input-label" for="image_file">
+            Choose Image
+          </label>
+          <input type="file" id="image_file" accept="image/*" />
+          <span id="file-chosen">No file chosen</span>
+        </div>
+        <button type="submit">Save Deal</button>
+        <p id="deal-message"></p>
+      </form>
+    </main>
+
+    <script>
+      // prefill from ?name=...&location=...&activities=...
+      const params = new URLSearchParams(location.search);
+      for (let key of ["name", "location", "activities"]) {
+        if (params.has(key)) {
+          document.getElementById(key).value = params.get(key);
+        }
+      }
+
+      // file chooser label
+      const fi = document.getElementById("image_file"),
+        fc = document.getElementById("file-chosen");
+      fi.addEventListener("change", () => {
+        fc.textContent = fi.files[0]?.name || "No file chosen";
+      });
+
+      document
+        .getElementById("deal-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const msg = document.getElementById("deal-message");
+          msg.textContent = "";
+          msg.className = "";
+
+          const name = document.getElementById("name").value.trim();
+          const loc = document.getElementById("location").value.trim();
+          const acts = document.getElementById("activities").value.trim();
+          const sd = document.getElementById("start_date").value;
+          const ed = document.getElementById("end_date").value;
+
+          if (!name || !loc || !acts || !sd || !ed) {
+            msg.textContent = "Fill all fields";
+            msg.classList.add("error");
+            return;
+          }
+          if (!fi.files.length) {
+            msg.textContent = "Select an image";
+            msg.classList.add("error");
+            return;
+          }
+
+          // read image
+          const reader = new FileReader();
+          const dataUrl = await new Promise((res) => {
+            reader.onload = () => res(reader.result);
+            reader.readAsDataURL(fi.files[0]);
+          });
+
+          const payload = {
+            name,
+            location: loc,
+            activities: acts,
+            start_date: sd,
+            end_date: ed,
+            image_url: dataUrl,
+          };
+
+          const token = localStorage.getItem("token");
+          if (!token) {
+            msg.textContent = "Login as admin first";
+            msg.classList.add("error");
+            return;
+          }
+
+          try {
+            const resp = await fetch("http://127.0.0.1:5001/api/deals", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: JSON.stringify(payload),
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || "Save failed");
+            msg.textContent = "Deal saved!";
+            msg.classList.add("success");
+            e.target.reset();
+            fc.textContent = "No file chosen";
+          } catch (err) {
+            console.error(err);
+            msg.textContent = err.message;
+            msg.classList.add("error");
+          }
+        });
+    </script>
+  </body>
+</html>

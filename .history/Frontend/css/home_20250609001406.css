@@ -1,0 +1,267 @@
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap");
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Merriweather", serif;
+  background: #f4f4f9;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* NAVIGATION */
+header {
+  background: #4b0082;
+  padding: 1rem 2rem;
+}
+header .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+header .logo img {
+  height: 32px;
+}
+header nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+header .menu-toggle {
+  display: none;
+}
+header .nav-menu {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+}
+header .nav-menu li {
+  position: relative;
+}
+header .nav-menu a {
+  color: #fff;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+header .nav-menu a:hover,
+header .nav-menu a.active {
+  background: #ff6f91;
+}
+header .dropdown-parent .dropdown {
+  position: absolute;
+  background: #4b0082;
+  top: 120%;
+  left: 0;
+  display: none;
+  flex-direction: column;
+  border-radius: 4px;
+  overflow: hidden;
+}
+header .dropdown-parent:hover .dropdown {
+  display: flex;
+}
+header .dropdown a {
+  padding: 0.5rem 1rem;
+}
+
+/* HERO */
+.hero {
+  background: url("/Frontend/assets/hero-bg.jpg") center/cover no-repeat;
+  color: #fff;
+  text-align: center;
+  padding: 6rem 2rem;
+  position: relative;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+.hero .hero-content {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
+  z-index: 1;
+}
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+.hero-buttons a {
+  display: inline-block;
+  margin: 0 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 30px;
+  font-weight: 700;
+  transition: background 0.3s, color 0.3s;
+}
+.btn-primary {
+  background: #ff6f91;
+  color: #fff;
+}
+.btn-primary:hover {
+  background: #e25577;
+}
+.btn-outline {
+  border: 2px solid #fff;
+  color: #fff;
+}
+.btn-outline:hover {
+  background: #fff;
+  color: #4b0082;
+}
+
+/* FEATURES */
+.features {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+.features h2 {
+  font-size: 2.25rem;
+  margin-bottom: 2rem;
+}
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+.feature-card {
+  background: #fff;
+  padding: 2rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.feature-card img {
+  height: 60px;
+  margin-bottom: 1rem;
+}
+.feature-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.feature-card p {
+  font-size: 0.95rem;
+  color: #555;
+}
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* PREVIEW DEALS */
+.preview-deals {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+.preview-deals h2 {
+  font-size: 2.25rem;
+  margin-bottom: 2rem;
+}
+.deals-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+.deal-card {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.deal-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+.deal-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+.deal-card-body {
+  padding: 1rem;
+}
+.deal-card-body h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #4b0082;
+}
+.deal-card-body p {
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+.deal-card-body .card-button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: #ff6f91;
+  color: #fff;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+.deal-card-body .card-button:hover {
+  background: #e25577;
+}
+.button-link {
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: #4b0082;
+  text-decoration: underline;
+}
+
+/* FOOTER */
+.footer {
+  background: #4b0082;
+  color: #fff;
+  padding: 2rem 1rem;
+}
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  max-width: 960px;
+  margin: 0 auto 1rem;
+}
+.footer-section {
+  flex: 1 1 200px;
+}
+.footer-section h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+.footer-section p,
+.footer-section ul {
+  font-size: 0.9rem;
+}
+.footer-section ul {
+  list-style: none;
+}
+.footer-section ul li + li {
+  margin-top: 0.5rem;
+}
+.footer-section a {
+  color: #fff;
+  text-decoration: none;
+}
+.footer-section a:hover {
+  text-decoration: underline;
+}
+.footer-bottom {
+  text-align: center;
+  font-size: 0.85rem;
+}
