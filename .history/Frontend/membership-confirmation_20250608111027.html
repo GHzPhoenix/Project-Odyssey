@@ -62,6 +62,7 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
+        // Load user info & membership data
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         const membershipType = localStorage.getItem("membershipType");
         const membershipExpires = localStorage.getItem("membershipExpires");
@@ -83,6 +84,7 @@
         document.getElementById("membership-expiration").textContent =
           membershipExpires || "—";
 
+        // Wire up Renew button
         const renewBtn = document.getElementById("renew-button");
         const msgEl = document.getElementById("renew-message");
 
@@ -117,6 +119,7 @@
               throw new Error(data.error || "Renewal failed");
             }
 
+            // Expecting { membershipType: "...", expiresAt: "YYYY-MM-DD" }
             localStorage.setItem("membershipExpires", data.expiresAt);
             if (data.membershipType) {
               localStorage.setItem("membershipType", data.membershipType);

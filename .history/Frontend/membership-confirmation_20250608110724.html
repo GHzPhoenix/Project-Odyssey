@@ -40,12 +40,8 @@
           <strong>Expiration Date:</strong>
           <span id="membership-expiration">Loading…</span>
         </p>
-        <div class="buttons">
-          <a href="dashboard.html" class="button">Go to Dashboard</a>
-          <button id="renew-button" class="button">Renew Membership</button>
-        </div>
 
-        <div id="renew-message" class="message"></div>
+        <a href="dashboard.html" class="button">Go to Dashboard</a>
       </section>
     </main>
 
@@ -82,61 +78,6 @@
           membershipType || "None";
         document.getElementById("membership-expiration").textContent =
           membershipExpires || "—";
-
-        const renewBtn = document.getElementById("renew-button");
-        const msgEl = document.getElementById("renew-message");
-
-        renewBtn.addEventListener("click", async () => {
-          msgEl.textContent = "";
-          msgEl.className = "message";
-
-          const token = localStorage.getItem("token");
-          if (!token) {
-            msgEl.textContent = "You must be logged in to renew.";
-            msgEl.classList.add("error");
-            return;
-          }
-
-          renewBtn.disabled = true;
-          renewBtn.textContent = "Renewing…";
-
-          try {
-            const res = await fetch(
-              "http://127.0.0.1:5001/api/membership/renew",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + token,
-                },
-              }
-            );
-
-            const data = await res.json();
-            if (!res.ok) {
-              throw new Error(data.error || "Renewal failed");
-            }
-
-            localStorage.setItem("membershipExpires", data.expiresAt);
-            if (data.membershipType) {
-              localStorage.setItem("membershipType", data.membershipType);
-              document.getElementById("membership-type").textContent =
-                data.membershipType;
-            }
-            document.getElementById("membership-expiration").textContent =
-              data.expiresAt;
-
-            msgEl.textContent = "Membership successfully renewed!";
-            msgEl.classList.add("success");
-          } catch (err) {
-            console.error("Renew error:", err);
-            msgEl.textContent = err.message;
-            msgEl.classList.add("error");
-          } finally {
-            renewBtn.disabled = false;
-            renewBtn.textContent = "Renew Membership";
-          }
-        });
       });
     </script>
   </body>

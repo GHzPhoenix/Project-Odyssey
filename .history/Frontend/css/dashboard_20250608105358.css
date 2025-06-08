@@ -24,7 +24,7 @@ nav a {
   margin: 0 15px;
   font-weight: bold;
   font-size: 1rem;
-  padding: 10px 20px;
+  /* padding: 10px 20px; */
   border-radius: 20px;
   background-color: #947fff;
   transition: background 0.3s ease-in-out;
@@ -102,91 +102,6 @@ h2 {
   font-size: 20px;
   color: purple;
   margin-bottom: 10px;
-}
-
-.deals-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-  padding: 0;
-}
-
-.deal-card {
-  background-color: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.deal-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-}
-
-.deal-card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  display: block;
-}
-
-.deal-card-body {
-  padding: 1rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.deal-card-body h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
-  color: purple;
-}
-
-.deal-card-body p {
-  margin: 0.25rem 0;
-  color: #555;
-  font-size: 0.95rem;
-  flex: 1;
-}
-
-.card-button {
-  display: inline-block;
-  background-color: purple;
-  color: #fff;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 0.95rem;
-  text-align: center;
-  transition: background-color 0.3s ease;
-  margin-top: 1rem;
-}
-
-.card-button:hover {
-  background-color: #ff6f91;
-  color: #fff;
-}
-
-.no-deals {
-  text-align: center;
-  font-size: 1rem;
-  color: #555;
-  margin-top: 2rem;
-}
-
-@media (max-width: 600px) {
-  .deals-container {
-    grid-template-columns: 1fr;
-  }
-  .deal-card img {
-    height: 200px;
-  }
 }
 
 .dashboard-section p {

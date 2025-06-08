@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Dashboard</title>
-    <!-- <link rel="stylesheet" href="/Frontend/css/style.css" /> -->
+    <link rel="stylesheet" href="/Frontend/css/style.css" />
     <link rel="stylesheet" href="/Frontend/css/dashboard.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,7 +15,7 @@
   </head>
   <body>
     <header>
-      <h1 style="color: white">Welcome to Your Dashboard</h1>
+      <h1>Welcome to Your Dashboard</h1>
       <nav>
         <a href="dashboard.html">Dashboard</a>
         <a href="booking-history.html">Booking History</a>
@@ -25,6 +25,7 @@
     </header>
 
     <main>
+      <!-- PROFILE -->
       <section class="profile">
         <h2>User Profile</h2>
         <p><strong>Name:</strong> <span id="username">Loading...</span></p>
@@ -35,6 +36,7 @@
         </p>
       </section>
 
+      <!-- RECENT BOOKINGS -->
       <section class="recent-bookings">
         <h2>Recent Bookings</h2>
         <ul id="booking-list">
@@ -42,9 +44,12 @@
         </ul>
       </section>
 
+      <!-- AVAILABLE DEALS -->
       <section class="trending-deals">
         <h2>Available Deals</h2>
-        <div class="deals-container" id="deals-container"></div>
+        <div class="deals-container" id="deals-container">
+          <!-- JS will inject cards here -->
+        </div>
         <p id="no-deals" class="no-deals" style="display: none">
           No deals available right now.
         </p>
@@ -52,7 +57,10 @@
     </main>
 
     <footer class="footer">
-      <div class="footer-container"></div>
+      <!-- same footer as index.html -->
+      <div class="footer-container">
+        <!-- … your existing footer sections … -->
+      </div>
       <div class="footer-bottom">
         <p>© 2025 Travel Odyssey, Inc. All rights reserved.</p>
       </div>
@@ -64,6 +72,7 @@
       }
 
       async function loadDashboard() {
+        // 1) Populate user info
         const token = localStorage.getItem("token");
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         document.getElementById("username").textContent = user.name || "—";
@@ -71,6 +80,7 @@
         document.getElementById("membership-status").textContent =
           user.role === "admin" ? "Admin" : "User";
 
+        // 2) Fetch & render previous bookings
         const bookingList = document.getElementById("booking-list");
         bookingList.innerHTML = "";
         if (token) {
@@ -85,6 +95,7 @@
             } else {
               bookings.forEach((b) => {
                 const li = document.createElement("li");
+                // assume b.destination and b.start_date/end_date exist
                 const start = new Date(b.start_date).toLocaleDateString();
                 const end = new Date(b.end_date).toLocaleDateString();
                 li.textContent = `${b.destination} — ${start} to ${end}`;
@@ -99,6 +110,7 @@
           bookingList.innerHTML = "<li>Please log in to see bookings.</li>";
         }
 
+        // 3) Fetch & render available deals
         const dealsContainer = document.getElementById("deals-container");
         const noDealsMsg = document.getElementById("no-deals");
         dealsContainer.innerHTML = "";
@@ -144,6 +156,7 @@
               dates.textContent = `${s} – ${e}`;
               body.appendChild(dates);
 
+              // Book Now button
               const btn = document.createElement("a");
               btn.className = "btn-primary card-button";
               btn.href = `booking.html?deal=${deal.id}`;

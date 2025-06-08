@@ -68,21 +68,6 @@
 
         document.getElementById("user-name").textContent = user.name || "—";
         document.getElementById("user-email").textContent = user.email || "—";
-
-        const statusEl = document.getElementById("user-status");
-        if (membershipType) {
-          statusEl.textContent = "Member";
-        } else if (user.role === "admin") {
-          statusEl.textContent = "Admin";
-        } else {
-          statusEl.textContent = "User";
-        }
-
-        document.getElementById("membership-type").textContent =
-          membershipType || "None";
-        document.getElementById("membership-expiration").textContent =
-          membershipExpires || "—";
-
         const renewBtn = document.getElementById("renew-button");
         const msgEl = document.getElementById("renew-message");
 
@@ -107,8 +92,8 @@
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
-                  Authorization: "Bearer " + token,
-                },
+                  "Authorization": "Bearer " + token
+                }
               }
             );
 
@@ -117,26 +102,19 @@
               throw new Error(data.error || "Renewal failed");
             }
 
-            localStorage.setItem("membershipExpires", data.expiresAt);
-            if (data.membershipType) {
-              localStorage.setItem("membershipType", data.membershipType);
-              document.getElementById("membership-type").textContent =
-                data.membershipType;
-            }
-            document.getElementById("membership-expiration").textContent =
-              data.expiresAt;
+        const statusEl = document.getElementById("user-status");
+        if (membershipType) {
+          statusEl.textContent = "Member";
+        } else if (user.role === "admin") {
+          statusEl.textContent = "Admin";
+        } else {
+          statusEl.textContent = "User";
+        }
 
-            msgEl.textContent = "Membership successfully renewed!";
-            msgEl.classList.add("success");
-          } catch (err) {
-            console.error("Renew error:", err);
-            msgEl.textContent = err.message;
-            msgEl.classList.add("error");
-          } finally {
-            renewBtn.disabled = false;
-            renewBtn.textContent = "Renew Membership";
-          }
-        });
+        document.getElementById("membership-type").textContent =
+          membershipType || "None";
+        document.getElementById("membership-expiration").textContent =
+          membershipExpires || "—";
       });
     </script>
   </body>

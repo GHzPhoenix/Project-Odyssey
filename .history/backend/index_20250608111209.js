@@ -134,65 +134,6 @@ app.post("/api/register", async (req, res) => {
     return res.status(500).json({ error: "Registration failed" });
   }
 });
-app.get("/api/membership", verifyToken, (req, res) => {
-  try {
-    const row = runAll(
-      "SELECT membership_type, membership_expires FROM memberships WHERE user_id = ?",
-      [req.userId]
-    )[0];
-    if (!row) {
-      return res.status(404).json({ error: "No membership found" });
-    }
-    return res.json(row);
-  } catch (err) {
-    console.error("Fetch membership error:", err);
-    return res.status(500).json({ error: "Failed to fetch membership" });
-  }
-});
-app.post("/api/membership/renew", verifyToken, (req, res) => {
-  try {
-
-    const existing = runAll(
-      "SELECT membership_type, membership_expires FROM memberships WHERE user_id = ?",
-      [req.userId]
-    )[0];
-
-    const plan = existing?.membership_type || "Premium Plan";
-
-
-    const now = new Date();
-    let base = now;
-    if (existing?.membership_expires) {
-      const prev = new Date(existing.membership_expires);
-      if (prev > now) base = prev;
-    }
-    const next = new Date(base);
-    next.setFullYear(next.getFullYear() + 1);
-    const isoDate = next.toISOString().split("T")[0]; 
-
-
-    if (existing) {
-      runExec(
-        "UPDATE memberships SET membership_expires = ? WHERE user_id = ?",
-        [isoDate, req.userId]
-      );
-    } else {
-      runExec(
-        "INSERT INTO memberships (user_id, membership_type, membership_expires) VALUES (?, ?, ?)",
-        [req.userId, plan, isoDate]
-      );
-    }
-
-
-    return res.json({
-      membershipType: plan,
-      expiresAt: isoDate
-    });
-  } catch (err) {
-    console.error("Renew membership error:", err);
-    return res.status(500).json({ error: "Renewal failed" });
-  }
-});
 
 
 app.post("/api/login", async (req, res) => {

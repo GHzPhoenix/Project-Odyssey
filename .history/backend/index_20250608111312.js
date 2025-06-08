@@ -151,15 +151,16 @@ app.get("/api/membership", verifyToken, (req, res) => {
 });
 app.post("/api/membership/renew", verifyToken, (req, res) => {
   try {
-
+    // 1) Look up existing membership
     const existing = runAll(
       "SELECT membership_type, membership_expires FROM memberships WHERE user_id = ?",
       [req.userId]
     )[0];
 
+    // 2) Decide plan type (keep existing or default to “Premium Plan”)
     const plan = existing?.membership_type || "Premium Plan";
 
-
+    // 3) Compute new expiration: one year from NOW or from current expiry if still valid
     const now = new Date();
     let base = now;
     if (existing?.membership_expires) {
@@ -168,9 +169,9 @@ app.post("/api/membership/renew", verifyToken, (req, res) => {
     }
     const next = new Date(base);
     next.setFullYear(next.getFullYear() + 1);
-    const isoDate = next.toISOString().split("T")[0]; 
+    const isoDate = next.toISOString().split("T")[0]; // YYYY-MM-DD
 
-
+    // 4) Upsert into memberships table
     if (existing) {
       runExec(
         "UPDATE memberships SET membership_expires = ? WHERE user_id = ?",
@@ -183,7 +184,7 @@ app.post("/api/membership/renew", verifyToken, (req, res) => {
       );
     }
 
-
+    // 5) Return the new info
     return res.json({
       membershipType: plan,
       expiresAt: isoDate
