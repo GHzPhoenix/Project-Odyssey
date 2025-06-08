@@ -83,24 +83,17 @@
         document.getElementById("membership-expiration").textContent =
           membershipExpires || "—";
 
-        const feeMap = {
-          "Premium Plan": 100,
-          "Basic Plan": 50,
-          "Air Plan": 30,
-        };
-
         const renewBtn = document.getElementById("renew-button");
         const msgEl = document.getElementById("renew-message");
 
         renewBtn.addEventListener("click", async () => {
           msgEl.textContent = "";
           msgEl.className = "message";
-
-          const plan = membershipType || "Premium Plan";
-          const fee = feeMap[plan] || 0;
-
-          if (!confirm(`Renew your ${plan} for €${fee}?`)) return;
-
+          const feeMap = {
+            "Premium Plan": 100,
+            "Basic Plan": 50,
+            "Air Plan": 30,
+          };
           const token = localStorage.getItem("token");
           if (!token) {
             msgEl.textContent = "You must be logged in to renew.";
@@ -122,8 +115,11 @@
                 },
               }
             );
+
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Renewal failed");
+            if (!res.ok) {
+              throw new Error(data.error || "Renewal failed");
+            }
 
             localStorage.setItem("membershipExpires", data.expiresAt);
             if (data.membershipType) {

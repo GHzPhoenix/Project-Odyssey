@@ -1,6 +1,6 @@
 :root {
-  --color-primary: purple;
-  --color-accent: #ff6f91;
+  --color-primary: #6a1b9a; /* deep purple */
+  --color-accent: #ff6f91; /* pink accent */
   --color-bg-light: #f4f4f9;
   --color-bg-lighter: #e0e0e3;
   --color-text: #333;
@@ -13,6 +13,9 @@
   --font-scale: 1.125rem;
 }
 
+/* ==========================
+   RESET & BASE
+   ========================== */
 *,
 *::before,
 *::after {
@@ -33,6 +36,9 @@ body {
   font-size: var(--font-base);
 }
 
+/* ==========================
+   HEADER & NAV
+   ========================== */
 header {
   background-color: var(--color-primary);
   color: #fff;
@@ -68,6 +74,9 @@ nav a:hover {
   color: #fff;
 }
 
+/* ==========================
+   MAIN CONTENT
+   ========================== */
 main {
   max-width: 60rem;
   margin: var(--spacing-lg) auto;
@@ -77,6 +86,9 @@ main {
   box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
 }
 
+/* ==========================
+   BOOKINGS TABLE
+   ========================== */
 .bookings h2 {
   font-size: 2rem;
   color: var(--color-primary);
@@ -118,6 +130,9 @@ main {
   border-radius: var(--radius);
 }
 
+/* ==========================
+   PREVIEW GALLERY
+   ========================== */
 .preview-gallery {
   margin-top: var(--spacing-lg);
   text-align: center;
@@ -163,6 +178,9 @@ main {
   font-weight: 700;
 }
 
+/* ==========================
+   FOOTER
+   ========================== */
 .footer {
   background-color: var(--color-primary);
   color: #fff;
@@ -176,6 +194,9 @@ main {
   font-size: 0.9rem;
 }
 
+/* ==========================
+   RESPONSIVE
+   ========================== */
 @media (max-width: 768px) {
   header h1 {
     font-size: 2rem;

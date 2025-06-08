@@ -1,18 +1,3 @@
-:root {
-  --color-primary: purple;
-  --color-accent: #ff6f91;
-  --color-bg-light: #f4f4f9;
-  --color-bg-lighter: #e0e0e3;
-  --color-text: #333;
-  --color-text-light: #555;
-  --radius: 1.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 2rem;
-  --font-base: 1rem;
-  --font-scale: 1.125rem;
-}
-
 *,
 *::before,
 *::after {

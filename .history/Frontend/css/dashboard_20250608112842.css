@@ -1,17 +1,3 @@
-:root {
-  --color-primary: purple;
-  --color-accent: #ff6f91;
-  --color-bg-light: #f4f4f9;
-  --color-bg-lighter: #e0e0e3;
-  --color-text: #333;
-  --color-text-light: #555;
-  --radius: 1.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 2rem;
-  --font-base: 1rem;
-  --font-scale: 1.125rem;
-}
 body {
   font-family: "Merriweather", serif;
   background: linear-gradient(to bottom, #f4f4f9, #e0e0e3);
@@ -29,27 +15,26 @@ header {
 }
 
 nav {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  margin-top: 15px;
 }
 
 nav a {
-  display: inline-block;
-  padding: var(--spacing-sm) var(--spacing-md);
-  background-color: var(--color-primary);
-  color: #fff;
+  color: white;
   text-decoration: none;
-  font-weight: 600;
-  border-radius: var(--radius);
-  transition: background-color 0.3s ease;
+  margin: 0 15px;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 10px 20px;
+  border-radius: 20px;
+  background-color: #947fff;
+  transition: background 0.3s ease-in-out;
 }
 
 nav a:hover {
-  background-color: var(--color-accent);
-  color: #fff;
+  background-color: #ff6f91;
+  color: yellow;
 }
+
 .menu-toggle {
   display: none;
   flex-direction: column;

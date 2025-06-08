@@ -23,6 +23,7 @@
     </header>
 
     <main>
+      <!-- Booking History Section -->
       <section class="bookings dashboard-section">
         <h2>My Trips</h2>
         <table class="booking-table">
@@ -36,16 +37,41 @@
             </tr>
           </thead>
           <tbody id="booking-table-body">
+            <!-- Rows will be injected here by JavaScript -->
             <tr>
               <td colspan="5">Loading your bookings…</td>
             </tr>
           </tbody>
         </table>
       </section>
+
+      <!-- Optional: Popular Destinations Preview -->
+      <section class="preview-gallery dashboard-section">
+        <h2>Popular Destinations</h2>
+        <div class="image-grid">
+          <div class="image-card">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/e/e6/Paris_Night.jpg"
+              alt="Paris"
+            />
+            <p>Paris</p>
+          </div>
+          <div class="image-card">
+            <img src="assets/rome.jpg" alt="Rome" />
+            <p>Rome</p>
+          </div>
+          <div class="image-card">
+            <img src="assets/barcelona.jpg" alt="Barcelona" />
+            <p>Barcelona</p>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="footer">
-      <div class="footer-container"></div>
+      <div class="footer-container">
+        <!-- your existing footer sections -->
+      </div>
       <div class="footer-bottom">
         <p>© 2025 Travel Odyssey, Inc. All rights reserved.</p>
       </div>
@@ -59,21 +85,24 @@
       const fallbackBookings = [
         {
           destination: "Paris",
-          image: "../Frontend/assets/paris.jpg",
+          image:
+            "https://upload.wikimedia.org/wikipedia/commons/e/e6/Paris_Night.jpg",
           start_date: "2024-06-15",
           end_date: "2024-06-20",
           guests: 2,
         },
         {
           destination: "Rome",
-          image: "../Frontend/assets/rome.jpg",
+          image:
+            "https://upload.wikimedia.org/wikipedia/commons/7/7e/Colosseum_in_Rome%2C_Italy_-_April_2007.jpg",
           start_date: "2024-07-05",
           end_date: "2024-07-10",
           guests: 3,
         },
         {
           destination: "Barcelona",
-          image: "../Frontend/assets/barcelona.jpg",
+          image:
+            "https://upload.wikimedia.org/wikipedia/commons/c/c9/Barcelona_Montjuic_Cable_Car_01.jpg",
           start_date: "2024-08-01",
           end_date: "2024-08-07",
           guests: 1,
@@ -90,9 +119,11 @@
           });
           const data = await res.json();
 
+          // Use real bookings if available, otherwise fallback
           const bookings =
             Array.isArray(data) && data.length > 0 ? data : fallbackBookings;
 
+          // Clear existing rows
           tbody.innerHTML = "";
 
           bookings.forEach((b) => {
@@ -116,6 +147,7 @@
           });
         } catch (err) {
           console.error("Error fetching bookings:", err);
+          // On error, show fallback
           tbody.innerHTML = "";
           fallbackBookings.forEach((b) => {
             const tr = document.createElement("tr");

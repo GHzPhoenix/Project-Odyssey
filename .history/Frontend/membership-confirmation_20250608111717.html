@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membership Confirmation – Travel Odyssey</title>
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/membership.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1 style="color: white">Membership Page</h1>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="booking-history.html">Booking History</a>
+        <a href="membership-confirmation.html">Membership</a>
+        <a href="index.html">Back Home</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="confirmation dashboard-section">
+        <p><strong>Name:</strong> <span id="user-name">Loading…</span></p>
+        <p><strong>Email:</strong> <span id="user-email">Loading…</span></p>
+        <p><strong>Status:</strong> <span id="user-status">Loading…</span></p>
+
+        <p>
+          <strong>Membership Plan:</strong>
+          <span id="membership-type">Loading…</span>
+        </p>
+        <p>
+          <strong>Expiration Date:</strong>
+          <span id="membership-expiration">Loading…</span>
+        </p>
+        <div class="buttons">
+          <a href="dashboard.html" class="button">Go to Dashboard</a>
+          <button id="renew-button" class="button">Renew Membership</button>
+        </div>
+
+        <div id="renew-message" class="message"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container"></div>
+      <div class="footer-bottom">
+        <p>© 2025 Travel Odyssey, Inc. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+          function toggleMenu() {
+            document.querySelector(".nav-menu").classList.toggle("active");
+          }
+
+          document.addEventListener("DOMContentLoaded", () => {
+            const user = JSON.parse(localStorage.getItem("user") || "{}");
+            const membershipType = localStorage.getItem("membershipType");
+            const membershipExpires = localStorage.getItem("membershipExpires");
+
+            document.getElementById("user-name").textContent = user.name || "—";
+            document.getElementById("user-email").textContent = user.email || "—";
+
+            const statusEl = document.getElementById("user-status");
+            if (membershipType) {
+              statusEl.textContent = "Member";
+            } else if (user.role === "admin") {
+              statusEl.textContent = "Admin";
+            } else {
+              statusEl.textContent = "User";
+            }
+
+            document.getElementById("membership-type").textContent =
+              membershipType || "None";
+            document.getElementById("membership-expiration").textContent =
+              membershipExpires || "—";
+
+            const renewBtn = document.getElementById("renew-button");
+            const msgEl = document.getElementById("renew-message");
+
+            renewBtn.addEventListener("click", async () => {
+              msgEl.textContent = "";
+              msgEl.className = "message";
+              const feeMap = {
+                "Premium Plan": 100,
+                "Basic Plan": 50,
+                "Air Plan": 30,
+              };
+              const token = localStorage.getItem("token");
+              if (!token) {
+                msgEl.textContent = "You must be logged in to renew.";
+                msgEl.classList.add("error");
+                return;
+              }
+
+
+        renewBtn.addEventListener("click", async () => {
+          msgEl.textContent = "";
+          msgEl.className = "message";
+
+          const plan = membershipType || "Premium Plan";
+          const fee = feeMap[plan] || 0;
+
+          // 1) Ask the user to confirm the fee
+          if (!confirm(`Renew your ${plan} for €${fee}?`)) {
+            return; // user cancelled
+          }
+
+          // 2) Proceed with the existing renewal logic
+          const token = localStorage.getItem("token");
+          if (!token) {
+            msgEl.textContent = "You must be logged in to renew.";
+            msgEl.classList.add("error");
+            return;
+          }
+
+          renewBtn.disabled = true;
+          renewBtn.textContent = "Renewing…";
+
+          try {
+            const res = await fetch("http://127.0.0.1:5001/api/membership/renew", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+              }
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Renewal failed");
+
+            // Update localStorage & UI with new expiration
+            localStorage.setItem("membershipExpires", data.expiresAt);
+            if (data.membershipType) {
+              localStorage.setItem("membershipType", data.membershipType);
+              document.getElementById("membership-type").textContent = data.membershipType;
+            }
+            document.getElementById("membership-expiration").textContent = data.expiresAt;
+
+            msgEl.textContent = "Membership successfully renewed!";
+            msgEl.classList.add("success");
+          } catch (err) {
+            console.error("Renew error:", err);
+            msgEl.textContent = err.message;
+            msgEl.classList.add("error");
+          } finally {
+            renewBtn.disabled = false;
+            renewBtn.textContent = "Renew Membership";
+          }
+        });
+      });
+              try {
+                const res = await fetch(
+                  "http://127.0.0.1:5001/api/membership/renew",
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: "Bearer " + token,
+                    },
+                  }
+                );
+
+                const data = await res.json();
+                if (!res.ok) {
+                  throw new Error(data.error || "Renewal failed");
+                }
+
+                localStorage.setItem("membershipExpires", data.expiresAt);
+                if (data.membershipType) {
+                  localStorage.setItem("membershipType", data.membershipType);
+                  document.getElementById("membership-type").textContent =
+                    data.membershipType;
+                }
+                document.getElementById("membership-expiration").textContent =
+                  data.expiresAt;
+
+                msgEl.textContent = "Membership successfully renewed!";
+                msgEl.classList.add("success");
+              } catch (err) {
+                console.error("Renew error:", err);
+                msgEl.textContent = err.message;
+                msgEl.classList.add("error");
+              } finally {
+                renewBtn.disabled = false;
+                renewBtn.textContent = "Renew Membership";
+              }
+            });
+          });
+    </script>
+  </body>
+</html>
