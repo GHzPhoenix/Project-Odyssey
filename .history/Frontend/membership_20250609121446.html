@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membership – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/style.css" />
+    <link rel="stylesheet" href="/Frontend/css/membership.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">
+          <img src="/Frontend/assets/your-logo.png" alt="Logo" />
+          Travel Odyssey
+        </div>
+        <button class="menu-toggle" onclick="toggleMenu()">
+          <div></div>
+          <div></div>
+          <div></div>
+        </button>
+        <ul class="nav-menu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="deals.html">Deals</a></li>
+          <li class="dropdown-parent">
+            <a href="#">Services ▼</a>
+            <div class="dropdown">
+              <a href="membership.html" class="active">Membership</a>
+              <a href="dream.html">Plan Your Trip</a>
+              <a href="client-area.html">Client Area</a>
+            </div>
+          </li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="signup.html" class="signup-btn">Sign Up</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="membership-page">
+      <h1>Choose Your Adventure Pass</h1>
+      <p class="intro">
+        Unlock exclusive perks—upgrades, lounge access, custom itineraries, and
+        24/7 support.
+      </p>
+
+      <!-- 1) CURRENT MEMBERSHIP BAR -->
+      <div
+        id="membership-status"
+        class="membership-status"
+        style="display: none"
+      >
+        You have a <strong id="current-plan"></strong> membership<br />
+        valid until <em id="expires"></em>.<br />
+        <button id="renew-btn" class="join-btn">Renew Now</button>
+      </div>
+
+      <!-- 2) “ADVERT” SECTION -->
+      <section class="adverts">
+        <div class="advert-card">
+          <img src="/Frontend/assets/icon-air.svg" alt="Air" />
+          <h3>Air Membership</h3>
+          <p>Upgrades, lounge access, priority boarding.</p>
+        </div>
+        <div class="advert-card">
+          <img src="/Frontend/assets/icon-earth.svg" alt="Earth" />
+          <h3>Earth Membership</h3>
+          <p>Eco-tours, guided hikes, local culture.</p>
+        </div>
+        <div class="advert-card">
+          <img src="/Frontend/assets/icon-water.svg" alt="Water" />
+          <h3>Water Membership</h3>
+          <p>Cruises, dive excursions, seaside retreats.</p>
+        </div>
+      </section>
+
+      <!-- 3) PAYMENT FORM -->
+      <form id="membership-form">
+        <div class="form-row">
+          <label for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+        <div class="form-row">
+          <label for="plan-select">Select Plan</label>
+          <select id="plan-select" required>
+            <option value="Air" data-price="799">Air – €799/yr</option>
+            <option value="Earth" data-price="699">Earth – €699/yr</option>
+            <option value="Water" data-price="999">Water – €999/yr</option>
+          </select>
+        </div>
+        <div id="paypal-button-container"></div>
+        <p id="form-error" class="error-message" style="display: none"></p>
+      </form>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <h3>Travel Odyssey</h3>
+          <p>Your gateway to unforgettable journeys.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Support</h3>
+          <ul>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        © 2025 Travel Odyssey, Inc. All rights reserved.
+      </div>
+    </footer>
+
+    <script>
+      function toggleMenu() {
+        document.querySelector(".nav-menu").classList.toggle("active");
+      }
+    </script>
+
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_SANDBOX_CLIENT_ID&currency=EUR"></script>
+    <script>
+      const statusBar = document.getElementById("membership-status");
+      const currentPlanEl = document.getElementById("current-plan");
+      const expiresEl = document.getElementById("expires");
+      const renewBtn = document.getElementById("renew-btn");
+      const emailInput = document.getElementById("email");
+      const planSelect = document.getElementById("plan-select");
+      const formError = document.getElementById("form-error");
+
+      // 1) Fetch existing membership, if any
+      (async function () {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        try {
+          const res = await fetch("http://127.0.0.1:5001/api/membership", {
+            headers: { Authorization: "Bearer " + token },
+          });
+          if (!res.ok) throw "";
+          const { membership_type, membership_expires } = await res.json();
+          currentPlanEl.textContent = membership_type;
+          expiresEl.textContent = new Date(
+            membership_expires
+          ).toLocaleDateString();
+          statusBar.style.display = "block";
+          // pre-fill form
+          planSelect.value = membership_type;
+          emailInput.value =
+            JSON.parse(localStorage.getItem("user") || "{}").email || "";
+        } catch (e) {
+          // no membership or error → leave hidden
+        }
+      })();
+
+      // 2) Renew button simply scrolls to form and selects current plan
+      renewBtn.onclick = () => {
+        window.scrollTo({
+          top: document.getElementById("membership-form").offsetTop - 20,
+          behavior: "smooth",
+        });
+      };
+
+      // 3) Render PayPal
+      paypal
+        .Buttons({
+          onInit: (data, actions) => {
+            actions.disable();
+            function validate() {
+              if (emailInput.checkValidity() && planSelect.value)
+                actions.enable();
+              else actions.disable();
+            }
+            emailInput.addEventListener("input", validate);
+            planSelect.addEventListener("change", validate);
+          },
+          createOrder: (data, actions) => {
+            const price = planSelect.selectedOptions[0].dataset.price;
+            return actions.order.create({
+              purchase_units: [
+                {
+                  amount: { value: price },
+                  description: planSelect.value + " Membership",
+                },
+              ],
+            });
+          },
+          onApprove: async (data, actions) => {
+            try {
+              await actions.order.capture();
+              // activate membership in our DB
+              const resp = await fetch(
+                "http://127.0.0.1:5001/api/membership/purchase",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    email: emailInput.value.trim(),
+                    plan: planSelect.value,
+                  }),
+                }
+              );
+              const json = await resp.json();
+              if (!resp.ok) throw new Error(json.error || "Activation failed");
+              alert(
+                `Success! Your ${json.membership_type} membership is active until ${json.membership_expires}.`
+              );
+              window.location.href = "client-area.html";
+            } catch (err) {
+              formError.textContent = err.message;
+              formError.style.display = "block";
+            }
+          },
+          onError: (err) => {
+            formError.textContent = "Payment error, please try again.";
+            formError.style.display = "block";
+            console.error(err);
+          },
+        })
+        .render("#paypal-button-container");
+    </script>
+  </body>
+</html>

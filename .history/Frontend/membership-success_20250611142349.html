@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membership Confirmed – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/membership-success.css" />
+  </head>
+  <body>
+    <div class="confirmation-card">
+      <img src="/Frontend/assets/checkmark.gif" alt="Success" class="icon" />
+      <h1>Membership Confirmed!</h1>
+      <p>Your <strong id="plan-name">…</strong> plan is active until</p>
+      <p><strong id="plan-expiry">…</strong></p>
+      <button id="go-client" class="btn-primary">Go to Client Area</button>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const plan = localStorage.getItem("membershipType") || "Premium";
+        const expiry = localStorage.getItem("membershipExpires") || "—";
+        document.getElementById("plan-name").textContent = plan;
+        document.getElementById("plan-expiry").textContent = expiry;
+        document
+          .getElementById("go-client")
+          .addEventListener(
+            "click",
+            () => (location.href = "client-area.html")
+          );
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membership Success – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/style.css" />
+    <link rel="stylesheet" href="/Frontend/css/membership.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">
+          <img src="/Frontend/assets/your-logo.png" alt="Logo" />
+          Travel Odyssey
+        </div>
+        <button class="menu-toggle" onclick="toggleMenu()">
+          <div></div>
+          <div></div>
+          <div></div>
+        </button>
+        <ul class="nav-menu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="deals.html">Deals</a></li>
+          <li class="dropdown-parent">
+            <a href="#">Services ▼</a>
+            <div class="dropdown">
+              <a href="membership.html">Membership</a>
+              <a href="dream.html">Plan Your Trip</a>
+              <a href="client-area.html">Client Area</a>
+            </div>
+          </li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="signup.html" class="signup-btn">Sign Up</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="membership-page">
+      <h1>Thank You!</h1>
+      <p id="status-message">Confirming your membership…</p>
+      <div id="details" style="display: none">
+        <p><strong>Plan:</strong> <span id="plan-name"></span></p>
+        <p><strong>Expires on:</strong> <span id="plan-expires"></span></p>
+        <button id="go-client" class="join-btn">Go to Client Area</button>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <h3>Travel Odyssey</h3>
+          <p>Your gateway to unforgettable journeys.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Support</h3>
+          <ul>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        © 2025 Travel Odyssey, Inc. All rights reserved.
+      </div>
+    </footer>
+
+    <script>
+      function toggleMenu() {
+        document.querySelector(".nav-menu").classList.toggle("active");
+      }
+
+      (async function () {
+        const params = new URLSearchParams(location.search);
+        const orderID = params.get("token");
+        const msgEl = document.getElementById("status-message");
+        const detailsEl = document.getElementById("details");
+        const planNameEl = document.getElementById("plan-name");
+        const planExpiresEl = document.getElementById("plan-expires");
+        const goBtn = document.getElementById("go-client");
+
+        if (!orderID) {
+          msgEl.textContent = "No payment token found.";
+          return;
+        }
+
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const plan = localStorage.getItem("membershipType") || "Premium";
+
+        try {
+          const capRes = await fetch(
+            `http://127.0.0.1:5001/api/paypal/capture/${orderID}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+          if (!capRes.ok) throw new Error("Capture failed");
+          await capRes.json();
+
+          const purchaseRes = await fetch(
+            "http://127.0.0.1:5001/api/membership/purchase",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: JSON.stringify({
+                email: user.email,
+                plan: plan,
+              }),
+            }
+          );
+          const purchaseData = await purchaseRes.json();
+          if (!purchaseRes.ok) throw new Error(purchaseData.error);
+
+          localStorage.setItem("membershipType", purchaseData.membership_type);
+          localStorage.setItem(
+            "membershipExpires",
+            purchaseData.membership_expires
+          );
+
+          planNameEl.textContent = purchaseData.membership_type;
+          planExpiresEl.textContent = purchaseData.membership_expires;
+          msgEl.style.display = "none";
+          detailsEl.style.display = "block";
+        } catch (err) {
+          console.error(err);
+          msgEl.textContent =
+            err.message || "There was a problem confirming your membership.";
+        }
+
+        goBtn.onclick = () => {
+          window.location.href = "client-area.html";
+        };
+      })();
+    </script>
+  </body>
+</html>

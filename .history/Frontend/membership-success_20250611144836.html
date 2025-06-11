@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membership Confirmed – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/membership-success.css" />
+  </head>
+  <body>
+    <div class="confirmation-card">
+      <img src="/Frontend/assets/checkmark.gif" alt="Success" class="icon" />
+      <h1>Membership Confirmed!</h1>
+      <p>Your <strong id="plan-name">…</strong> plan is active until</p>
+      <p><strong id="plan-expiry">…</strong></p>
+      <button id="go-client" class="btn-primary">Go to Client Area</button>
+    </div>
+
+    <script>
+      (async () => {
+        const params = new URLSearchParams(location.search);
+        const orderID = params.get("token");
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const planKey = localStorage.getItem("membershipType") || "premium";
+
+        const nameEl = document.getElementById("plan-name");
+        const expiryEl = document.getElementById("plan-expiry");
+        const goBtn = document.getElementById("go-client");
+
+        nameEl.textContent = planKey.charAt(0).toUpperCase() + planKey.slice(1);
+        expiryEl.textContent = localStorage.getItem("membershipExpires") || "—";
+
+        if (!orderID || !token) {
+          alert("Missing payment session or not logged in.");
+          return (location.href = "membership.html");
+        }
+
+        try {
+          let capRes = await fetch(
+            `http://127.0.0.1:5001/api/paypal/capture/${orderID}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+          if (!capRes.ok) throw await capRes.json();
+
+          let purchaseRes = await fetch(
+            "http://127.0.0.1:5001/api/membership/purchase",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: JSON.stringify({ planId: planKey }),
+            }
+          );
+          let purchase = await purchaseRes.json();
+          if (!purchase.membership_expires) {
+            throw new Error(purchase.error || "Membership activation failed");
+          }
+
+          localStorage.setItem("membershipType", purchase.membership_type);
+          localStorage.setItem(
+            "membershipExpires",
+            purchase.membership_expires
+          );
+          nameEl.textContent = purchase.membership_type;
+          expiryEl.textContent = purchase.membership_expires;
+        } catch (err) {
+          console.error("Membership confirmation failed:", err);
+          alert(err.error || err.message || "Something went wrong.");
+          return (location.href = "membership.html");
+        }
+
+        goBtn.onclick = () => (location.href = "client-area.html");
+      })();
+    </script>
+  </body>
+</html>

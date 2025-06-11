@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membership Confirmed – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/membership-success.css" />
+  </head>
+  <body>
+    <div class="confirmation-card">
+      <img src="/Frontend/assets/checkmark.gif" alt="Success" class="icon" />
+      <h1>Membership Confirmed!</h1>
+      <p>Your <strong id="plan-name">…</strong> plan is active until</p>
+      <p><strong id="plan-expiry">…</strong></p>
+      <button id="go-client" class="btn-primary">Go to Client Area</button>
+    </div>
+
+    <script>
+      (async () => {
+        const params = new URLSearchParams(location.search);
+        const orderID = params.get("token"); // PayPal returns this token
+        const token = localStorage.getItem("token"); // your JWT
+
+        // elements
+        const planNameEl = document.getElementById("plan-name");
+        const planExpiryEl = document.getElementById("plan-expiry");
+        const goClientBtn = document.getElementById("go-client");
+
+        if (!orderID || !token) {
+          alert("Missing payment session or not logged in.");
+          return (location.href = "membership.html");
+        }
+
+        try {
+          // 1) Capture the PayPal order
+          const capRes = await fetch(
+            `http://127.0.0.1:5001/api/paypal/capture/${orderID}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+          if (!capRes.ok) throw await capRes.json();
+
+          // 2) Activate the membership in your DB
+          const purchaseRes = await fetch(
+            "http://127.0.0.1:5001/api/membership/purchase",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: JSON.stringify({
+                planId:
+                  localStorage.getItem("membershipType")?.toLowerCase() ||
+                  "premium",
+              }),
+            }
+          );
+          const purchase = await purchaseRes.json();
+          if (!purchase.membership_expires) throw new Error(purchase.error);
+
+          // 3) Update UI & storage
+          localStorage.setItem("membershipType", purchase.membership_type);
+          localStorage.setItem(
+            "membershipExpires",
+            purchase.membership_expires
+          );
+          planNameEl.textContent = purchase.membership_type;
+          planExpiryEl.textContent = purchase.membership_expires;
+        } catch (err) {
+          console.error("Membership confirmation failed:", err);
+          alert(err.error || err.message || "Something went wrong.");
+          return (location.href = "membership.html");
+        }
+
+        goClientBtn.onclick = () => {
+          location.href = "client-area.html";
+        };
+      })();
+    </script>
+  </body>
+</html>
