@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membership – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/dashboard.css" />
+    <link rel="stylesheet" href="/Frontend/css/membership.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      #btn-logout {
+        background: var(--accent);
+        color: var(--white);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.3s;
+        margin-left: auto;
+      }
+      #btn-logout:hover {
+        background: #ff4a75;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const token = localStorage.getItem("token");
+      if (!token) window.location.replace("client-area.html");
+    </script>
+
+    <header>
+      <h1 style="color: white">Membership</h1>
+      <nav style="display: flex; align-items: center; gap: 1rem">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="booking-history.html">Booking History</a>
+        <a href="membership.html" class="active">Membership</a>
+        <a href="index.html">Back Home</a>
+        <button id="btn-logout">Log Out</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="confirmation dashboard-section">
+        <p><strong>Name:</strong> <span id="user-name">Loading…</span></p>
+        <p><strong>Email:</strong> <span id="user-email">Loading…</span></p>
+        <p><strong>Status:</strong> <span id="user-status">Loading…</span></p>
+        <p><strong>Plan:</strong> <span id="membership-type">Loading…</span></p>
+        <p>
+          <strong>Expires:</strong>
+          <span id="membership-expiration">Loading…</span>
+        </p>
+
+        <div id="paypal-button-container" style="margin-top: 1.5rem"></div>
+        <div id="renew-message" class="message"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container"></div>
+      <div class="footer-bottom">
+        <p>© 2025 Travel Odyssey, Inc. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById("btn-logout").onclick = () => {
+        localStorage.clear();
+        window.location.replace("client-area.html");
+      };
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const membershipType = localStorage.getItem("membershipType") || "";
+        const membershipExpires =
+          localStorage.getItem("membershipExpires") || "";
+        const token = localStorage.getItem("token");
+
+        document.getElementById("user-name").textContent = user.name || "—";
+        document.getElementById("user-email").textContent = user.email || "—";
+        document.getElementById("membership-type").textContent =
+          membershipType || "None";
+        document.getElementById("membership-expiration").textContent =
+          membershipExpires || "—";
+
+        const statusEl = document.getElementById("user-status");
+        statusEl.textContent = membershipType
+          ? "Member"
+          : user.role === "admin"
+          ? "Admin"
+          : "User";
+
+        let clientId;
+        try {
+          ({ clientId } = await fetch(
+            "http://127.0.0.1:5001/api/config/paypal"
+          ).then((r) => r.json()));
+        } catch {
+          document.getElementById("renew-message").textContent =
+            "Unable to load payment options.";
+          document.getElementById("renew-message").classList.add("error");
+          return;
+        }
+        const sdk = document.createElement("script");
+        sdk.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=EUR`;
+        sdk.onload = renderPayPalButtons;
+        document.head.appendChild(sdk);
+
+        function renderPayPalButtons() {
+          paypal
+            .Buttons({
+              style: { layout: "vertical", shape: "pill", color: "blue" },
+
+              createOrder: (_, actions) => {
+                return fetch("http://127.0.0.1:5001/api/paypal/order", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                  },
+                  body: JSON.stringify({ planId: "premium" }),
+                })
+                  .then((res) => {
+                    if (!res.ok) throw new Error("Could not create order");
+                    return res.json();
+                  })
+                  .then((data) => data.orderID);
+              },
+
+              onApprove: (_, actions) => {
+                return actions.order.capture().then(() => {
+                  return fetch(
+                    "http://127.0.0.1:5001/api/membership/purchase",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer " + token,
+                      },
+                      body: JSON.stringify({ planId: "premium" }),
+                    }
+                  )
+                    .then((res) => res.json())
+                    .then((purchase) => {
+                      if (!purchase.membership_expires) {
+                        throw new Error("Activation failed");
+                      }
+                      localStorage.setItem(
+                        "membershipType",
+                        purchase.membership_type
+                      );
+                      localStorage.setItem(
+                        "membershipExpires",
+                        purchase.membership_expires
+                      );
+                      window.location.href = "membership-success.html";
+                    });
+                });
+              },
+
+              onError: (err) => {
+                console.error("PayPal error:", err);
+                const msg = document.getElementById("renew-message");
+                msg.textContent = "Payment failed. Please try again.";
+                msg.classList.add("error");
+              },
+            })
+            .render("#paypal-button-container");
+        }
+      });
+    </script>
+  </body>
+</html>

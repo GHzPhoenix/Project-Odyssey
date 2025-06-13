@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/dashboard.css" />
+    <style>
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal-overlay.active {
+        display: flex;
+      }
+      .modal {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.2);
+        text-align: center;
+      }
+      .modal h2 {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+      }
+      .input-group {
+        margin-bottom: 1rem;
+        text-align: left;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+      .input-group input[type="number"] {
+        width: 100%;
+        padding: 0.6rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+      .modal-note {
+        font-size: 0.9rem;
+        color: #555;
+        margin-bottom: 1.5rem;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+      }
+      .modal-actions button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+      #modal-cancel {
+        background: #ccc;
+        color: #333;
+      }
+      #modal-confirm {
+        background: purple;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Welcome to Your Dashboard</h1>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="booking-history.html">Booking History</a>
+        <a href="membership-confirmation.html">Membership</a>
+        <a href="index.html">Back Home</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="profile">
+        <h2>User Profile</h2>
+        <p><strong>Name:</strong> <span id="username">Loading...</span></p>
+        <p><strong>Email:</strong> <span id="user-email">Loading...</span></p>
+        <p>
+          <strong>Membership Status:</strong>
+          <span id="membership-status">Loading...</span>
+        </p>
+      </section>
+
+      <section class="recent-bookings">
+        <h2>Recent Bookings</h2>
+        <ul id="booking-list">
+          <li>Loading...</li>
+        </ul>
+      </section>
+
+      <section class="trending-deals">
+        <h2>Available Deals</h2>
+        <div class="deals-container" id="deals-container"></div>
+        <p id="no-deals" class="no-deals" style="display: none">
+          No deals available right now.
+        </p>
+      </section>
+    </main>
+
+    <div id="booking-modal" class="modal-overlay">
+      <div class="modal">
+        <h2>Book Your Trip</h2>
+        <form id="booking-form">
+          <div class="input-group">
+            <label for="modal-guests">Number of Guests</label>
+            <input
+              type="number"
+              id="modal-guests"
+              name="guests"
+              min="1"
+              value="1"
+              required
+            />
+          </div>
+          <div id="paypal-deal-container" style="margin-bottom: 1rem"></div>
+
+          <p class="modal-note">Pay now.</p>
+          <div class="modal-actions">
+            <button type="button" id="modal-cancel">Cancel</button>
+            <button type="submit" id="modal-confirm">Confirm</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="footer-bottom">
+        <p>© 2025 Travel Odyssey, Inc. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", loadDashboard);
+
+      async function loadDashboard() {
+        const token = localStorage.getItem("token");
+        if (!token) return window.location.replace("client-area.html");
+
+        // --- User & bookings setup (unchanged) ---
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        document.getElementById("username").textContent = user.name || "—";
+        document.getElementById("user-email").textContent = user.email || "—";
+        document.getElementById("membership-status").textContent =
+          user.role === "admin" ? "Admin" : "User";
+
+        const bookingList = document.getElementById("booking-list");
+        bookingList.innerHTML = "";
+        try {
+          const res = await fetch("http://127.0.0.1:5001/api/bookings", {
+            headers: { Authorization: "Bearer " + token },
+          });
+          const bookings = res.ok ? await res.json() : [];
+          if (!bookings.length) {
+            bookingList.innerHTML = "<li>You have no previous bookings.</li>";
+          } else {
+            bookings.forEach((b) => {
+              const li = document.createElement("li");
+              const s = new Date(b.start_date).toLocaleDateString();
+              const e = new Date(b.end_date).toLocaleDateString();
+              li.textContent = `${b.destination} — ${s} to ${e}`;
+              bookingList.appendChild(li);
+            });
+          }
+        } catch {
+          bookingList.innerHTML = "<li>Could not load booking history.</li>";
+        }
+
+        // --- Deals setup ---
+        const dealsContainer = document.getElementById("deals-container");
+        const noDealsMsg = document.getElementById("no-deals");
+        dealsContainer.textContent = "Loading…";
+        let deals = [];
+        try {
+          const res = await fetch("http://127.0.0.1:5001/api/deals");
+          if (!res.ok) throw new Error();
+          deals = await res.json();
+        } catch {
+          dealsContainer.innerHTML =
+            "<p class='no-deals'>Unable to load deals.</p>";
+          return;
+        }
+        dealsContainer.innerHTML = "";
+        if (!deals.length) {
+          noDealsMsg.style.display = "block";
+          return;
+        }
+        deals.forEach((d) => {
+          const card = document.createElement("div");
+          card.className = "deal-card";
+          card.innerHTML = `
+        <img src="${d.image_url}" alt="${d.name}" />
+        <div class="deal-card-body">
+          <h3>${d.name}</h3>
+          <p>${d.location} — ${d.activities}</p>
+          <p class="card-dates">
+            ${new Date(d.start_date).toLocaleDateString()} – ${new Date(
+            d.end_date
+          ).toLocaleDateString()}
+          </p>
+          <p class="card-price">€${d.price.toFixed(2)}</p>
+          <a href="#" class="btn-primary card-button" data-id="${d.id}">
+            Book Now
+          </a>
+        </div>
+      `;
+          dealsContainer.appendChild(card);
+        });
+
+        // --- PayPal SDK loader ---
+        let paypalReady = false;
+        const { clientId } = await fetch(
+          "http://127.0.0.1:5001/api/config/paypal"
+        ).then((r) => r.json());
+        const sdk = document.createElement("script");
+        sdk.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=EUR`;
+        sdk.onload = () => (paypalReady = true);
+        document.head.appendChild(sdk);
+
+        // --- Modal & booking logic ---
+        const modal = document.getElementById("booking-modal");
+        const cancelBtn = document.getElementById("modal-cancel");
+        const paypalDiv = document.getElementById("paypal-deal-container");
+        let pendingDealId = null;
+
+        dealsContainer.addEventListener("click", (e) => {
+          if (!e.target.matches(".card-button")) return;
+          e.preventDefault();
+          pendingDealId = e.target.dataset.id;
+          modal.classList.add("active");
+          if (paypalReady) renderPayPalButton();
+          else sdk.onload = renderPayPalButton;
+        });
+
+        cancelBtn.addEventListener("click", () => {
+          modal.classList.remove("active");
+          paypalDiv.innerHTML = "";
+        });
+
+        function renderPayPalButton() {
+          paypalDiv.innerHTML = ""; // clear previous button
+
+          const deal = deals.find((d) => d.id == pendingDealId);
+          const guests = 2; // ** default to 2 **
+          const amount = (deal.price * guests).toFixed(2);
+
+          paypal
+            .Buttons({
+              style: {
+                layout: "vertical",
+                shape: "pill",
+                color: "gold",
+                label: "pay",
+              },
+
+              createOrder: (_, actions) =>
+                actions.order.create({
+                  purchase_units: [
+                    {
+                      reference_id: pendingDealId,
+                      amount: { currency_code: "EUR", value: amount },
+                    },
+                  ],
+                }),
+
+              onApprove: (_, actions) =>
+                actions.order
+                  .capture()
+                  .then(() => {
+                    // record booking on our backend
+                    return fetch("http://127.0.0.1:5001/api/bookings", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer " + token,
+                      },
+                      body: JSON.stringify({
+                        deal_id: pendingDealId,
+                        destination: deal.name,
+                        start_date: deal.start_date,
+                        end_date: deal.end_date,
+                        guests, // always 2
+                      }),
+                    });
+                  })
+                  .then((res) => {
+                    if (!res.ok) throw new Error("Booking save failed");
+                    return res.json();
+                  })
+                  .then((booking) => {
+                    const li = document.createElement("li");
+                    const s = new Date(booking.start_date).toLocaleDateString();
+                    const e = new Date(booking.end_date).toLocaleDateString();
+                    li.textContent = `${booking.destination} — ${s} to ${e} (Paid)`;
+                    document.getElementById("booking-list").appendChild(li);
+                    alert("Booking confirmed & paid!");
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                    alert(err.message || "Something went wrong");
+                  })
+                  .finally(() => {
+                    modal.classList.remove("active");
+                    paypalDiv.innerHTML = "";
+                  }),
+
+              onError: (err) => {
+                console.error("PayPal error:", err);
+                alert("Payment failed. Please try again.");
+              },
+            })
+            .render("#paypal-deal-container");
+        }
+      }
+    </script>
+  </body>
+</html>

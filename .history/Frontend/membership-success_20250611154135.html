@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Membership Confirmed – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/membership-success.css" />
+  </head>
+  <body>
+    <div class="confirmation-card">
+      <img src="/Frontend/assets/checkmark.gif" class="icon" alt="Success" />
+      <h1>Membership Confirmed!</h1>
+      <p>Your <strong id="plan-name">Premium</strong> plan is active until</p>
+      <p><strong id="plan-expiry">—</strong></p>
+      <button id="go-client" class="btn-primary">Go to Client Area</button>
+    </div>
+
+    <script>
+      (async () => {
+        const p = new URLSearchParams(window.location.search);
+        const orderID = p.get("orderID");
+        const token = localStorage.getItem("token");
+        if (!orderID || !token) {
+          alert("Missing payment session or not logged in.");
+          return location.replace("membership.html");
+        }
+
+        try {
+          // capture
+          let capRes = await fetch(
+            `http://127.0.0.1:5001/api/paypal/capture/${orderID}`,
+            { method: "POST", headers: { Authorization: "Bearer " + token } }
+          );
+          if (!capRes.ok) throw await capRes.json();
+          await capRes.json(); // discard
+
+          // finalize membership
+          let purchase = await fetch(
+            "http://127.0.0.1:5001/api/membership/purchase",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: JSON.stringify({ planId: "premium" }),
+            }
+          ).then((r) => r.json());
+          if (!purchase.membership_expires)
+            throw new Error(purchase.error || "Activation failed");
+
+          // update UI & localStorage
+          localStorage.setItem("membershipType", purchase.membership_type);
+          localStorage.setItem(
+            "membershipExpires",
+            purchase.membership_expires
+          );
+          document.getElementById("plan-expiry").textContent =
+            purchase.membership_expires;
+        } catch (err) {
+          console.error("Membership confirmation failed:", err);
+          alert(err.error || err.message || "Something went wrong.");
+          return location.replace("membership.html");
+        }
+
+        document.getElementById("go-client").onclick = () =>
+          (location.href = "client-area.html");
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,122 @@
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap");
+
+:root {
+  --primary: purple;
+  --primary-light: #947fff;
+  --accent: #ff6f91;
+  --text-dark: #333;
+  --bg-light: #f4f4f9;
+  --white: #fff;
+  --radius: 1rem;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Merriweather", serif;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--text-dark);
+}
+
+main {
+  max-width: 900px;
+  margin: 3rem auto;
+  background: var(--white);
+  padding: 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.dream-intro {
+  margin-bottom: 2.5rem;
+  color: var(--primary-light);
+}
+
+.dream-intro h2 {
+  font-size: 2.5rem;
+  color: var(--white);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.dream-intro p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  text-align: center;
+}
+
+.dream-form {
+  width: 100%;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.input-group input,
+.input-group textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.button-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.submit {
+  background: var(--accent);
+  color: var(--white);
+  border: none;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.submit:hover {
+  background: #d54a93;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  main {
+    margin: 1.5rem;
+    padding: 1.5rem;
+  }
+  .dream-intro h2 {
+    font-size: 2rem;
+  }
+  .dream-intro p {
+    font-size: 1rem;
+  }
+}

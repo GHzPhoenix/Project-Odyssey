@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>All Deals – Travel Odyssey</title>
+
+    <link rel="stylesheet" href="/Frontend/css/style.css" />
+    <link rel="stylesheet" href="/Frontend/css/deals.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      crossorigin="anonymous"
+      defer
+    ></script>
+
+    <style>
+      .deals-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        padding: 2rem;
+      }
+
+      .card {
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card:hover {
+        transform: translateY(-0.5rem);
+        box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.15);
+      }
+
+      .card-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+      }
+
+      .card-info {
+        padding: 1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-title {
+        margin: 0 0 0.5rem;
+        font-size: 1.25rem;
+        color: #333;
+      }
+
+      .card-subtext {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 0 0 1rem;
+        flex: 1;
+      }
+
+      .card-dates {
+        font-size: 0.85rem;
+        color: #999;
+        margin-bottom: 1rem;
+      }
+
+      .card-button {
+        align-self: flex-start;
+        background-color: #6c63ff;
+        color: #fff;
+        padding: 0.6rem 1.2rem;
+        border-radius: 0.6rem;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.3s ease;
+      }
+
+      .card-button:hover {
+        background-color: #5950d4;
+      }
+
+      .no-deals,
+      .error-message {
+        text-align: center;
+        color: #555;
+        padding: 2rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <div class="logo">
+          <img src="/Frontend/assets/your-logo.png" alt="Logo" />
+          Travel Odyssey
+        </div>
+        <div class="menu-toggle" onclick="toggleMenu()">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <ul class="nav-menu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="deals.html">Deals</a></li>
+          <li class="dropdown-parent">
+            <a href="#">Services ▼</a>
+            <div class="dropdown">
+              <a href="membership.html">Memberships</a>
+              <a href="dream.html">Plan your Trip</a>
+              <a href="client-area.html">Client Area</a>
+            </div>
+          </li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="signup.html" class="signup-btn">Sign Up</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2 class="page-title">All Available Deals</h2>
+
+      <section class="trending-deals">
+        <div class="deals-container" id="deals-container"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <h3>Travel Odyssey</h3>
+          <p>
+            Your gateway to unforgettable journeys. Discover, explore, and
+            experience the world with us.
+          </p>
+        </div>
+        <div class="footer-section">
+          <h3>Company</h3>
+          <ul>
+            <li><a href="aboutus.html">About Us</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="affiliates.html">Affiliates</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Support</h3>
+          <ul>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="terms.html">Terms & Conditions</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Follow Us</h3>
+          <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-section newsletter">
+          <h3>Stay Updated</h3>
+          <form action="#">
+            <input type="email" placeholder="Enter your email" required />
+            <button type="submit">Subscribe</button>
+          </form>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Travel Odyssey, Inc. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      function toggleMenu() {
+        document.querySelector(".nav-menu").classList.toggle("active");
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const container = document.getElementById("deals-container");
+
+        async function fetchAndRenderDeals() {
+          container.textContent = "Loading…";
+          try {
+            const res = await fetch("http://127.0.0.1:5001/api/deals");
+            if (!res.ok) throw new Error("Fetch failed");
+            const deals = await res.json();
+            container.innerHTML = "";
+
+            if (!deals.length) {
+              container.innerHTML =
+                "<p class='no-deals'>No deals available.</p>";
+              return;
+            }
+
+            deals.forEach((deal) => {
+              const card = document.createElement("div");
+              card.className = "card";
+              card.innerHTML = `
+            <img class="card-image" src="${deal.image_url}" alt="${deal.name}">
+            <div class="card-info">
+              <h3 class="card-title">${deal.name}</h3>
+              <p class="card-subtext">${deal.location} • ${deal.activities}</p>
+              <p class="card-dates">
+                ${new Date(deal.start_date).toLocaleDateString()} – ${new Date(
+                deal.end_date
+              ).toLocaleDateString()}
+              </p>
+              <p class="card-price">€${deal.price.toFixed(2)}</p>
+              <a href="#" class="card-button" data-id="${
+                deal.id
+              }">Go to Client Area</a>
+            </div>
+          `;
+              container.appendChild(card);
+            });
+          } catch (err) {
+            console.error(err);
+            container.innerHTML =
+              "<p class='error-message'>Failed to load deals.</p>";
+          }
+        }
+
+        container.addEventListener("click", (e) => {
+          if (!e.target.matches(".card-button")) return;
+          e.preventDefault();
+          const id = e.target.dataset.id;
+          // send them to the client area, with the deal ID in the query string:
+          window.location.href = `client-area.html?deal=${id}`;
+        });
+
+        fetchAndRenderDeals();
+      });
+    </script>
+  </body>
+</html>
