@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Dashboard – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style>
+      .kpi-container {
+        display: none;
+      }
+      table {
+        margin: 2rem auto;
+        max-width: 1200px;
+        width: 95%;
+      }
+      .status-active {
+        color: #28a745;
+        font-weight: bold;
+      }
+      .status-cancelled {
+        color: #dc3545;
+        font-weight: bold;
+      }
+      .action-btn {
+        padding: 4px 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        margin: 0 2px;
+      }
+      .cancel-btn {
+        background: #dc3545;
+        color: #fff;
+      }
+      .cancel-btn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+      .edit-btn {
+        background: #007bff;
+        color: #fff;
+      }
+      .delete-btn {
+        background: #6c757d;
+        color: #fff;
+      }
+      .filters {
+        max-width: 1200px;
+        width: 95%;
+        margin: 1rem auto;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+      .filter-select {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .bookings-summary {
+        max-width: 1200px;
+        width: 95%;
+        margin: 1rem auto;
+        display: flex;
+        gap: 2rem;
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+      }
+      .summary-item {
+        text-align: center;
+      }
+      .summary-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #007bff;
+      }
+      .summary-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html">Users</a></li>
+          <li><a href="admin-bookings.html" class="active">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2 class="section">Client Bookings Management</h2>
+
+      <div class="bookings-summary" id="summary">
+        <div class="summary-item">
+          <div class="summary-number" id="total-bookings">0</div>
+          <div class="summary-label">Total Bookings</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-number" id="active-bookings">0</div>
+          <div class="summary-label">Active Bookings</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-number" id="cancelled-bookings">0</div>
+          <div class="summary-label">Cancelled Bookings</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-number" id="total-guests">0</div>
+          <div class="summary-label">Total Guests</div>
+        </div>
+      </div>
+
+      <div class="filters">
+        <label for="status-filter">Filter by Status:</label>
+        <select id="status-filter" class="filter-select">
+          <option value="all">All</option>
+          <option value="active">Active Only</option>
+          <option value="cancelled">Cancelled Only</option>
+        </select>
+
+        <label for="sort-filter">Sort by:</label>
+        <select id="sort-filter" class="filter-select">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="start-date">Start Date</option>
+          <option value="user">User Name</option>
+        </select>
+
+        <button onclick="loadBookings()" class="action-btn edit-btn">
+          Refresh
+        </button>
+      </div>
+
+      <table id="booking-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>User</th>
+            <th>Email</th>
+            <th>Deal</th>
+            <th>Dates</th>
+            <th>Guests</th>
+            <th>Booked On</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="9">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <script>
+      const baseUrl = "http://127.0.0.1:5002";
+      const token = localStorage.getItem("token") || "";
+      let allBookings = [];
+
+      async function fetchJSON(path, opts = {}) {
+        opts.headers = {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+          ...opts.headers,
+        };
+        const res = await fetch(baseUrl + path, opts);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      }
+
+      async function loadBookings() {
+        const tbody = document.querySelector("#booking-table tbody");
+        tbody.innerHTML = "<tr><td colspan='9'>Loading…</td></tr>";
+        try {
+          allBookings = await fetchJSON("/api/bookings/all");
+          updateSummary(allBookings);
+          filterAndDisplayBookings();
+        } catch (err) {
+          console.error("Error loading bookings:", err);
+          tbody.innerHTML =
+            "<tr><td colspan='9'>Error loading bookings. Check console.</td></tr>";
+        }
+      }
+
+      function updateSummary(bookings) {
+        const active = bookings.filter((b) => !b.cancelled_at);
+        const cancelled = bookings.filter((b) => !!b.cancelled_at);
+        const guests = active.reduce((sum, b) => sum + (b.guests || 0), 0);
+        document.getElementById("total-bookings").textContent = bookings.length;
+        document.getElementById("active-bookings").textContent = active.length;
+        document.getElementById("cancelled-bookings").textContent =
+          cancelled.length;
+        document.getElementById("total-guests").textContent = guests;
+      }
+
+      function filterAndDisplayBookings() {
+        const status = document.getElementById("status-filter").value;
+        const sortBy = document.getElementById("sort-filter").value;
+
+        let list = [...allBookings];
+        if (status === "active") list = list.filter((b) => !b.cancelled_at);
+        if (status === "cancelled") list = list.filter((b) => !!b.cancelled_at);
+
+        list.sort((a, b) => {
+          if (sortBy === "oldest")
+            return new Date(a.created_at) - new Date(b.created_at);
+          if (sortBy === "start-date")
+            return new Date(a.start_date) - new Date(b.start_date);
+          if (sortBy === "user")
+            return (a.user_name || "").localeCompare(b.user_name || "");
+          // newest
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+        const rows = list
+          .map((b) => {
+            const dates =
+              new Date(b.start_date).toLocaleDateString() +
+              " – " +
+              new Date(b.end_date).toLocaleDateString();
+            const bookedOn = b.created_at
+              ? new Date(b.created_at).toLocaleDateString()
+              : "N/A";
+            const isCancel = !!b.cancelled_at;
+            const statusText = isCancel ? "Cancelled" : "Active";
+            const statusClass = isCancel ? "status-cancelled" : "status-active";
+
+            const cancelBtn = isCancel
+              ? `<button class="action-btn cancel-btn" disabled>Cancelled</button>`
+              : `<button class="action-btn cancel-btn" onclick="cancelBooking(${b.id})">Cancel</button>`;
+
+            return `
+            <tr>
+              <td>${b.id}</td>
+              <td><span class="${statusClass}">${statusText}</span></td>
+              <td>${b.user_name || "–"}</td>
+              <td>${b.user_email || "–"}</td>
+              <td>${b.deal_name || "–"}</td>
+              <td>${dates}</td>
+              <td>${b.guests || 0}</td>
+              <td>${bookedOn}</td>
+              <td>
+                ${cancelBtn}
+                <button class="action-btn edit-btn" onclick="editBooking(${
+                  b.id
+                })">Edit</button>
+                <button class="action-btn delete-btn" onclick="deleteBooking(${
+                  b.id
+                })">Delete</button>
+              </td>
+            </tr>`;
+          })
+          .join("");
+
+        document.querySelector("#booking-table tbody").innerHTML =
+          rows || "<tr><td colspan='9'>No bookings.</td></tr>";
+      }
+
+      async function cancelBooking(id) {
+        if (!confirm("Cancel this booking?")) return;
+        try {
+          await fetchJSON(`/api/bookings/${id}/cancel`, { method: "PATCH" });
+          loadBookings();
+        } catch (e) {
+          console.error(e);
+          alert("Cancel failed");
+        }
+      }
+
+      async function deleteBooking(id) {
+        if (!confirm("Delete permanently?")) return;
+        try {
+          await fetchJSON(`/api/bookings/${id}`, { method: "DELETE" });
+          loadBookings();
+        } catch (e) {
+          console.error(e);
+          alert("Delete failed");
+        }
+      }
+
+      function editBooking(id) {
+        const b = allBookings.find((x) => x.id === id);
+        if (!b) return;
+        const dest = prompt("New destination:", b.destination);
+        const sd = prompt("New start date (YYYY-MM-DD):", b.start_date);
+        const ed = prompt("New end date (YYYY-MM-DD):", b.end_date);
+        const g = prompt("Guests:", b.guests);
+        if (dest && sd && ed && g) {
+          updateBooking(id, {
+            destination: dest,
+            start_date: sd,
+            end_date: ed,
+            guests: parseInt(g),
+          });
+        }
+      }
+
+      async function updateBooking(id, data) {
+        try {
+          await fetchJSON(`/api/bookings/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(data),
+          });
+          loadBookings();
+        } catch (e) {
+          console.error(e);
+          alert("Update failed");
+        }
+      }
+
+      document
+        .getElementById("status-filter")
+        .addEventListener("change", filterAndDisplayBookings);
+      document
+        .getElementById("sort-filter")
+        .addEventListener("change", filterAndDisplayBookings);
+
+      document.addEventListener("DOMContentLoaded", loadBookings);
+    </script>
+  </body>
+</html>

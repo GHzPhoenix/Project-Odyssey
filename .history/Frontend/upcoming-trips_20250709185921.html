@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upcoming Trips – Travel Odyssey></title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    />
+    <style>
+      .no-trips {
+        text-align: center;
+        margin-top: 2rem;
+        color: #777;
+      }
+      .table-actions {
+        width: 150px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="bg-light p-3 mb-4">
+      <div class="container d-flex justify-content-between align-items-center">
+        <h1 class="h4 m-0">Upcoming Trips</h1>
+        <nav>
+          <a href="dashboard.html" class="me-3">Dashboard</a>
+          <a href="booking-history.html" class="me-3">All Bookings</a>
+          <a href="membership-confirmation.html" class="me-3">Membership</a>
+          <a href="index.html">Home</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div id="trips-container" class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Destination</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Guests</th>
+              <th class="table-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="trips-table-body">
+            <!-- Rows injected here -->
+          </tbody>
+        </table>
+      </div>
+      <p id="no-trips" class="no-trips" style="display: none">
+        No upcoming trips.
+      </p>
+    </main>
+
+    <!-- Cancel Confirmation Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Cancel Booking</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to cancel this booking?</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              No
+            </button>
+            <button
+              type="button"
+              id="confirm-cancel-btn"
+              class="btn btn-danger"
+            >
+              Yes, Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="text-center py-4">
+      <small>© 2025 Travel Odyssey, Inc. All rights reserved.</small>
+    </footer>
+
+    <!-- Bootstrap JS & Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", loadUpcomingTrips);
+
+      async function loadUpcomingTrips() {
+        const token = localStorage.getItem("token");
+        if (!token) return window.location.replace("client-area.html");
+
+        let bookings = [];
+        try {
+          const res = await fetch("http://127.0.0.1:5001/api/bookings", {
+            headers: { Authorization: "Bearer " + token },
+          });
+          if (!res.ok) throw new Error();
+          bookings = await res.json();
+        } catch {
+          showNoTrips("Unable to load trips.");
+          return;
+        }
+
+        const today = new Date();
+        const upcoming = bookings.filter(
+          (b) => new Date(b.start_date) >= today
+        );
+        if (!upcoming.length) {
+          showNoTrips();
+          return;
+        }
+
+        const tbody = document.getElementById("trips-table-body");
+        tbody.innerHTML = "";
+
+        upcoming.forEach((b) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${b.destination}</td>
+            <td>${new Date(b.start_date).toLocaleDateString()}</td>
+            <td>${new Date(b.end_date).toLocaleDateString()}</td>
+            <td>${b.guests}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-danger cancel-btn" data-id="${
+                b.id
+              }">Cancel</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        // Attach cancel handlers
+        document.querySelectorAll(".cancel-btn").forEach((btn) => {
+          btn.addEventListener("click", () => openCancelModal(btn.dataset.id));
+        });
+      }
+
+      function showNoTrips(message = "No upcoming trips.") {
+        document.getElementById("trips-container").style.display = "none";
+        const p = document.getElementById("no-trips");
+        p.textContent = message;
+        p.style.display = "block";
+      }
+
+      let currentCancelId = null;
+      const cancelModal = new bootstrap.Modal(
+        document.getElementById("cancelModal")
+      );
+
+      function openCancelModal(id) {
+        currentCancelId = id;
+        cancelModal.show();
+      }
+
+      document
+        .getElementById("confirm-cancel-btn")
+        .addEventListener("click", async () => {
+          const token = localStorage.getItem("token");
+          try {
+            const res = await fetch(
+              `http://127.0.0.1:5001/api/bookings/${currentCancelId}`,
+              {
+                method: "DELETE",
+                headers: { Authorization: "Bearer " + token },
+              }
+            );
+            if (!res.ok) throw new Error();
+            cancelModal.hide();
+            loadUpcomingTrips();
+          } catch {
+            alert("Cancellation failed. Please try again.");
+          }
+        });
+    </script>
+  </body>
+</html>

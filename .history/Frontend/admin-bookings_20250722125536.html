@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Dashboard – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style></style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <span class="logo">Travel Odyssey Admin</span>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html">Users</a></li>
+          <li><a href="admin-bookings.html" class="active">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2>Booking Summary</h2>
+      <div id="error" class="error"></div>
+      <div class="kpis">
+        <div class="kpi">
+          <h3>Total Bookings</h3>
+          <p id="total_bookings">–</p>
+        </div>
+        <div class="kpi">
+          <h3>Total Guests</h3>
+          <p id="total_guests">–</p>
+        </div>
+        <div class="kpi">
+          <h3>Active Bookings</h3>
+          <p id="active_bookings">–</p>
+        </div>
+        <div class="kpi">
+          <h3>Cancelled Bookings</h3>
+          <p id="cancelled_bookings">–</p>
+        </div>
+      </div>
+      <button class="refresh" onclick="loadStats()">⟳ Refresh</button>
+    </main>
+
+    <script>
+      const API_BASE = "http://127.0.0.1:5001";
+      const token = localStorage.getItem("token") || "";
+
+      async function fetchJSON(path, opts = {}) {
+        opts.headers = {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+          ...opts.headers,
+        };
+        const res = await fetch(API_BASE + path, opts);
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`HTTP ${res.status}: ${text}`);
+        }
+        return res.json();
+      }
+
+      async function loadStats() {
+        document.getElementById("error").textContent = "";
+        try {
+          const stats = await fetchJSON("/api/bookings/all");
+          document.getElementById("total_bookings").textContent =
+            stats.total_bookings;
+          document.getElementById("total_guests").textContent =
+            stats.total_guests;
+          document.getElementById("active_bookings").textContent =
+            stats.active_bookings;
+          document.getElementById("cancelled_bookings").textContent =
+            stats.cancelled_bookings;
+        } catch (err) {
+          console.error("Failed to load booking stats:", err);
+          document.getElementById("error").textContent =
+            "Could not fetch booking data. Check console and your token.";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadStats);
+    </script>
+  </body>
+</html>

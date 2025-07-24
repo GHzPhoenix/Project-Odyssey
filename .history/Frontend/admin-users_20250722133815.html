@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin – User Management | Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin-users.css" />
+    <style>
+      /* KPI cards */
+      .kpis {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      .kpi {
+        background: #f0f8ff;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        width: 180px;
+        text-align: center;
+      }
+      .kpi h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+        color: #555;
+      }
+      .kpi p {
+        margin: 0;
+        font-size: 2rem;
+        color: purple;
+        font-weight: bold;
+      }
+
+      .error {
+        color: #c00;
+        text-align: center;
+        margin: 0.5rem 0;
+      }
+      button.refresh {
+        display: block;
+        margin: 1rem auto;
+        padding: 0.5rem 1rem;
+        border: none;
+        background: #007bff;
+        color: #fff;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button.refresh:hover {
+        background: #0056b3;
+      }
+
+      table {
+        width: 95%;
+        margin: 1rem auto;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        text-align: center;
+      }
+      th {
+        background: #f0f0f0;
+      }
+
+      /* Modal overlay */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 400px;
+      }
+      .modal h3 {
+        margin-top: 0;
+      }
+      .modal input,
+      .modal select {
+        width: 100%;
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+        box-sizing: border-box;
+      }
+      .modal button {
+        padding: 0.5rem 1rem;
+        margin: 0.5rem 0.25rem 0 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      #modal-cancel {
+        background: #ccc;
+      }
+      #modal-save {
+        background: #28a745;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <span class="logo">Travel Odyssey Admin</span>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html" class="active">Users</a></li>
+          <li><a href="admin-bookings.html">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2>User Summary</h2>
+      <div id="users-error" class="error"></div>
+      <div class="kpis">
+        <div class="kpi">
+          <h3>Total Users</h3>
+          <p id="total_users">–</p>
+        </div>
+        <div class="kpi">
+          <h3>Admins</h3>
+          <p id="total_admins">–</p>
+        </div>
+        <div class="kpi">
+          <h3>Standard</h3>
+          <p id="total_standard">–</p>
+        </div>
+      </div>
+      <button class="refresh" onclick="loadUsers()">⟳ Refresh</button>
+
+      <h2>All Registered Users</h2>
+      <table id="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Joined On</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="6">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <!-- EDIT USER MODAL -->
+    <div id="edit-user-modal" class="modal-overlay">
+      <div class="modal">
+        <h3>Edit User</h3>
+        <form id="edit-user-form">
+          <input type="text" id="modal-name" placeholder="Name" required />
+          <input type="email" id="modal-email" placeholder="Email" required />
+          <select id="modal-role">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+          <div style="text-align: right">
+            <button type="button" id="modal-cancel">Cancel</button>
+            <button type="submit" id="modal-save">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const API = "http://127.0.0.1:5002";
+      const token = localStorage.getItem("token") || "";
+      let users = [];
+      let editingUserId = null;
+
+      async function fetchJSON(path, opts = {}) {
+        opts.headers = {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+          ...opts.headers,
+        };
+        const res = await fetch(API + path, opts);
+        if (!res.ok) {
+          const err = await res.json().catch(() => null);
+          throw err?.error || `HTTP ${res.status}`;
+        }
+        return res.json();
+      }
+
+      async function loadUsers() {
+        const errEl = document.getElementById("users-error");
+        errEl.textContent = "";
+
+        try {
+          // 1) fetch stats
+          const st = await fetchJSON("/api/users/summary");
+          document.getElementById("total_users").textContent = st.total_users;
+          document.getElementById("total_admins").textContent = st.total_admins;
+          document.getElementById("total_standard").textContent =
+            st.total_standard;
+
+          // 2) fetch full list
+          users = await fetchJSON("/api/users");
+          const tbody = document.querySelector("#users-table tbody");
+
+          if (!users.length) {
+            tbody.innerHTML = "<tr><td colspan='6'>No users found.</td></tr>";
+            return;
+          }
+
+          tbody.innerHTML = users
+            .map(
+              (u) => `
+              <tr>
+                <td>${u.id}</td>
+                <td>${u.name}</td>
+                <td>${u.email}</td>
+                <td>${u.role}</td>
+                <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                <td>
+                  <button onclick="openEditModal(${u.id})">Edit</button>
+                  <button onclick="deleteUser(${u.id})">Delete</button>
+                </td>
+              </tr>
+            `
+            )
+            .join("");
+        } catch (err) {
+          console.error("Cannot load users:", err);
+          errEl.textContent = "Could not fetch user data.";
+        }
+      }
+
+      // Open & populate edit modal
+      function openEditModal(id) {
+        editingUserId = id;
+        const u = users.find((x) => x.id === id);
+        if (!u) return alert("User not found");
+        document.getElementById("modal-name").value = u.name;
+        document.getElementById("modal-email").value = u.email;
+        document.getElementById("modal-role").value = u.role;
+        document.getElementById("edit-user-modal").style.display = "flex";
+      }
+
+      // Close modal
+      document.getElementById("modal-cancel").onclick = () => {
+        document.getElementById("edit-user-modal").style.display = "none";
+      };
+
+      // Submit edit form
+      document.getElementById("edit-user-form").onsubmit = async (e) => {
+        e.preventDefault();
+        const body = {
+          name: document.getElementById("modal-name").value.trim(),
+          email: document.getElementById("modal-email").value.trim(),
+          role: document.getElementById("modal-role").value,
+        };
+        try {
+          await fetchJSON(`/api/users/${editingUserId}`, {
+            method: "PUT",
+            body: JSON.stringify(body),
+          });
+          document.getElementById("edit-user-modal").style.display = "none";
+          loadUsers();
+        } catch (err) {
+          alert(err);
+        }
+      };
+
+      // Delete action
+      async function deleteUser(id) {
+        if (!confirm("Delete this user?")) return;
+        try {
+          await fetchJSON(`/api/users/${id}`, { method: "DELETE" });
+          loadUsers();
+        } catch (err) {
+          alert(err);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadUsers);
+    </script>
+  </body>
+</html>

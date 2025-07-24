@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Dashboard – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style>
+      .kpi-container {
+        display: none;
+      }
+      table {
+        margin: 2rem auto;
+        max-width: 1200px;
+        width: 95%;
+      }
+      .debug-info {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 1rem;
+        margin: 1rem auto;
+        max-width: 1200px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+      }
+      .login-prompt {
+        background: #fff3cd;
+        border: 1px solid #ffeeba;
+        padding: 1rem;
+        margin: 1rem auto;
+        max-width: 1200px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html">Users</a></li>
+          <li><a href="admin-bookings.html" class="active">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2 class="section">Client Bookings Management (Debug Mode)</h2>
+
+      <div class="debug-info" id="debug-info">Checking authentication...</div>
+
+      <div class="login-prompt" id="login-prompt" style="display: none">
+        <h3>Authentication Required</h3>
+        <p>You need to be logged in as an admin to view bookings.</p>
+        <button onclick="redirectToLogin()">Go to Login</button>
+      </div>
+
+      <table id="booking-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>User</th>
+            <th>Email</th>
+            <th>Deal</th>
+            <th>Dates</th>
+            <th>Guests</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="8">Checking authentication...</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <script>
+      const baseUrl = "http://127.0.0.1:5002";
+      let allBookings = [];
+
+      // Debug function to check what's in localStorage
+      function debugAuth() {
+        const debugDiv = document.getElementById("debug-info");
+        const token = localStorage.getItem("token");
+        const userStr = localStorage.getItem("user");
+
+        let debugText = "=== AUTHENTICATION DEBUG ===\n";
+        debugText += `Token exists: ${!!token}\n`;
+        debugText += `Token length: ${token ? token.length : 0}\n`;
+        debugText += `Token preview: ${
+          token ? token.substring(0, 50) + "..." : "null"
+        }\n`;
+        debugText += `User data: ${userStr || "null"}\n`;
+
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            debugText += `User role: ${user.role}\n`;
+            debugText += `User email: ${user.email}\n`;
+          } catch (e) {
+            debugText += `User data parse error: ${e.message}\n`;
+          }
+        }
+
+        debugDiv.textContent = debugText;
+        return token;
+      }
+
+      async function testConnection() {
+        try {
+          const response = await fetch(baseUrl + "/", {
+            method: "GET",
+          });
+          const data = await response.json();
+          console.log("Server connection test:", data);
+          return true;
+        } catch (err) {
+          console.error("Server connection failed:", err);
+          return false;
+        }
+      }
+
+      async function testAuth(token) {
+        try {
+          const response = await fetch(baseUrl + "/api/bookings/all", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          console.log("Auth test response status:", response.status);
+          console.log("Auth test response headers:", [
+            ...response.headers.entries(),
+          ]);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.log("Auth test error response:", errorText);
+            return {
+              success: false,
+              status: response.status,
+              error: errorText,
+            };
+          }
+
+          const data = await response.json();
+          console.log("Auth test success, bookings count:", data.length);
+          return { success: true, data };
+        } catch (err) {
+          console.error("Auth test network error:", err);
+          return { success: false, error: err.message };
+        }
+      }
+
+      async function loadBookings() {
+        const tbody = document.querySelector("#booking-table tbody");
+        const debugDiv = document.getElementById("debug-info");
+        const loginPrompt = document.getElementById("login-prompt");
+
+        try {
+          // Step 1: Debug auth
+          const token = debugAuth();
+
+          if (!token) {
+            tbody.innerHTML =
+              "<tr><td colspan='8'>No authentication token found</td></tr>";
+            loginPrompt.style.display = "block";
+            return;
+          }
+
+          // Step 2: Test server connection
+          tbody.innerHTML =
+            "<tr><td colspan='8'>Testing server connection...</td></tr>";
+          const serverOk = await testConnection();
+          if (!serverOk) {
+            tbody.innerHTML =
+              "<tr><td colspan='8'>Cannot connect to server</td></tr>";
+            return;
+          }
+
+          // Step 3: Test authentication
+          tbody.innerHTML =
+            "<tr><td colspan='8'>Testing authentication...</td></tr>";
+          const authResult = await testAuth(token);
+
+          let debugText = debugDiv.textContent + "\n=== API TEST RESULTS ===\n";
+          debugText += `Auth test success: ${authResult.success}\n`;
+          debugText += `Response status: ${authResult.status || "N/A"}\n`;
+          debugText += `Error: ${authResult.error || "None"}\n`;
+          debugDiv.textContent = debugText;
+
+          if (!authResult.success) {
+            if (authResult.status === 401 || authResult.status === 403) {
+              tbody.innerHTML =
+                "<tr><td colspan='8'>Authentication failed - please login again</td></tr>";
+              loginPrompt.style.display = "block";
+            } else {
+              tbody.innerHTML = `<tr><td colspan='8'>API Error: ${authResult.error}</td></tr>`;
+            }
+            return;
+          }
+
+          // Step 4: Display bookings
+          allBookings = authResult.data;
+          displayBookings(allBookings);
+        } catch (err) {
+          console.error("Load bookings error:", err);
+          tbody.innerHTML = `<tr><td colspan='8'>Unexpected error: ${err.message}</td></tr>`;
+        }
+      }
+
+      function displayBookings(bookings) {
+        const tbody = document.querySelector("#booking-table tbody");
+
+        if (bookings.length === 0) {
+          tbody.innerHTML =
+            "<tr><td colspan='8'>No bookings found in database</td></tr>";
+          return;
+        }
+
+        tbody.innerHTML = bookings
+          .map((b) => {
+            const startDate = new Date(b.start_date).toLocaleDateString();
+            const endDate = new Date(b.end_date).toLocaleDateString();
+            const dates = `${startDate} – ${endDate}`;
+
+            const isCancelled = !!b.cancelled_at;
+            const status = isCancelled ? "Cancelled" : "Active";
+            const statusStyle = isCancelled ? "color: red;" : "color: green;";
+
+            return `
+            <tr>
+              <td>${b.id}</td>
+              <td><span style="${statusStyle}">${status}</span></td>
+              <td>${b.user_name || "N/A"}</td>
+              <td>${b.user_email || "N/A"}</td>
+              <td>${b.deal_name || "N/A"}</td>
+              <td>${dates}</td>
+              <td>${b.guests || 0}</td>
+              <td>
+                ${
+                  !isCancelled
+                    ? `<button onclick="cancelBooking(${b.id})">Cancel</button>`
+                    : "Cancelled"
+                }
+              </td>
+            </tr>`;
+          })
+          .join("");
+      }
+
+      function redirectToLogin() {
+        // Clear any old tokens
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        // Redirect to your login page
+        window.location.href = "login.html"; // Adjust this path as needed
+      }
+
+      async function cancelBooking(bookingId) {
+        if (!confirm("Cancel this booking?")) return;
+
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            baseUrl + `/api/bookings/${bookingId}/cancel`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          alert("Booking cancelled!");
+          loadBookings();
+        } catch (err) {
+          console.error("Cancel error:", err);
+          alert("Failed to cancel booking: " + err.message);
+        }
+      }
+
+      // Load bookings when page loads
+      document.addEventListener("DOMContentLoaded", loadBookings);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Dashboard – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style>
+      .kpi-card {
+        flex: 1;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .kpi-card h3 {
+        margin-bottom: 0.5rem;
+        color: purple;
+      }
+      .kpi-card p {
+        font-size: 2rem;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html" class="active">Dashboard</a></li>
+          <li><a href="admin-users.html">Users</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Add Deal</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <div class="kpi-card">
+        <h3>Total Revenue</h3>
+        <p id="kpi-revenue">–</p>
+      </div>
+      <br />
+    <div class="transactions-section">
+      <h2 class="section">PayPal Transactions</h2>
+      <table id="transactions-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>User Email</th>
+            <th>Deal</th>
+            <th>Amount</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td colspan="4">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      const token = localStorage.getItem("token") || "";
+      let inquiries = [],
+        deals = [],
+        editingId = null,
+        editingImageURL = "";
+
+      async function fetchJSON(url, opts = {}) {
+        opts.headers = {
+          ...(opts.headers || {}),
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        };
+        const res = await fetch(url, opts);
+        if (!res.ok) throw await res.json();
+        return res.json();
+      }
+
+      async function loadDashboard() {
+        try {
+          const txns = await fetchJSON(
+            "http://127.0.0.1:5001/api/paypal/transactions"
+          );
+          let total = 0;
+          const tbodyT = document.querySelector("#transactions-table tbody");
+
+          tbodyT.innerHTML = txns.length
+            ? txns
+                .map((o) => {
+                  total += parseFloat(o.amount);
+                  const d = new Date(o.create_time).toLocaleString();
+                  return `
+          <tr>
+            <td>${o.id}</td>
+            <td>${o.user_email}</td>
+            <td>${o.deal_name}</td>
+            <td>€${Number(o.amount).toFixed(2)}</td>
+            <td>${d}</td>
+          </tr>`;
+                })
+                .join("")
+            : "<tr><td colspan='5'>No transactions.</td></tr>";
+
+          document.getElementById("kpi-revenue").textContent =
+            "€" + total.toFixed(2);
+        } catch {
+          document.getElementById("kpi-revenue").textContent = "—";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadDashboard);
+    </script>
+  </body>
+</html>

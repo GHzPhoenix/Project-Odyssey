@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin – User Management | Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style>
+      .section {
+        margin: 2rem 0 1rem;
+        font-size: 1.5rem;
+        color: purple;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+      th {
+        background: #f4f4f9;
+      }
+      .action-btn {
+        padding: 0.4rem 0.8rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
+      }
+      .view-btn {
+        background: #28a745;
+        color: #fff;
+      }
+      .edit-btn {
+        background: #007bff;
+        color: #fff;
+      }
+      .close-btn {
+        background: #6c757d;
+        color: #fff;
+      }
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal-overlay.active {
+        display: flex;
+      }
+      .modal {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow: auto;
+      }
+      .modal h3 {
+        margin-top: 0;
+        color: purple;
+      }
+      .modal table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+      .modal th,
+      .modal td {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+      }
+      .modal th {
+        background: #f9f9ff;
+      }
+      .modal-footer {
+        text-align: right;
+        margin-top: 1rem;
+      }
+      .input-group {
+        margin-bottom: 1rem;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 600;
+      }
+      .input-group input,
+      .input-group select {
+        width: 100%;
+        padding: 0.6rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html" class="active">Users</a></li>
+          <li><a href="admin-bookings.html">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2 class="section">Users and Activities</h2>
+      <table id="users-activities-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Membership Expires</th>
+            <th>#Bookings</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="7">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <!-- Modal: User Bookings -->
+    <div id="bookings-modal" class="modal-overlay">
+      <div class="modal">
+        <h3>User Bookings</h3>
+        <table id="modal-bookings-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Deal</th>
+              <th>Dates</th>
+              <th>Guests</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="4">Loading…</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="modal-footer">
+          <button id="modal-close" class="action-btn close-btn">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Edit User -->
+    <div id="edit-modal" class="modal-overlay">
+      <div class="modal">
+        <h3>Edit User</h3>
+        <form id="edit-form">
+          <div class="input-group">
+            <label for="edit-name">Name</label>
+            <input type="text" id="edit-name" name="name" required />
+          </div>
+          <div class="input-group">
+            <label for="edit-email">Email</label>
+            <input type="email" id="edit-email" name="email" required />
+          </div>
+          <div class="input-group">
+            <label for="edit-role">Role</label>
+            <select id="edit-role" name="role">
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="edit-cancel" class="action-btn close-btn">
+              Cancel
+            </button>
+            <button type="submit" class="action-btn edit-btn">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const baseUrl = "http://127.0.0.1:5002";
+      const token = localStorage.getItem("token") || "";
+      let users = [];
+
+      async function fetchJSON(path, opts = {}) {
+        const res = await fetch(baseUrl + path, {
+          ...opts,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (!res.ok) throw await res.json();
+        return res.json();
+      }
+
+      async function loadUsersActivities() {
+        try {
+          const [uList, bookings] = await Promise.all([
+            fetchJSON("/api/users"),
+            fetchJSON("/api/bookings/all"),
+          ]);
+          users = uList;
+          const tbody = document.querySelector("#users-activities-table tbody");
+          tbody.innerHTML = users
+            .map((u) => {
+              const count = bookings.filter((b) => b.user_id === u.id).length;
+              return `<tr>
+              <td>${u.id}</td>
+              <td>${u.name}</td>
+              <td>${u.email}</td>
+              <td>${u.role}</td>
+              <td>${u.membershipExpires || "–"}</td>
+              <td>${count}</td>
+              <td>
+                <button class="action-btn view-btn" data-id="${
+                  u.id
+                }">View</button>
+                <button class="action-btn edit-btn" data-id="${
+                  u.id
+                }">Edit</button>
+              </td>
+            </tr>`;
+            })
+            .join("");
+          document
+            .querySelectorAll(".view-btn")
+            .forEach((b) => (b.onclick = () => openBookings(b.dataset.id)));
+          document
+            .querySelectorAll(".edit-btn")
+            .forEach((b) => (b.onclick = () => openEdit(b.dataset.id)));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      function openBookings(userId) {
+        const modal = document.getElementById("bookings-modal");
+        const tb = document.querySelector("#modal-bookings-table tbody");
+        tb.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
+        modal.classList.add("active");
+        fetchJSON("/api/bookings/all")
+          .then((bookings) => {
+            const userB = bookings.filter((b) => b.user_id === Number(userId));
+            tb.innerHTML = userB.length
+              ? userB
+                  .map((b) => {
+                    const f = new Date(b.start_date).toLocaleDateString();
+                    const t = new Date(b.end_date).toLocaleDateString();
+                    return `<tr><td>${b.id}</td><td>${b.deal_name}</td><td>${f} – ${t}</td><td>${b.guests}</td></tr>`;
+                  })
+                  .join("")
+              : '<tr><td colspan="4">No bookings.</td></tr>';
+          })
+          .catch(() => {
+            tb.innerHTML = '<tr><td colspan="4">Error.</td></tr>';
+          });
+      }
+      document.getElementById("modal-close").onclick = () =>
+        document.getElementById("bookings-modal").classList.remove("active");
+
+      let currentId;
+      function openEdit(id) {
+        currentId = Number(id);
+        const u = users.find((x) => x.id === currentId);
+        document.getElementById("edit-name").value = u.name;
+        document.getElementById("edit-email").value = u.email;
+        document.getElementById("edit-role").value = u.role;
+        document.getElementById("edit-modal").classList.add("active");
+      }
+      document.getElementById("edit-cancel").onclick = () =>
+        document.getElementById("edit-modal").classList.remove("active");
+      document.getElementById("edit-form").onsubmit = async (e) => {
+        e.preventDefault();
+        const body = {
+          name: document.getElementById("edit-name").value.trim(),
+          email: document.getElementById("edit-email").value.trim(),
+          role: document.getElementById("edit-role").value,
+        };
+        try {
+          await fetchJSON(`/api/users/${currentId}`, {
+            method: "PUT",
+            body: JSON.stringify(body),
+          });
+          document.getElementById("edit-modal").classList.remove("active");
+          loadUsersActivities();
+        } catch (err) {
+          alert(err.error || "Update failed");
+        }
+      };
+
+      document.addEventListener("DOMContentLoaded", loadUsersActivities);
+    </script>
+  </body>
+</html>

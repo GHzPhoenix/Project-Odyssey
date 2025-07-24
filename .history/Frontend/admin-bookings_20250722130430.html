@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Dashboard – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style>
+      .kpis {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      .kpi {
+        background: #f0f8ff;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        width: 180px;
+      }
+      .kpi h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+        color: #555;
+      }
+      .kpi p {
+        margin: 0;
+        font-size: 2rem;
+
+        font-weight: bold;
+      }
+      .error {
+        color: #c00;
+        text-align: center;
+        margin: 0.5rem 0;
+      }
+      button.refresh {
+        display: block;
+        margin: 1rem auto;
+        padding: 0.5rem 1rem;
+        border: none;
+        background: #007bff;
+        color: #fff;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button.refresh:hover {
+        background: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <span class="logo">Travel Odyssey Admin</span>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html">Users</a></li>
+          <li><a href="admin-bookings.html" class="active">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2>Booking Summary</h2>
+      <div id="summary-error" class="error"></div>
+      <div class="kpis">
+        <div class="kpi">
+          <h3>Total Bookings</h3>
+          <p id="total_bookings">–</p>
+        </div>
+        <div class="kpi">
+          <h3>Total Guests</h3>
+          <p id="total_guests">–</p>
+        </div>
+        <div class="kpi">
+          <h3>Active Bookings</h3>
+          <p id="active_bookings">–</p>
+        </div>
+        <div class="kpi">
+          <h3>Cancelled Bookings</h3>
+          <p id="cancelled_bookings">–</p>
+        </div>
+      </div>
+      <button class="refresh" onclick="loadStatsAndActive()">⟳ Refresh</button>
+
+      <h2>Active Bookings</h2>
+      <div id="active-error" class="error"></div>
+      <table id="active-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Destination</th>
+            <th>Dates</th>
+            <th>Guests</th>
+            <th>Booked On</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <script>
+      const API_BASE = "http://127.0.0.1:5001";
+      const token = localStorage.getItem("token") || "";
+
+      async function fetchJSON(path, opts = {}) {
+        opts.headers = {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+          ...opts.headers,
+        };
+        const res = await fetch(API_BASE + path, opts);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      }
+
+      async function loadStatsAndActive() {
+        await loadSummary();
+        await loadActiveBookings();
+      }
+
+      async function loadSummary() {
+        const errEl = document.getElementById("summary-error");
+        errEl.textContent = "";
+        try {
+          const stats = await fetchJSON("/api/bookings/summary");
+          document.getElementById("total_bookings").textContent =
+            stats.total_bookings;
+          document.getElementById("total_guests").textContent =
+            stats.total_guests;
+          document.getElementById("active_bookings").textContent =
+            stats.active_bookings;
+          document.getElementById("cancelled_bookings").textContent =
+            stats.cancelled_bookings;
+        } catch (err) {
+          console.error("Failed to load summary:", err);
+          errEl.textContent = "Could not fetch booking summary.";
+        }
+      }
+
+      async function loadActiveBookings() {
+        const tbody = document.querySelector("#active-table tbody");
+        const errEl = document.getElementById("active-error");
+        errEl.textContent = "";
+        tbody.innerHTML = "<tr><td colspan='5'>Loading…</td></tr>";
+
+        try {
+          const list = await fetchJSON("/api/bookings/active");
+          if (list.length === 0) {
+            tbody.innerHTML =
+              "<tr><td colspan='5'>No active bookings.</td></tr>";
+            return;
+          }
+          tbody.innerHTML = list
+            .map((b) => {
+              const from = new Date(b.start_date).toLocaleDateString();
+              const to = new Date(b.end_date).toLocaleDateString();
+              const on = b.created_at
+                ? new Date(b.created_at).toLocaleDateString()
+                : "N/A";
+              return `
+                <tr>
+                  <td>${b.id}</td>
+                  <td>${b.destination}</td>
+                  <td>${from} – ${to}</td>
+                  <td>${b.guests}</td>
+                  <td>${on}</td>
+                </tr>`;
+            })
+            .join("");
+        } catch (err) {
+          console.error("Failed to load active bookings:", err);
+          errEl.textContent = "Could not fetch active bookings.";
+          tbody.innerHTML = "";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadStatsAndActive);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Dashboard – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style>
+      .kpi-container {
+        display: none;
+      }
+      table {
+        margin: 2rem auto;
+        max-width: 960px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html">Users</a></li>
+          <li><a href="admin-bookings.html" class="active">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2 class="section">Client Bookings</h2>
+      <table id="booking-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Email</th>
+            <th>Destination</th>
+            <th>Dates</th>
+            <th>Guests</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="6">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <script>
+      const token = localStorage.getItem("token") || "";
+
+      async function fetchJSON(path, opts = {}) {
+        opts.headers = {
+          ...(opts.headers || {}),
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        };
+        const res = await fetch("http://127.0.0.1:5002" + path, opts);
+        if (!res.ok) throw await res.json();
+        return res.json();
+      }
+
+      async function loadBookings() {
+        const tbody = document.querySelector("#booking-table tbody");
+        try {
+          const bookings = await fetchJSON("/api/bookings/all");
+          if (bookings.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='6'>No bookings.</td></tr>";
+            return;
+          }
+          tbody.innerHTML = bookings
+            .map((b) => {
+              const dates =
+                new Date(b.start_date).toLocaleDateString() +
+                " – " +
+                new Date(b.end_date).toLocaleDateString();
+              return `
+                <tr>
+                  <td>${b.id}</td>
+                  <td>${b.name}</td>
+                  <td>${b.email}</td>
+                  <td>${b.destination}</td>
+                  <td>${dates}</td>
+                  <td>${b.guests}</td>
+                </tr>`;
+            })
+            .join("");
+        } catch (err) {
+          console.error("Error loading bookings:", err);
+          tbody.innerHTML =
+            "<tr><td colspan='6'>Error loading bookings.</td></tr>";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadBookings);
+    </script>
+  </body>
+</html>

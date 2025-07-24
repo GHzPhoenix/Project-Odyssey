@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upcoming Trips – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/upcoming-trips.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-container">
+        <h1>Upcoming Trips</h1>
+        <p id="current-date" class="current-date"></p>
+        <nav>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="upcoming-trips.html">Upcoming Trips</a>
+          <a href="booking-history.html">Booking History</a>
+          <a href="membership-confirmation.html">Membership</a>
+          <a href="index.html">Back Home</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main-container">
+      <div id="trips-container" class="table-wrapper">
+        <table class="trips-table">
+          <thead>
+            <tr>
+              <th>Destination</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Guests</th>
+              <th class="table-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="trips-table-body"></tbody>
+        </table>
+      </div>
+      <p id="no-trips" class="no-trips" style="display: none">
+        No upcoming trips.
+      </p>
+    </main>
+
+    <footer class="footer">
+      <p>© 2025 Travel Odyssey, Inc. All rights reserved.</p>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        displayToday();
+        loadUpcomingTrips();
+      });
+
+      function displayToday() {
+        const todayEl = document.getElementById("current-date");
+        const opts = { year: "numeric", month: "long", day: "numeric" };
+        const todayStr = new Date().toLocaleDateString(undefined, opts);
+        todayEl.textContent = `Today: ${todayStr}`;
+      }
+
+      async function loadUpcomingTrips() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.replace("client-area.html");
+          return;
+        }
+
+        let bookings = [];
+        try {
+          const res = await fetch("http://127.0.0.1:5001/api/bookings", {
+            headers: { Authorization: "Bearer " + token },
+          });
+          if (!res.ok) throw new Error();
+          bookings = await res.json();
+        } catch {
+          showNoTrips("Unable to load trips.");
+          return;
+        }
+
+        // Only trips strictly after today
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        // Filter bookings to only those starting after today
+        // Filter bookings to only those starting today or later
+        const upcoming = bookings.filter((b) => {
+          const datePart = b.start_date.split("T")[0];
+          const [year, month, day] = datePart.split("-").map(Number);
+          const bookingDate = new Date(year, month - 1, day);
+          return bookingDate >= today;
+        });
+
+        if (!upcoming.length) {
+          showNoTrips();
+          return;
+        }
+
+        const tbody = document.getElementById("trips-table-body");
+        tbody.innerHTML = "";
+
+        upcoming.forEach((b) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${b.destination}</td>
+            <td>${new Date(b.start_date).toLocaleDateString()}</td>
+            <td>${new Date(b.end_date).toLocaleDateString()}</td>
+            <td>${b.guests}</td>
+            <td>
+              <button class="cancel-btn" data-id="${b.id}">Cancel</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        document.querySelectorAll(".cancel-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const confirmCancel = window.confirm(
+              "Are you sure you want to cancel this booking?"
+            );
+            if (!confirmCancel) return;
+            try {
+              const res = await fetch(
+                `http://127.0.0.1:5001/api/bookings/${btn.dataset.id}`,
+                {
+                  method: "DELETE",
+                  headers: { Authorization: "Bearer " + token },
+                }
+              );
+              if (!res.ok) throw new Error();
+              loadUpcomingTrips();
+            } catch {
+              alert("Cancellation failed. Please try again.");
+            }
+          });
+        });
+      }
+
+      function showNoTrips(message = "No upcoming trips.") {
+        document.getElementById("trips-container").style.display = "none";
+        const p = document.getElementById("no-trips");
+        p.textContent = message;
+        p.style.display = "block";
+      }
+    </script>
+  </body>
+</html>

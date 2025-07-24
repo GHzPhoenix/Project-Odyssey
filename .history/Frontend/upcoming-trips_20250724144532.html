@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upcoming Trips – Travel Odyssey</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f5f5f5;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 300;
+      }
+
+      .current-date {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+      }
+
+      nav {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+      }
+
+      nav a {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      nav a:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .main-container {
+        max-width: 1200px;
+        margin: 3rem auto;
+        padding: 0 2rem;
+      }
+
+      .table-wrapper {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .trips-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .trips-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+      }
+
+      .trips-table td {
+        padding: 1.5rem 1rem;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+      }
+
+      .trips-table tr:hover {
+        background-color: #f8f9ff;
+      }
+
+      .trips-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .cancel-btn {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+      }
+
+      .cancel-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+      }
+
+      .cancel-btn:active {
+        transform: translateY(0);
+      }
+
+      .no-trips {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        font-size: 1.2rem;
+        color: #666;
+      }
+
+      .footer {
+        background: #333;
+        color: white;
+        text-align: center;
+        padding: 2rem 0;
+        margin-top: 4rem;
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        nav {
+          gap: 1rem;
+        }
+
+        nav a {
+          font-size: 0.9rem;
+          padding: 0.4rem 0.8rem;
+        }
+
+        .trips-table {
+          font-size: 0.9rem;
+        }
+
+        .trips-table th,
+        .trips-table td {
+          padding: 1rem 0.5rem;
+        }
+
+        .table-wrapper {
+          overflow-x: auto;
+        }
+
+        .trips-table {
+          min-width: 600px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-container">
+        <h1>Upcoming Trips</h1>
+        <p id="current-date" class="current-date"></p>
+        <nav>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="upcoming-trips.html">Upcoming Trips</a>
+          <a href="booking-history.html">Booking History</a>
+          <a href="membership-confirmation.html">Membership</a>
+          <a href="index.html">Back Home</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main-container">
+      <div id="trips-container" class="table-wrapper">
+        <table class="trips-table">
+          <thead>
+            <tr>
+              <th>Destination</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Guests</th>
+              <th class="table-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="trips-table-body"></tbody>
+        </table>
+      </div>
+      <p id="no-trips" class="no-trips" style="display: none">
+        No upcoming trips.
+      </p>
+    </main>
+
+    <footer class="footer">
+      <p>© 2025 Travel Odyssey, Inc. All rights reserved.</p>
+    </footer>
+
+    <script>
+      const API_BASE = "http://127.0.0.1:5001";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        displayToday();
+        loadUpcomingTrips();
+      });
+
+      function displayToday() {
+        const todayEl = document.getElementById("current-date");
+        const opts = { year: "numeric", month: "long", day: "numeric" };
+        todayEl.textContent = `Today: ${new Date().toLocaleDateString(
+          undefined,
+          opts
+        )}`;
+      }
+
+      async function fetchJSON(url, opts = {}) {
+        const token = localStorage.getItem("token");
+        opts.headers = {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+          ...opts.headers,
+        };
+        const res = await fetch(url, opts);
+        if (!res.ok) throw await res.text();
+        return res.json();
+      }
+
+      async function loadUpcomingTrips() {
+        const token = localStorage.getItem("token");
+        if (!token) return window.location.replace("client-area.html");
+
+        let bookings = [];
+        try {
+          bookings = await fetchJSON(`${API_BASE}/api/bookings`);
+        } catch {
+          return showNoTrips("Unable to load trips.");
+        }
+
+        // Only trips starting today or later
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const upcoming = bookings.filter((b) => {
+          const [y, m, d] = b.start_date.split("T")[0].split("-").map(Number);
+          return new Date(y, m - 1, d) >= today;
+        });
+
+        if (!upcoming.length) return showNoTrips();
+
+        const tbody = document.getElementById("trips-table-body");
+        tbody.innerHTML = "";
+
+        upcoming.forEach((b) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${b.destination}</td>
+            <td>${new Date(b.start_date).toLocaleDateString()}</td>
+            <td>${new Date(b.end_date).toLocaleDateString()}</td>
+            <td>${b.guests}</td>
+            <td>
+              <button class="cancel-btn" data-booking-id="${
+                b.id
+              }">Cancel</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+
+        document.querySelectorAll(".cancel-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            if (!confirm("Are you sure you want to cancel this booking?"))
+              return;
+            try {
+              await fetchJSON(
+                `${API_BASE}/api/bookings/${btn.dataset.bookingId}/cancel`,
+                { method: "PATCH" }
+              );
+              loadUpcomingTrips();
+            } catch {
+              alert("Cancellation failed. Please try again.");
+            }
+          });
+        });
+      }
+
+      function showNoTrips(msg = "No upcoming trips.") {
+        document.getElementById("trips-container").style.display = "none";
+        const p = document.getElementById("no-trips");
+        p.textContent = msg;
+        p.style.display = "block";
+      }
+    </script>
+  </body>
+</html>

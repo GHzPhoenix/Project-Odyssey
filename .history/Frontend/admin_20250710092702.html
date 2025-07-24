@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Dashboard – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style>
+      .kpi-container {
+        display: flex;
+        gap: 1rem;
+        margin: 2rem 0;
+        justify-content: center;
+      }
+      .kpi-card {
+        flex: 1;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .kpi-card h3 {
+        margin-bottom: 0.5rem;
+        color: purple;
+      }
+      .kpi-card p {
+        font-size: 2rem;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html" class="active">Users</a></li>
+          <li><a href="admin-bookings.html">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <div class="kpi-container">
+        <div class="kpi-card">
+          <h3>Total Inquiries</h3>
+          <p id="kpi-inquiries">–</p>
+        </div>
+        <div class="kpi-card">
+          <h3>Total Deals</h3>
+          <p id="kpi-deals">–</p>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <h3>Total Revenue</h3>
+        <p id="kpi-revenue">–</p>
+      </div>
+      <br />
+      <h2 class="section">Client Inquiries</h2>
+      <table id="inquiries-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Destination</th>
+            <th>Guests</th>
+            <th>Budget</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="7">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+      <br />
+      <h2 class="section">Existing Deals</h2>
+      <table id="deals-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Dates</th>
+            <th>Prices</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <div id="deal-modal" class="modal-overlay">
+      <div class="modal">
+        <h2>Edit / Create Deal</h2>
+        <form id="modal-form">
+          <div class="input-group">
+            <label>Name</label>
+            <input type="text" name="name" required />
+          </div>
+          <div class="input-group">
+            <label>Location</label>
+            <input type="text" name="location" required />
+          </div>
+          <div class="input-group">
+            <label>Activities</label>
+            <input type="text" name="activities" required />
+          </div>
+          <div class="input-group">
+            <label>Start Date</label>
+            <input type="date" name="start_date" required />
+          </div>
+          <div class="input-group">
+            <label>End Date</label>
+            <input type="date" name="end_date" required />
+          </div>
+          <div class="input-group">
+            <label>Price (€)</label>
+            <input
+              type="number"
+              name="price"
+              required
+              min="0"
+              step="0.01"
+              placeholder="e.g. 199.99"
+            />
+          </div>
+          <div class="input-group file-input-group">
+            <label for="modal-image-input" class="file-input-btn">
+              📁 Choose Image
+            </label>
+            <input type="file" id="modal-image-input" accept="image/*" />
+            <span id="modal-file-chosen">No file chosen</span>
+          </div>
+          <div class="modal-actions">
+            <button type="button" id="modal-cancel">Cancel</button>
+            <button type="submit" id="modal-save">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="transactions-section">
+      <h2 class="section">PayPal Transactions</h2>
+      <table id="transactions-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>User Email</th>
+            <th>Deal</th>
+            <th>Amount</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td colspan="4">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      const token = localStorage.getItem("token") || "";
+      let inquiries = [],
+        deals = [],
+        editingId = null,
+        editingImageURL = "";
+
+      async function fetchJSON(url, opts = {}) {
+        opts.headers = {
+          ...(opts.headers || {}),
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        };
+        const res = await fetch(url, opts);
+        if (!res.ok) throw await res.json();
+        return res.json();
+      }
+
+      async function loadDashboard() {
+        try {
+          inquiries = await fetchJSON("http://127.0.0.1:5001/api/inquiries");
+          document.getElementById("kpi-inquiries").textContent =
+            inquiries.length;
+        } catch {
+          document.getElementById("kpi-inquiries").textContent = "—";
+        }
+        try {
+          deals = await fetchJSON("http://127.0.0.1:5001/api/deals");
+          document.getElementById("kpi-deals").textContent = deals.length;
+        } catch {
+          document.getElementById("kpi-deals").textContent = "—";
+        }
+        try {
+          const txns = await fetchJSON(
+            "http://127.0.0.1:5001/api/paypal/transactions"
+          );
+          let total = 0;
+          const tbodyT = document.querySelector("#transactions-table tbody");
+
+          tbodyT.innerHTML = txns.length
+            ? txns
+                .map((o) => {
+                  total += parseFloat(o.amount);
+                  const d = new Date(o.create_time).toLocaleString();
+                  return `
+          <tr>
+            <td>${o.id}</td>
+            <td>${o.user_email}</td>
+            <td>${o.deal_name}</td>
+            <td>€${Number(o.amount).toFixed(2)}</td>
+            <td>${d}</td>
+          </tr>`;
+                })
+                .join("")
+            : "<tr><td colspan='5'>No transactions.</td></tr>";
+
+          document.getElementById("kpi-revenue").textContent =
+            "€" + total.toFixed(2);
+        } catch {
+          document.getElementById("kpi-revenue").textContent = "—";
+        }
+
+        const inTbody = document.querySelector("#inquiries-table tbody");
+        if (!inquiries.length) {
+          inTbody.innerHTML = "<tr><td colspan='8'>No inquiries.</td></tr>";
+        } else {
+          inTbody.innerHTML = inquiries
+            .map((i, idx) => {
+              const date = new Date(i.created_at).toLocaleDateString();
+              const budget =
+                i.budget != null ? `€${Number(i.budget).toFixed(2)}` : "—";
+              return `<tr>
+          <td>${i.id}</td>
+          <td>${date}</td>
+          <td>${i.name}</td>
+          <td>${i.email}</td>
+          <td>${i.destination}</td>
+          <td>${i.guests}</td>
+          <td>${budget}</td>
+          <td>
+            <button class="action create-from-inquiry" data-idx="${idx}">
+              Create Deal
+            </button>
+          </td>
+        </tr>`;
+            })
+            .join("");
+        }
+
+        const dTbody = document.querySelector("#deals-table tbody");
+        if (!deals.length) {
+          dTbody.innerHTML = "<tr><td colspan='6'>No deals yet.</td></tr>";
+        } else {
+          dTbody.innerHTML = deals
+            .map((d) => {
+              const from = new Date(d.start_date).toLocaleDateString();
+              const to = new Date(d.end_date).toLocaleDateString();
+              const price =
+                d.price != null ? `€${Number(d.price).toFixed(2)}` : "—";
+              return `<tr data-id="${d.id}">
+          <td>${d.id}</td>
+          <td>${d.name}</td>
+          <td>${d.location}</td>
+          <td>${from} – ${to}</td>
+          <td>${price}</td>
+          <td>
+            <button class="action edit-deal">Edit</button>
+            <button class="action delete-deal">Delete</button>
+          </td>
+        </tr>`;
+            })
+            .join("");
+        }
+
+        const modal = document.getElementById("deal-modal");
+        const form = document.getElementById("modal-form");
+        const cancelBtn = document.getElementById("modal-cancel");
+        const fileInput = document.getElementById("modal-image-input");
+        const fileLabel = document.getElementById("modal-file-chosen");
+
+        function openModal(deal = null, idx = null) {
+          form.reset();
+          editingId = deal?.id || null;
+          editingImageURL = deal?.image_url || "";
+
+          if (deal) {
+            form.name.value = deal.name;
+            form.location.value = deal.location;
+            form.activities.value = deal.activities;
+            form.start_date.value = deal.start_date;
+            form.end_date.value = deal.end_date;
+            form.price.value = deal.price;
+            fileLabel.textContent = editingImageURL
+              ? "Using existing image"
+              : "No file chosen";
+          } else if (idx != null) {
+            const inquiry = inquiries[idx];
+            form.name.value = inquiry.destination + " Special";
+            form.location.value = inquiry.destination;
+            form.activities.value = inquiry.preferences || "";
+            form.start_date.value = "";
+            form.end_date.value = "";
+            form.price.value = inquiry.budget || "";
+            fileLabel.textContent = "No file chosen";
+          }
+
+          modal.classList.add("active");
+        }
+
+        document.querySelectorAll(".create-from-inquiry").forEach((btn) => {
+          btn.onclick = () => openModal(null, btn.dataset.idx);
+        });
+
+        document.querySelectorAll(".edit-deal").forEach((btn) => {
+          const id = btn.closest("tr").dataset.id;
+          const deal = deals.find((d) => d.id == id);
+          btn.onclick = () => openModal(deal);
+        });
+
+        document.querySelectorAll(".delete-deal").forEach((btn) => {
+          const id = btn.closest("tr").dataset.id;
+          btn.onclick = async () => {
+            if (!confirm("Delete this deal?")) return;
+            try {
+              await fetchJSON(`http://127.0.0.1:5001/api/deals/${id}`, {
+                method: "DELETE",
+              });
+              alert("Deleted.");
+              loadDashboard();
+            } catch (err) {
+              alert(err.error || "Delete failed");
+            }
+          };
+        });
+
+        cancelBtn.onclick = () => modal.classList.remove("active");
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") modal.classList.remove("active");
+        });
+
+        fileInput.onchange = () => {
+          fileLabel.textContent = fileInput.files[0]?.name || "No file chosen";
+        };
+
+        form.onsubmit = async (e) => {
+          e.preventDefault();
+          const payload = {
+            name: form.name.value.trim(),
+            location: form.location.value.trim(),
+            activities: form.activities.value.trim(),
+            start_date: form.start_date.value,
+            end_date: form.end_date.value,
+            price: parseFloat(form.price.value),
+            image_url: editingImageURL,
+          };
+
+          if (fileInput.files.length) {
+            payload.image_url = await new Promise((res, rej) => {
+              const reader = new FileReader();
+              reader.onload = () => res(reader.result);
+              reader.onerror = () => rej(reader.error);
+              reader.readAsDataURL(fileInput.files[0]);
+            });
+          }
+
+          try {
+            if (editingId) {
+              await fetchJSON(`http://127.0.0.1:5001/api/deals/${editingId}`, {
+                method: "PUT",
+                body: JSON.stringify(payload),
+              });
+              alert("Deal updated!");
+            } else {
+              await fetchJSON("http://127.0.0.1:5001/api/deals", {
+                method: "POST",
+                body: JSON.stringify(payload),
+              });
+              alert("Deal created!");
+            }
+            modal.classList.remove("active");
+            loadDashboard();
+          } catch (err) {
+            console.error(err);
+            alert("Error: " + (err.error || err.message));
+          }
+        };
+      }
+
+      document.addEventListener("DOMContentLoaded", loadDashboard);
+    </script>
+  </body>
+</html>

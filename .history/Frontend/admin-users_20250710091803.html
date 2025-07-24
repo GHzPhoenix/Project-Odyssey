@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin – User Management | Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin-users.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html" class="active">Users</a></li>
+          <li><a href="admin-bookings.html">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2 class="section">Registered Users</h2>
+      <table id="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Membership Expires</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="6">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <div id="edit-modal" class="modal-overlay">
+      <div class="modal">
+        <h3>Edit User</h3>
+        <form id="edit-form">
+          <div class="input-group">
+            <label for="edit-name">Name</label>
+            <input type="text" id="edit-name" name="name" required />
+          </div>
+          <div class="input-group">
+            <label for="edit-email">Email</label>
+            <input type="email" id="edit-email" name="email" required />
+          </div>
+          <div class="input-group">
+            <label for="edit-role">Role</label>
+            <select id="edit-role" name="role">
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="edit-cancel" class="action-btn">
+              Cancel
+            </button>
+            <button type="submit" class="action-btn edit-btn">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const baseUrl = "http://127.0.0.1:5002";
+      const token = localStorage.getItem("token") || "";
+      let users = [];
+
+      async function fetchJSON(path, opts = {}) {
+        const res = await fetch(baseUrl + path, {
+          ...opts,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (!res.ok) throw await res.json();
+        return res.json();
+      }
+
+      async function loadUsers() {
+        try {
+          users = await fetchJSON("/api/users");
+          const tbody = document.querySelector("#users-table tbody");
+          tbody.innerHTML = users
+            .map(
+              (u) => `
+            <tr>
+              <td>${u.id}</td>
+              <td>${u.name}</td>
+              <td>${u.email}</td>
+              <td>${u.role}</td>
+              <td>${u.membershipExpires || "–"}</td>
+              <td>
+                <button class="action-btn edit-btn" data-id="${
+                  u.id
+                }">Edit</button>
+                <button class="action-btn delete-btn" data-id="${
+                  u.id
+                }">Delete</button>
+              </td>
+            </tr>
+          `
+            )
+            .join("");
+          document
+            .querySelectorAll(".edit-btn")
+            .forEach((b) => (b.onclick = () => openEdit(b.dataset.id)));
+          document
+            .querySelectorAll(".delete-btn")
+            .forEach((b) => deleteUser(b.dataset.id));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      function deleteUser(id) {
+        document.querySelector(`button.delete-btn[data-id='${id}']`).onclick =
+          async () => {
+            if (!confirm("Delete this user?")) return;
+            try {
+              await fetchJSON(`/api/users/${id}`, { method: "DELETE" });
+              loadUsers();
+            } catch (err) {
+              alert(err.error || "Delete failed");
+            }
+          };
+      }
+
+      let currentId;
+      function openEdit(id) {
+        currentId = Number(id);
+        const u = users.find((x) => x.id === currentId);
+        document.getElementById("edit-name").value = u.name;
+        document.getElementById("edit-email").value = u.email;
+        document.getElementById("edit-role").value = u.role;
+        document.getElementById("edit-modal").classList.add("active");
+      }
+      document.getElementById("edit-cancel").onclick = () =>
+        document.getElementById("edit-modal").classList.remove("active");
+      document.getElementById("edit-form").onsubmit = async (e) => {
+        e.preventDefault();
+        const body = {
+          name: document.getElementById("edit-name").value.trim(),
+          email: document.getElementById("edit-email").value.trim(),
+          role: document.getElementById("edit-role").value,
+        };
+        try {
+          await fetchJSON(`/api/users/${currentId}`, {
+            method: "PUT",
+            body: JSON.stringify(body),
+          });
+          document.getElementById("edit-modal").classList.remove("active");
+          loadUsers();
+        } catch (err) {
+          alert(err.error || "Update failed");
+        }
+      };
+
+      document.addEventListener("DOMContentLoaded", loadUsers);
+    </script>
+  </body>
+</html>

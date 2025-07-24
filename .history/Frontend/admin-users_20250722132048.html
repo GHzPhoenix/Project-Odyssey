@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin – User Management | Travel Odyssey</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 1rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+      th,
+      td {
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        text-align: left;
+      }
+      th {
+        background: #f0f0f0;
+      }
+      .error {
+        color: #c00;
+        margin-top: 1rem;
+      }
+      button {
+        margin-top: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Registered Users</h1>
+    <button onclick="loadUsers()">⟳ Refresh</button>
+    <div id="error" class="error"></div>
+
+    <table id="users-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="5">Loading…</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <script>
+      const API = "http://127.0.0.1:5002/api/users";
+      const token = localStorage.getItem("token") || "";
+
+      async function loadUsers() {
+        const tbody = document.querySelector("#users-table tbody");
+        const err = document.getElementById("error");
+        err.textContent = "";
+        tbody.innerHTML = "<tr><td colspan='5'>Loading…</td></tr>";
+
+        try {
+          const res = await fetch(API, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const users = await res.json();
+
+          if (users.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='5'>No users found.</td></tr>";
+            return;
+          }
+
+          tbody.innerHTML = users
+            .map(
+              (u) => `
+          <tr>
+            <td>${u.id}</td>
+            <td>${u.name}</td>
+            <td>${u.email}</td>
+            <td>${u.role}</td>
+            <td>${new Date(u.created_at).toLocaleString()}</td>
+          </tr>
+        `
+            )
+            .join("");
+        } catch (e) {
+          console.error(e);
+          err.textContent = "Failed to fetch users. Check console.";
+          tbody.innerHTML = "";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadUsers);
+    </script>
+  </body>
+</html>

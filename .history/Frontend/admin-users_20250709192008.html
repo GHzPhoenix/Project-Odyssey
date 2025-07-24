@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin – User Activities | Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style>
+      .section {
+        margin: 2rem 0 1rem;
+        font-size: 1.5rem;
+        color: purple;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+      th {
+        background: #f4f4f9;
+      }
+      .action-btn {
+        padding: 0.4rem 0.8rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+      .view-btn {
+        background: #28a745;
+        color: #fff;
+      }
+      .close-btn {
+        background: #6c757d;
+        color: #fff;
+      }
+      /* Modal styles */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-overlay.active {
+        display: flex;
+      }
+      .modal {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow: auto;
+      }
+      .modal h3 {
+        margin-top: 0;
+        color: purple;
+      }
+      .modal table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+      .modal th,
+      .modal td {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+      }
+      .modal th {
+        background: #f9f9ff;
+      }
+      .modal-footer {
+        text-align: right;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html" class="active">Users</a></li>
+          <li><a href="admin-bookings.html">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2 class="section">Users and Activities</h2>
+      <table id="users-activities-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Membership Expires</th>
+            <th>#Bookings</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="7">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <!-- Modal for User Bookings -->
+    <div id="bookings-modal" class="modal-overlay">
+      <div class="modal">
+        <h3>User Bookings</h3>
+        <table id="modal-bookings-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Deal</th>
+              <th>Dates</th>
+              <th>Guests</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="4">Loading…</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="modal-footer">
+          <button id="modal-close" class="action-btn close-btn">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const baseUrl = "http://127.0.0.1:5002";
+      const token = localStorage.getItem("token") || "";
+
+      async function fetchJSON(path, opts = {}) {
+        const res = await fetch(baseUrl + path, {
+          ...opts,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (!res.ok) throw await res.json();
+        return res.json();
+      }
+
+      async function loadUsersActivities() {
+        try {
+          const [users, bookings] = await Promise.all([
+            fetchJSON("/api/users"),
+            fetchJSON("/api/bookings/all"),
+          ]);
+          const tbody = document.querySelector("#users-activities-table tbody");
+          tbody.innerHTML = users
+            .map((u) => {
+              const userBookings = bookings.filter((b) => b.user_id === u.id);
+              return `<tr>
+              <td>${u.id}</td>
+              <td>${u.name}</td>
+              <td>${u.email}</td>
+              <td>${u.role}</td>
+              <td>${u.membershipExpires || "–"}</td>
+              <td>${userBookings.length}</td>
+              <td><button class="action-btn view-btn" data-id="${
+                u.id
+              }">View</button></td>
+            </tr>`;
+            })
+            .join("");
+
+          document.querySelectorAll(".view-btn").forEach((btn) => {
+            btn.addEventListener("click", () => openModal(btn.dataset.id));
+          });
+        } catch (e) {
+          console.error("Error:", e);
+        }
+      }
+
+      async function openModal(userId) {
+        const modal = document.getElementById("bookings-modal");
+        const mtBody = document.querySelector("#modal-bookings-table tbody");
+        mtBody.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
+        modal.classList.add("active");
+        try {
+          const bookings = await fetchJSON("/api/bookings/all");
+          const userBookings = bookings.filter(
+            (b) => b.user_id === Number(userId)
+          );
+          mtBody.innerHTML = userBookings.length
+            ? userBookings
+                .map((b) => {
+                  const from = new Date(b.start_date).toLocaleDateString();
+                  const to = new Date(b.end_date).toLocaleDateString();
+                  return `<tr><td>${b.id}</td><td>${
+                    b.deal_name || b.deal_id
+                  }</td><td>${from} – ${to}</td><td>${b.guests}</td></tr>`;
+                })
+                .join("")
+            : '<tr><td colspan="4">No bookings.</td></tr>';
+        } catch (e) {
+          mtBody.innerHTML = '<tr><td colspan="4">Error loading.</td></tr>';
+        }
+      }
+
+      document.getElementById("modal-close").addEventListener("click", () => {
+        document.getElementById("bookings-modal").classList.remove("active");
+      });
+      document.addEventListener("DOMContentLoaded", loadUsersActivities);
+    </script>
+  </body>
+</html>

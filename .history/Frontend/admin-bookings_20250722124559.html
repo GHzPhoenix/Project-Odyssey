@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Dashboard – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 2rem;
+      }
+      .summary {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+      }
+      .card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem 2rem;
+        text-align: center;
+        flex: 1 1 150px;
+      }
+      .card h2 {
+        margin: 0.5rem 0;
+        font-size: 2.5rem;
+        color: #007bff;
+      }
+      .card p {
+        margin: 0;
+        color: #6c757d;
+      }
+      button {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Booking Overview</h1>
+
+    <div class="summary">
+      <div class="card">
+        <p>Total Bookings</p>
+        <h2 id="total">—</h2>
+      </div>
+      <div class="card">
+        <p>Active</p>
+        <h2 id="active">—</h2>
+      </div>
+      <div class="card">
+        <p>Cancelled</p>
+        <h2 id="cancelled">—</h2>
+      </div>
+      <div class="card">
+        <p>Total Guests</p>
+        <h2 id="guests">—</h2>
+      </div>
+    </div>
+
+    <button onclick="loadSummary()">Refresh</button>
+
+    <script>
+      const API = "http://127.0.0.1:5001/api/bookings/all";
+      const token = localStorage.getItem("token") || "";
+
+      async function fetchJSON(url) {
+        const res = await fetch(url, {
+          headers: { Authorization: "Bearer " + token },
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      }
+
+      async function loadSummary() {
+        try {
+          const bookings = await fetchJSON(API);
+          const total = bookings.length;
+          const cancelled = bookings.filter((b) => b.cancelled_at).length;
+          const active = total - cancelled;
+          const guests = bookings
+            .filter((b) => !b.cancelled_at)
+            .reduce((sum, b) => sum + (b.guests || 0), 0);
+
+          document.getElementById("total").textContent = total;
+          document.getElementById("active").textContent = active;
+          document.getElementById("cancelled").textContent = cancelled;
+          document.getElementById("guests").textContent = guests;
+        } catch (err) {
+          console.error("Failed to load summary:", err);
+          alert("Could not fetch booking data.");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadSummary);
+    </script>
+  </body>
+</html>

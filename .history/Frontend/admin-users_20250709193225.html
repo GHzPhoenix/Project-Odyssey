@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin – User Management | Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style>
+      .section {
+        margin: 2rem 0 1rem;
+        font-size: 1.5rem;
+        color: purple;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+      th {
+        background: #f4f4f9;
+      }
+      .action-btn {
+        padding: 0.4rem 0.8rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
+      }
+      .edit-btn {
+        background: #007bff;
+        color: #fff;
+      }
+      .delete-btn {
+        background: #dc3545;
+        color: #fff;
+      }
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal-overlay.active {
+        display: flex;
+      }
+      .modal {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+      }
+      .modal h3 {
+        margin-top: 0;
+        color: purple;
+      }
+      .input-group {
+        margin-bottom: 1rem;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 600;
+      }
+      .input-group input,
+      .input-group select {
+        width: 100%;
+        padding: 0.6rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      .modal-footer {
+        text-align: right;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html" class="active">Users</a></li>
+          <li><a href="admin-bookings.html">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2 class="section">Registered Users</h2>
+      <table id="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Membership Expires</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="6">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <!-- Edit User Modal -->
+    <div id="edit-modal" class="modal-overlay">
+      <div class="modal">
+        <h3>Edit User</h3>
+        <form id="edit-form">
+          <div class="input-group">
+            <label for="edit-name">Name</label>
+            <input type="text" id="edit-name" name="name" required />
+          </div>
+          <div class="input-group">
+            <label for="edit-email">Email</label>
+            <input type="email" id="edit-email" name="email" required />
+          </div>
+          <div class="input-group">
+            <label for="edit-role">Role</label>
+            <select id="edit-role" name="role">
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="edit-cancel" class="action-btn">
+              Cancel
+            </button>
+            <button type="submit" class="action-btn edit-btn">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const baseUrl = "http://127.0.0.1:5002";
+      const token = localStorage.getItem("token") || "";
+      let users = [];
+
+      async function fetchJSON(path, opts = {}) {
+        const res = await fetch(baseUrl + path, {
+          ...opts,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (!res.ok) throw await res.json();
+        return res.json();
+      }
+
+      async function loadUsers() {
+        try {
+          users = await fetchJSON("/api/users");
+          const tbody = document.querySelector("#users-table tbody");
+          tbody.innerHTML = users
+            .map(
+              (u) =>
+                `<tr>
+              <td>${u.id}</td>
+              <td>${u.name}</td>
+              <td>${u.email}</td>
+              <td>${u.role}</td>
+              <td>${u.membershipExpires || "–"}</td>
+              <td>
+                <button class="action-btn edit-btn" data-id="${
+                  u.id
+                }">Edit</button>
+                <button class="action-btn delete-btn" data-id="${
+                  u.id
+                }">Delete</button>
+              </td>
+            </tr>`
+            )
+            .join("");
+          document
+            .querySelectorAll(".edit-btn")
+            .forEach((b) => (b.onclick = () => openEdit(b.dataset.id)));
+          document
+            .querySelectorAll(".delete-btn")
+            .forEach((b) => deleteUser(b.dataset.id));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      function deleteUser(id) {
+        document.querySelector(`button.delete-btn[data-id='${id}']`).onclick =
+          async () => {
+            if (!confirm("Delete this user?")) return;
+            try {
+              await fetchJSON(`/api/users/${id}`, { method: "DELETE" });
+              loadUsers();
+            } catch (err) {
+              alert(err.error || "Delete failed");
+            }
+          };
+      }
+
+      let currentId;
+      function openEdit(id) {
+        currentId = Number(id);
+        const u = users.find((x) => x.id === currentId);
+        document.getElementById("edit-name").value = u.name;
+        document.getElementById("edit-email").value = u.email;
+        document.getElementById("edit-role").value = u.role;
+        document.getElementById("edit-modal").classList.add("active");
+      }
+      document.getElementById("edit-cancel").onclick = () =>
+        document.getElementById("edit-modal").classList.remove("active");
+      document.getElementById("edit-form").onsubmit = async (e) => {
+        e.preventDefault();
+        const body = {
+          name: document.getElementById("edit-name").value.trim(),
+          email: document.getElementById("edit-email").value.trim(),
+          role: document.getElementById("edit-role").value,
+        };
+        try {
+          await fetchJSON(`/api/users/${currentId}`, {
+            method: "PUT",
+            body: JSON.stringify(body),
+          });
+          document.getElementById("edit-modal").classList.remove("active");
+          loadUsers();
+        } catch (err) {
+          alert(err.error || "Update failed");
+        }
+      };
+
+      document.addEventListener("DOMContentLoaded", loadUsers);
+    </script>
+  </body>
+</html>

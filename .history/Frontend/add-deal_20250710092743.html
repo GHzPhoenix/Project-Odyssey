@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin – Add Deal</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html" class="active">Users</a></li>
+          <li><a href="admin-bookings.html">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2>Add New Deal</h2>
+      <form id="deal-form">
+        <div class="input-group">
+          <label for="name">Deal Name</label>
+          <input type="text" id="name" required />
+        </div>
+        <div class="input-group">
+          <label for="location">Location</label>
+          <input type="text" id="location" required />
+        </div>
+        <div class="input-group">
+          <label for="activities">Activities</label>
+          <input type="text" id="activities" required />
+        </div>
+        <div class="input-group">
+          <label for="start_date">Start Date</label>
+          <input type="date" id="start_date" required />
+        </div>
+        <div class="input-group">
+          <label for="end_date">End Date</label>
+          <input type="date" id="end_date" required />
+        </div>
+        <!-- New Price Field -->
+        <div class="input-group">
+          <label for="price">Price (€)</label>
+          <input
+            type="number"
+            id="price"
+            required
+            min="0"
+            step="0.01"
+            placeholder="e.g. 199.99"
+          />
+        </div>
+        <div class="input-group">
+          <label class="file-input-label" for="image_file">
+            Choose Image
+          </label>
+          <input type="file" id="image_file" accept="image/*" />
+          <span id="file-chosen">No file chosen</span>
+        </div>
+        <button type="submit">Save Deal</button>
+        <p id="deal-message"></p>
+      </form>
+    </main>
+
+    <script>
+      // Pre-fill from query if present
+      const params = new URLSearchParams(location.search);
+      for (let key of ["name", "location", "activities", "price"]) {
+        if (params.has(key)) {
+          document.getElementById(key).value = params.get(key);
+        }
+      }
+
+      // File chooser UI
+      const fi = document.getElementById("image_file"),
+        fc = document.getElementById("file-chosen");
+      fi.addEventListener("change", () => {
+        fc.textContent = fi.files[0]?.name || "No file chosen";
+      });
+
+      document
+        .getElementById("deal-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const msg = document.getElementById("deal-message");
+          msg.textContent = "";
+          msg.className = "";
+
+          const name = document.getElementById("name").value.trim();
+          const loc = document.getElementById("location").value.trim();
+          const acts = document.getElementById("activities").value.trim();
+          const sd = document.getElementById("start_date").value;
+          const ed = document.getElementById("end_date").value;
+          const priceVal = parseFloat(document.getElementById("price").value);
+
+          if (!name || !loc || !acts || !sd || !ed || isNaN(priceVal)) {
+            msg.textContent =
+              "Please fill all fields, including a valid price.";
+            msg.classList.add("error");
+            return;
+          }
+          if (!fi.files.length) {
+            msg.textContent = "Select an image";
+            msg.classList.add("error");
+            return;
+          }
+
+          const reader = new FileReader();
+          const dataUrl = await new Promise((res) => {
+            reader.onload = () => res(reader.result);
+            reader.readAsDataURL(fi.files[0]);
+          });
+
+          const payload = {
+            name,
+            location: loc,
+            activities: acts,
+            start_date: sd,
+            end_date: ed,
+            price: priceVal,
+            image_url: dataUrl,
+          };
+
+          const token = localStorage.getItem("token");
+          if (!token) {
+            msg.textContent = "Login as admin first";
+            msg.classList.add("error");
+            return;
+          }
+
+          try {
+            const resp = await fetch("http://127.0.0.1:5001/api/deals", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: JSON.stringify(payload),
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || "Save failed");
+            msg.textContent = "Deal saved!";
+            msg.classList.add("success");
+            e.target.reset();
+            fc.textContent = "No file chosen";
+          } catch (err) {
+            console.error(err);
+            msg.textContent = err.message;
+            msg.classList.add("error");
+          }
+        });
+    </script>
+  </body>
+</html>

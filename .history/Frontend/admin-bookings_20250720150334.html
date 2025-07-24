@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin – Bookings | Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/admin.css" />
+    <style>
+      table {
+        width: 90%;
+        margin: 2rem auto;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+      th {
+        background: #f4f4f4;
+      }
+      .status-active {
+        color: #28a745;
+      }
+      .status-cancelled {
+        color: #dc3545;
+      }
+      .action-btn {
+        padding: 4px 8px;
+        margin: 0 2px;
+        font-size: 0.9rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #fff;
+      }
+      .cancel-btn {
+        background: #dc3545;
+      }
+      .edit-btn {
+        background: #007bff;
+      }
+      .delete-btn {
+        background: #6c757d;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">Travel Odyssey Admin</div>
+        <ul>
+          <li><a href="admin.html">Dashboard</a></li>
+          <li><a href="admin-users.html">Users</a></li>
+          <li><a href="admin-bookings.html" class="active">Bookings</a></li>
+          <li><a href="inquiries.html">Inquiries</a></li>
+          <li><a href="add-deal.html">Deals</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="index.html">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2 style="text-align: center; margin-top: 1rem">Client Bookings</h2>
+      <table id="booking-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>User</th>
+            <th>Email</th>
+            <th>Deal</th>
+            <th>Dates</th>
+            <th>Guests</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="8" style="text-align: center">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <script>
+      const baseUrl = "http://127.0.0.1:5002";
+      const token = localStorage.getItem("token") || "";
+
+      async function fetchJSON(path, opts = {}) {
+        opts.headers = {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+          ...opts.headers,
+        };
+        const res = await fetch(baseUrl + path, opts);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      }
+
+      async function loadBookings() {
+        const tbody = document.querySelector("#booking-table tbody");
+        try {
+          tbody.innerHTML = "<tr><td colspan='8'>Loading…</td></tr>";
+          const list = await fetchJSON("/api/bookings/all");
+          if (!list.length) {
+            tbody.innerHTML =
+              "<tr><td colspan='8' style='text-align:center;'>No bookings.</td></tr>";
+            return;
+          }
+          tbody.innerHTML = list
+            .map((b) => {
+              const dates = `${new Date(
+                b.start_date
+              ).toLocaleDateString()} – ${new Date(
+                b.end_date
+              ).toLocaleDateString()}`;
+              const status = b.cancelled_at ? "Cancelled" : "Active";
+              const cls = b.cancelled_at ? "status-cancelled" : "status-active";
+              return `
+            <tr>
+              <td>${b.id}</td>
+              <td class="${cls}">${status}</td>
+              <td>${b.user_name}</td>
+              <td>${b.user_email}</td>
+              <td>${b.deal_name}</td>
+              <td>${dates}</td>
+              <td>${b.guests}</td>
+              <td>
+                <button class="action-btn cancel-btn" onclick="cancelBooking(${
+                  b.id
+                })"${b.cancelled_at ? " disabled" : ""}>Cancel</button>
+                <button class="action-btn edit-btn" onclick="editBooking(${
+                  b.id
+                })">Edit</button>
+                <button class="action-btn delete-btn" onclick="deleteBooking(${
+                  b.id
+                })">Delete</button>
+              </td>
+            </tr>`;
+            })
+            .join("");
+        } catch (err) {
+          console.error("Error loading bookings:", err);
+          tbody.innerHTML =
+            "<tr><td colspan='8' style='text-align:center;color:red;'>Failed to load bookings.</td></tr>";
+        }
+      }
+
+      async function cancelBooking(id) {
+        if (!confirm("Cancel this booking?")) return;
+        try {
+          await fetchJSON(`/api/bookings/${id}/cancel`, { method: "PATCH" });
+          alert("Cancelled");
+          loadBookings();
+        } catch (e) {
+          console.error(e);
+          alert("Failed to cancel");
+        }
+      }
+
+      async function deleteBooking(id) {
+        if (!confirm("Delete this booking?")) return;
+        try {
+          await fetchJSON(`/api/bookings/${id}`, { method: "DELETE" });
+          alert("Deleted");
+          loadBookings();
+        } catch (e) {
+          console.error(e);
+          alert("Failed to delete");
+        }
+      }
+
+      function editBooking(id) {
+        const row = allBookings.find((b) => b.id === id);
+        if (!row) return;
+        const dest = prompt("New destination:", row.destination);
+        const sd = prompt("Start date (YYYY-MM-DD):", row.start_date);
+        const ed = prompt("End date (YYYY-MM-DD):", row.end_date);
+        const g = prompt("Guests:", row.guests);
+        if (dest && sd && ed && g) {
+          fetchJSON(`/api/bookings/${id}`, {
+            method: "PUT",
+            body: JSON.stringify({
+              destination: dest,
+              start_date: sd,
+              end_date: ed,
+              guests: parseInt(g, 10),
+            }),
+          })
+            .then(() => {
+              alert("Updated");
+              loadBookings();
+            })
+            .catch((e) => {
+              console.error(e);
+              alert("Update failed");
+            });
+        }
+      }
+
+      let allBookings = [];
+      document.addEventListener("DOMContentLoaded", async () => {
+        await loadBookings();
+        // cache the list for editBooking
+        allBookings = await fetchJSON("/api/bookings/all").catch((_) => []);
+      });
+    </script>
+  </body>
+</html>
