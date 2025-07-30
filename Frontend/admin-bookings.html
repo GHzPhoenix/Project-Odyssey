@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard – Travel Odyssey</title>
     <link rel="stylesheet" href="/Frontend/css/admin.css" />
     <style>
@@ -47,6 +47,20 @@
       button.refresh:hover {
         background: #0056b3;
       }
+      table {
+        width: 95%;
+        margin: 1rem auto;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        text-align: center;
+      }
+      th {
+        background: #f0f0f0;
+      }
     </style>
   </head>
   <body>
@@ -86,8 +100,9 @@
           <p id="cancelled_bookings">–</p>
         </div>
       </div>
-      <button class="refresh" onclick="loadStatsAndActive()">⟳ Refresh</button>
+      <button class="refresh" onclick="loadStatsAndAll()">⟳ Refresh</button>
 
+      <!-- Active Bookings -->
       <h2>Active Bookings</h2>
       <div id="active-error" class="error"></div>
       <table id="active-table">
@@ -98,6 +113,26 @@
             <th>Dates</th>
             <th>Guests</th>
             <th>Booked On</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Cancelled Bookings -->
+      <h2>Cancelled Bookings</h2>
+      <div id="cancelled-error" class="error"></div>
+      <table id="cancelled-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Destination</th>
+            <th>Dates</th>
+            <th>Guests</th>
+            <th>Cancelled On</th>
           </tr>
         </thead>
         <tbody>
@@ -123,14 +158,15 @@
         return res.json();
       }
 
-      async function loadStatsAndActive() {
+      async function loadStatsAndAll() {
         await loadSummary();
         await loadActiveBookings();
+        await loadCancelledBookings();
       }
 
       async function loadSummary() {
-        const errEl = document.getElementById("summary-error");
-        errEl.textContent = "";
+        const err = document.getElementById("summary-error");
+        err.textContent = "";
         try {
           const stats = await fetchJSON("/api/bookings/summary");
           document.getElementById("total_bookings").textContent =
@@ -141,21 +177,20 @@
             stats.active_bookings;
           document.getElementById("cancelled_bookings").textContent =
             stats.cancelled_bookings;
-        } catch (err) {
-          console.error("Failed to load summary:", err);
-          errEl.textContent = "Could not fetch booking summary.";
+        } catch (e) {
+          console.error(e);
+          err.textContent = "Could not fetch booking summary.";
         }
       }
 
       async function loadActiveBookings() {
         const tbody = document.querySelector("#active-table tbody");
-        const errEl = document.getElementById("active-error");
-        errEl.textContent = "";
+        const err = document.getElementById("active-error");
+        err.textContent = "";
         tbody.innerHTML = "<tr><td colspan='5'>Loading…</td></tr>";
-
         try {
           const list = await fetchJSON("/api/bookings/active");
-          if (list.length === 0) {
+          if (!list.length) {
             tbody.innerHTML =
               "<tr><td colspan='5'>No active bookings.</td></tr>";
             return;
@@ -168,23 +203,59 @@
                 ? new Date(b.created_at).toLocaleDateString()
                 : "N/A";
               return `
-                <tr>
-                  <td>${b.id}</td>
-                  <td>${b.destination}</td>
-                  <td>${from} – ${to}</td>
-                  <td>${b.guests}</td>
-                  <td>${on}</td>
-                </tr>`;
+              <tr>
+                <td>${b.id}</td>
+                <td>${b.destination}</td>
+                <td>${from} – ${to}</td>
+                <td>${b.guests}</td>
+                <td>${on}</td>
+              </tr>`;
             })
             .join("");
-        } catch (err) {
-          console.error("Failed to load active bookings:", err);
-          errEl.textContent = "Could not fetch active bookings.";
+        } catch (e) {
+          console.error(e);
+          err.textContent = "Could not fetch active bookings.";
           tbody.innerHTML = "";
         }
       }
 
-      document.addEventListener("DOMContentLoaded", loadStatsAndActive);
+      async function loadCancelledBookings() {
+        const tbody = document.querySelector("#cancelled-table tbody");
+        const err = document.getElementById("cancelled-error");
+        err.textContent = "";
+        tbody.innerHTML = "<tr><td colspan='5'>Loading…</td></tr>";
+        try {
+          const list = await fetchJSON("/api/bookings/cancelled");
+          if (!list.length) {
+            tbody.innerHTML =
+              "<tr><td colspan='5'>No cancelled bookings.</td></tr>";
+            return;
+          }
+          tbody.innerHTML = list
+            .map((b) => {
+              const from = new Date(b.start_date).toLocaleDateString();
+              const to = new Date(b.end_date).toLocaleDateString();
+              const on = b.cancelled_at
+                ? new Date(b.cancelled_at).toLocaleDateString()
+                : "N/A";
+              return `
+              <tr>
+                <td>${b.id}</td>
+                <td>${b.destination}</td>
+                <td>${from} – ${to}</td>
+                <td>${b.guests}</td>
+                <td>${on}</td>
+              </tr>`;
+            })
+            .join("");
+        } catch (e) {
+          console.error(e);
+          err.textContent = "Could not fetch cancelled bookings.";
+          tbody.innerHTML = "";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadStatsAndAll);
     </script>
   </body>
 </html>

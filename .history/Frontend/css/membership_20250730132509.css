@@ -1,0 +1,293 @@
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap");
+
+:root {
+  --color-primary: purple;
+  --color-accent: #ff6f91;
+  --color-bg-light: #f4f4f9;
+  --color-bg-lighter: #e0e03;
+  --color-text: #333;
+  --color-text-light: #555;
+  --white: #fff;
+  --radius: 1.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  --font-base: 1rem;
+  --font-scale: 1.125rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Merriweather", serif;
+  font-size: var(--font-base);
+  line-height: 1.6;
+  color: var(--color-text);
+  background: linear-gradient(
+    to bottom,
+    var(--color-bg-light),
+    var(--color-bg-lighter)
+  );
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-primary);
+}
+
+header .logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--white);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+header .menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+
+header .menu-toggle div {
+  width: 28px;
+  height: 3px;
+  background-color: var(--white);
+}
+
+nav {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+nav a {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-primary);
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: var(--radius);
+  transition: background-color 0.3s ease;
+}
+
+nav a:hover,
+nav a.active {
+  background-color: var(--color-accent);
+}
+
+.dropdown-parent {
+  position: relative;
+}
+
+.dropdown-parent .dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+  display: none;
+  flex-direction: column;
+  min-width: 180px;
+  z-index: 10;
+}
+
+.dropdown-parent:hover .dropdown {
+  display: flex;
+}
+
+.dropdown a {
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--color-text);
+  background: none;
+}
+
+.dropdown a:hover {
+  background: var(--bg-light);
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-wrap: wrap;
+  }
+  header .menu-toggle {
+    display: flex;
+  }
+  nav {
+    flex-direction: column;
+    width: 100%;
+    display: none;
+    background-color: var(--color-primary);
+    margin-top: var(--spacing-md);
+  }
+  nav.active {
+    display: flex;
+  }
+  nav a {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+main.membership-page {
+  max-width: 60rem;
+  margin: var(--spacing-lg) auto;
+  padding: var(--spacing-lg);
+  background-color: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+main.membership-page h1 {
+  font-size: 2rem;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+main.membership-page .intro {
+  font-size: var(--font-scale);
+  color: var(--color-text-light);
+  margin-bottom: var(--spacing-lg);
+}
+
+.plans {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.plan-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+  padding: var(--spacing-lg);
+  max-width: 360px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.plan-card:hover {
+  transform: translateY(-0.5rem);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+}
+
+.plan-card.featured {
+  border: 2px solid var(--color-accent);
+}
+
+.plan-card h2 {
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-primary);
+}
+
+.plan-card .price {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
+}
+
+.plan-card ul {
+  list-style: none;
+  margin-bottom: var(--spacing-md);
+  padding-left: 0;
+}
+
+.plan-card li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text);
+}
+
+.plan-card li::before {
+  content: "✔";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--color-accent);
+  font-weight: bold;
+}
+
+.join-btn {
+  margin-top: auto;
+  align-self: center;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: var(--radius);
+  transition: background-color 0.3s ease;
+}
+
+.join-btn:hover {
+  background-color: var(--color-accent);
+}
+
+footer {
+  background-color: var(--color-primary);
+  color: var(--white);
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: center;
+}
+
+footer .footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+footer .footer-section h3 {
+  margin-bottom: var(--spacing-sm);
+  color: var(--white);
+}
+
+footer .footer-section p,
+footer .footer-section ul,
+footer .footer-section a {
+  color: var(--white);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+footer hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  margin: var(--spacing-md) 0;
+}
+
+footer .footer-bottom {
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .plans {
+    flex-direction: column;
+    align-items: center;
+  }
+  .plan-card {
+    width: 100%;
+  }
+  footer .footer-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}

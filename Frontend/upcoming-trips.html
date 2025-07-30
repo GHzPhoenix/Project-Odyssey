@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Upcoming Trips – Travel Odyssey</title>
     <link rel="stylesheet" href="/Frontend/css/upcoming-trips.css" />
+    <style>
+      .cancel-btn {
+        background: #dc3545;
+        color: #fff;
+        border: none;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .cancel-btn:hover {
+        background: #c82333;
+      }
+    </style>
   </head>
   <body>
     <header class="header">
@@ -30,11 +43,12 @@
               <th>Start Date</th>
               <th>End Date</th>
               <th>Guests</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="trips-table-body">
             <tr>
-              <td colspan="4">Loading your upcoming trips…</td>
+              <td colspan="5">Loading your upcoming trips…</td>
             </tr>
           </tbody>
         </table>
@@ -71,15 +85,12 @@
         };
         const res = await fetch(url, opts);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
+        return res.status !== 204 ? res.json() : null;
       }
 
       async function loadUpcomingTrips() {
         const token = localStorage.getItem("token");
-        if (!token) {
-          window.location.replace("client-area.html");
-          return;
-        }
+        if (!token) return window.location.replace("client-area.html");
 
         let bookings;
         try {
@@ -94,22 +105,38 @@
           const [y, m, d] = b.start_date.split("T")[0].split("-").map(Number);
           return new Date(y, m - 1, d) >= today;
         });
-
-        if (!upcoming.length) {
-          return showNoTrips();
-        }
+        if (!upcoming.length) return showNoTrips();
 
         const tbody = document.getElementById("trips-table-body");
         tbody.innerHTML = "";
         upcoming.forEach((b) => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td>${b.destination}</td>
-            <td>${new Date(b.start_date).toLocaleDateString()}</td>
-            <td>${new Date(b.end_date).toLocaleDateString()}</td>
-            <td>${b.guests}</td>
-          `;
+        <td>${b.destination}</td>
+        <td>${new Date(b.start_date).toLocaleDateString()}</td>
+        <td>${new Date(b.end_date).toLocaleDateString()}</td>
+        <td>${b.guests}</td>
+        <td>
+          <button class="cancel-btn" data-id="${b.id}">Cancel</button>
+        </td>`;
           tbody.appendChild(tr);
+        });
+
+        document.querySelectorAll(".cancel-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            if (!confirm("Are you sure you want to cancel this booking?"))
+              return;
+            try {
+              await fetchJSON(`${API_BASE}/api/bookings/${btn.dataset.id}`, {
+                method: "DELETE",
+              });
+              await loadUpcomingTrips();
+              alert("Booking cancelled.");
+            } catch (e) {
+              console.error("Cancel failed:", e);
+              alert("Cancellation failed. Please try again.");
+            }
+          });
         });
       }
 

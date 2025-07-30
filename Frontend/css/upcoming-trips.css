@@ -37,7 +37,11 @@ header {
   color: white;
   text-align: center;
   padding: 20px;
-  font-size: 22px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.75rem;
   font-weight: bold;
 }
 
@@ -62,7 +66,6 @@ nav a {
 
 nav a:hover {
   background-color: var(--color-accent);
-  color: #fff;
 }
 
 .menu-toggle {

@@ -1,0 +1,229 @@
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap");
+
+:root {
+  --color-primary: purple;
+  --color-accent: #ff6f91;
+  --color-text: #333;
+  --color-text-light: #555;
+  --color-bg-light: #f4f4f9;
+  --white: #fff;
+  --radius: 1.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  --font-base: 1rem;
+  --font-scale: 1.125rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Merriweather", serif;
+  background: var(--color-bg-light);
+  color: var(--color-text);
+  line-height: 1.6;
+  font-size: var(--font-base);
+}
+
+/* Main membership section */
+main.membership-section {
+  max-width: 60rem;
+  margin: var(--spacing-lg) auto;
+  padding: var(--spacing-lg);
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Section title */
+.section-title {
+  font-size: 2.4rem;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-lg);
+  font-weight: 700;
+}
+
+/* Membership grid */
+.membership-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.membership-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: var(--spacing-lg);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.membership-card:hover {
+  transform: translateY(-0.5rem);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+}
+
+.icon {
+  font-size: 3rem;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.membership-card h3 {
+  font-size: 1.5rem;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-sm);
+}
+
+.membership-card p {
+  font-size: var(--font-base);
+  color: var(--color-text-light);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-md);
+}
+
+.membership-card .price {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-lg);
+}
+
+.join-btn {
+  display: inline-block;
+  background: var(--color-primary);
+  color: var(--white);
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius);
+  font-size: var(--font-base);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.join-btn:hover {
+  background: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+/* Plans section */
+.plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--spacing-lg);
+  justify-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.plan-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: var(--spacing-md);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s, border-color 0.3s;
+  text-align: center;
+}
+
+.plan-card:hover {
+  transform: translateY(-0.5rem);
+}
+
+.plan-card.featured {
+  border: 2px solid var(--color-accent);
+}
+
+.plan-card h2 {
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.plan-card .price {
+  font-size: 2rem;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-sm);
+}
+
+.plan-card .price small {
+  display: block;
+  font-size: var(--font-base);
+  color: var(--color-text-light);
+}
+
+/* Plan list items */
+.plan-card ul {
+  list-style: none;
+  padding: 0;
+  margin: var(--spacing-md) 0;
+  text-align: left;
+}
+
+.plan-card ul li {
+  position: relative;
+  padding-left: 1.2rem;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-light);
+}
+
+.plan-card ul li::before {
+  content: "✔";
+  position: absolute;
+  left: 0;
+  color: var(--color-accent);
+}
+
+/* Membership form */
+#membership-form {
+  background: var(--white);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+  max-width: 40rem;
+  margin: 0 auto var(--spacing-lg);
+  text-align: left;
+}
+
+.form-row {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-row.two-cols {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.form-row label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.form-row input,
+.form-row select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: var(--font-base);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .plans,
+  .membership-grid {
+    grid-template-columns: 1fr;
+  }
+  main.membership-section {
+    margin: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+}

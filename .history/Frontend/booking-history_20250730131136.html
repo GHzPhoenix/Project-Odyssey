@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking History</title>
+    <link rel="stylesheet" href="/Frontend/css/dashboard.css" />
+    <link rel="stylesheet" href="/Frontend/css/booking-history.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>My Booking History</h1>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="upcoming-trips.html">Upcoming Trips</a>
+        <a href="booking-history.html">Booking History</a>
+        <a href="membership-confirmation.html">Membership</a>
+        <a href="index.html">Back Home</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="bookings dashboard-section">
+        <h2>My Trips</h2>
+        <table class="booking-table">
+          <thead>
+            <tr>
+              <th>Destination</th>
+              <th>Image</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Guests</th>
+            </tr>
+          </thead>
+          <tbody id="booking-table-body">
+            <tr>
+              <td colspan="5">Loading your bookings…</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container"></div>
+      <div class="footer-bottom">
+        <p>© 2025 Travel Odyssey, Inc. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          return window.location.replace("client-area.html");
+        }
+      });
+      async function fetchJSON(url, opts = {}) {
+        const token = localStorage.getItem("token");
+        opts.headers = {
+          ...(opts.headers || {}),
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        };
+        const res = await fetch(url, opts);
+        if (!res.ok) throw await res.json();
+        return res.json();
+      }
+
+      async function loadBookings() {
+        const tbody = document.getElementById("booking-table-body");
+        tbody.innerHTML =
+          "<tr><td colspan='5'>Loading your bookings…</td></tr>";
+
+        let dealsMap = {};
+        try {
+          const deals = await fetchJSON("http://127.0.0.1:5001/api/deals");
+          deals.forEach((d) => (dealsMap[d.id] = d.image_url));
+        } catch (e) {
+          console.error("Could not load deals, images will fallback.", e);
+        }
+
+        let bookings;
+        try {
+          bookings = await fetchJSON("http://127.0.0.1:5001/api/bookings");
+        } catch (err) {
+          console.error("Error fetching bookings:", err);
+          bookings = [];
+        }
+
+        tbody.innerHTML = "";
+        if (!bookings.length) {
+          tbody.innerHTML =
+            "<tr><td colspan='5'>You have no bookings yet.</td></tr>";
+          return;
+        }
+
+        bookings.forEach((b) => {
+          const imgUrl =
+            dealsMap[b.deal_id] || "/Frontend/assets/default-deal.jpg";
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+        <td>${b.destination}</td>
+        <td><img src="${imgUrl}" alt="${
+            b.destination
+          }" class="booking-thumb"/></td>
+        <td>${new Date(b.start_date).toLocaleDateString()}</td>
+        <td>${new Date(b.end_date).toLocaleDateString()}</td>
+        <td>${b.guests}</td>
+      `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", loadBookings);
+    </script>
+  </body>
+</html>

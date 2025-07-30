@@ -1,0 +1,141 @@
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap");
+
+:root {
+  --color-primary: purple;
+  --color-accent: #ff6f91;
+  --color-bg-light: #f4f4f9;
+  --color-bg-lighter: #e0e0e3;
+  --color-text: #333;
+  --color-text-light: #555;
+  --white: #fff;
+  --radius: 1.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  --font-base: 1rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Merriweather", serif;
+  background: linear-gradient(
+    to bottom,
+    var(--color-bg-light),
+    var(--color-bg-lighter)
+  );
+  color: var(--color-text);
+  line-height: 1.6;
+  font-size: var(--font-base);
+}
+
+header {
+  background-color: var(--color-primary);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+header h1 {
+  flex: 1;
+  font-size: 1.75rem;
+}
+
+header nav a {
+  margin-left: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-primary);
+  color: var(--white);
+  text-decoration: none;
+  border-radius: var(--radius);
+  transition: background 0.3s;
+}
+
+header nav a:hover {
+  background: var(--color-accent);
+}
+
+main {
+  max-width: 60rem;
+  margin: var(--spacing-lg) auto;
+  padding: var(--spacing-lg);
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+}
+
+.dashboard-section p {
+  font-size: 1rem;
+  color: var(--color-text-light);
+}
+
+.dashboard-section p strong {
+  color: var(--color-primary);
+}
+
+#paypal-button-container {
+  margin-top: var(--spacing-lg);
+}
+
+.message {
+  margin-top: var(--spacing-md);
+}
+
+.message.error {
+  color: #b00020;
+}
+
+.footer {
+  background-color: var(--color-primary);
+  color: var(--white);
+  text-align: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.footer-bottom p {
+  font-size: 0.9rem;
+}
+
+button#btn-logout {
+  background: var(--color-accent);
+  color: var(--white);
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button#btn-logout:hover {
+  background: #ff4a75;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    text-align: center;
+  }
+  header nav {
+    margin-top: var(--spacing-sm);
+  }
+  main {
+    margin: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+}

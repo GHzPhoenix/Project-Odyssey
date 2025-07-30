@@ -1,0 +1,118 @@
+:root {
+  --color-primary: purple;
+  --color-accent: #ff6f91;
+  --color-bg-light: #f4f4f9;
+  --color-bg-lighter: #e0e0e3;
+  --color-text: #333;
+  --color-text-light: #555;
+  --radius: 1.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  --font-base: 1rem;
+  --font-scale: 1.125rem;
+}
+
+body {
+  font-family: "Merriweather", serif;
+  background: linear-gradient(
+    to bottom,
+    var(--color-bg-light),
+    var(--color-bg-lighter)
+  );
+  margin: 0;
+  padding: 0;
+  color: var(--color-text);
+}
+
+header {
+  background-color: var(--color-primary);
+  padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header h1 {
+  color: #fff;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+nav {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+nav a {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-primary);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: var(--radius);
+  transition: background-color 0.3s ease;
+}
+
+nav a:hover {
+  background-color: var(--color-accent);
+}
+
+main {
+  max-width: 1000px;
+  margin: var(--spacing-lg) auto;
+  padding: var(--spacing-lg);
+  background-color: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-section {
+  padding: var(--spacing-lg);
+  background-color: #f9f9ff;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  font-size: var(--font-base);
+  color: var(--color-text-light);
+}
+
+.dashboard-section p {
+  margin: var(--spacing-sm) 0;
+}
+
+#paypal-button-container {
+  margin-top: var(--spacing-lg);
+}
+
+.message {
+  margin-top: var(--spacing-md);
+  font-size: var(--font-base);
+}
+
+.message.error {
+  color: #b00020;
+}
+
+footer {
+  background-color: var(--color-primary);
+  color: #fff;
+  text-align: center;
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    text-align: center;
+  }
+  nav {
+    margin-top: var(--spacing-sm);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  main {
+    margin: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+}

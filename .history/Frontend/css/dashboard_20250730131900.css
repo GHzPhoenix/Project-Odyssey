@@ -1,0 +1,241 @@
+:root {
+  --color-primary: purple;
+  --color-accent: #ff6f91;
+  --color-bg-light: #f4f4f9;
+  --color-bg-lighter: #e0e0e3;
+  --color-text: #333;
+  --color-text-light: #555;
+  --radius: 1.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  --font-base: 1rem;
+  --font-scale: 1.125rem;
+}
+body {
+  font-family: "Merriweather", serif;
+  background: linear-gradient(to bottom, #f4f4f9, #e0e0e3);
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: purple;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+nav a {
+  display: inline-block;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-primary);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: var(--radius);
+  transition: background-color 0.3s ease;
+}
+
+nav a:hover {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.menu-toggle div {
+  width: 28px;
+  height: 3px;
+  background-color: white;
+  margin: 4px 0;
+}
+
+@media (max-width: 768px) {
+  nav ul {
+    flex-direction: column;
+    width: 100%;
+    display: none;
+    background-color: purple;
+    margin-top: 10px;
+    padding: 10px 0;
+  }
+
+  nav ul.active {
+    display: flex;
+  }
+
+  .menu-toggle {
+    display: flex;
+  }
+
+  nav ul li {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+main {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: purple;
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  border-bottom: 2px solid purple;
+  padding-bottom: 10px;
+}
+
+.dashboard-section {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: #f9f9ff;
+  border-radius: 10px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-section h3 {
+  font-size: 20px;
+  color: purple;
+  margin-bottom: 10px;
+}
+
+.deals-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding: 0;
+}
+
+.deal-card {
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.deal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+.deal-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.deal-card-body {
+  padding: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.deal-card-body h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  color: purple;
+}
+
+.deal-card-body p {
+  margin: 0.25rem 0;
+  color: #555;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.card-button {
+  display: inline-block;
+  background-color: purple;
+  color: #fff;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  text-align: center;
+  transition: background-color 0.3s ease;
+  margin-top: 1rem;
+}
+
+.card-button:hover {
+  background-color: #ff6f91;
+  color: #fff;
+}
+
+.no-deals {
+  text-align: center;
+  font-size: 1rem;
+  color: #555;
+  margin-top: 2rem;
+}
+
+@media (max-width: 600px) {
+  .deals-container {
+    grid-template-columns: 1fr;
+  }
+  .deal-card img {
+    height: 200px;
+  }
+}
+
+.dashboard-section p {
+  font-size: 16px;
+  color: #555;
+}
+
+.button {
+  background-color: purple;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 25px;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 15px;
+  font-weight: bold;
+  transition: background 0.3s ease-in-out;
+}
+
+.button:hover {
+  background-color: #ff3b72;
+}
+
+footer {
+  background-color: purple;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+  main {
+    margin: 20px;
+    padding: 20px;
+  }
+}

@@ -750,6 +750,19 @@ app.get("/api/bookings", verifyToken, (req, res) => {
     res.status(500).json({ error: "Failed to fetch bookings" });
   }
 });
+app.get("/api/bookings/cancelled", verifyToken, verifyAdmin, (req, res) => {
+  const rows = db
+    .prepare(
+      `
+    SELECT id, destination, start_date, end_date, guests, cancelled_at 
+    FROM bookings 
+    WHERE cancelled_at IS NOT NULL 
+    ORDER BY cancelled_at DESC
+  `
+    )
+    .all();
+  res.json(rows);
+});
 
 app.post("/api/bookings", verifyToken, (req, res) => {
   try {
@@ -852,9 +865,9 @@ app.post("/api/paypal/capture/:orderID", verifyToken, async (req, res) => {
     let dealName = null;
     if (/^\d+$/.test(pu.reference_id)) {
       const dealRow = db
-        .prepare("SELECT title FROM deals WHERE id = ?")
+        .prepare("SELECT name FROM deals WHERE id = ?")
         .get(pu.reference_id);
-      dealName = dealRow ? dealRow.title : null;
+      dealName = dealRow ? dealRow.name : null;
     }
 
     runExec(
