@@ -40,10 +40,11 @@ export const preferencesAPI = {
   get: () => api.get('/preferences'),
 };
 
-// Packages / Deals
+// Deals / Packages
 export const packagesAPI = {
   getFeatured: () => api.get('/deals'),
   getById: (id: string) => api.get(`/deals/${id}`),
+  getGenerated: (id: string) => api.get(`/packages/${id}`),
   generate: (params: {
     destination: string;
     startDate: string;
@@ -55,18 +56,29 @@ export const packagesAPI = {
 // Membership / Subscriptions
 export const subscriptionAPI = {
   getPlans: () => api.get('/subscription/plans'),
-  subscribe: (planId: string) => api.post('/subscription/subscribe', { planId }),
+  subscribe: (planId: string, billingPeriod: 'monthly' | 'yearly') =>
+    api.post('/subscription/subscribe', { planId, billingPeriod }),
+  getSubscription: () => api.get('/subscription'),
   getMembership: () => api.get('/membership'),
-  purchaseOneTime: (packageId: string) =>
-    api.post('/packages/purchase', { packageId }),
 };
 
 // Bookings
 export const bookingsAPI = {
-  create: (packageId: string, guests: number) =>
-    api.post('/bookings', { packageId, guests }),
+  create: (params: {
+    deal_id: number;
+    destination: string;
+    start_date: string;
+    end_date: string;
+    guests: number;
+  }) => api.post('/bookings', params),
   getMyBookings: () => api.get('/bookings'),
   cancel: (bookingId: number) => api.patch(`/bookings/${bookingId}/cancel`),
+};
+
+// User profile
+export const userAPI = {
+  updateProfile: (data: { name?: string; email?: string }) =>
+    api.put('/users/profile', data),
 };
 
 export default api;

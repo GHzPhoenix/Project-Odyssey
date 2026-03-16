@@ -1,30 +1,39 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, TravelPackage, UserPreferences } from '../types';
+import { User, TravelPackage, UserPreferences, Membership } from '../types';
+
+export interface BookingItem {
+  id: number;
+  deal_id: number;
+  destination: string;
+  start_date: string;
+  end_date: string;
+  guests: number;
+  cancelled_at: string | null;
+  created_at?: string;
+}
 
 interface AppState {
-  // Auth
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   isOnboardingComplete: boolean;
-
-  // Packages
   savedPackages: TravelPackage[];
   myTrips: TravelPackage[];
+  myBookings: BookingItem[];
   featuredDeals: any[];
-
-  // UI
   isLoading: boolean;
 
-  // Actions
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
   setOnboardingComplete: (complete: boolean) => void;
   updatePreferences: (prefs: UserPreferences) => void;
+  setMembership: (membership: Membership | null) => void;
   savePackage: (pkg: TravelPackage) => void;
   unsavePackage: (id: string) => void;
   addTrip: (pkg: TravelPackage) => void;
+  setMyTrips: (trips: TravelPackage[]) => void;
+  setMyBookings: (bookings: BookingItem[]) => void;
   setFeaturedDeals: (deals: any[]) => void;
   setLoading: (loading: boolean) => void;
   logout: () => void;
@@ -38,18 +47,20 @@ export const useStore = create<AppState>((set, get) => ({
   isOnboardingComplete: false,
   savedPackages: [],
   myTrips: [],
+  myBookings: [],
   featuredDeals: [],
   isLoading: false,
 
-  setUser: (user) => set({ user, isAuthenticated: !!user }),
+  setUser: (user) => {
+    set({ user, isAuthenticated: !!user });
+    if (user) AsyncStorage.setItem('user', JSON.stringify(user));
+    else AsyncStorage.removeItem('user');
+  },
 
   setToken: async (token) => {
     set({ token });
-    if (token) {
-      await AsyncStorage.setItem('token', token);
-    } else {
-      await AsyncStorage.removeItem('token');
-    }
+    if (token) await AsyncStorage.setItem('token', token);
+    else await AsyncStorage.removeItem('token');
   },
 
   setOnboardingComplete: async (complete) => {
@@ -60,7 +71,18 @@ export const useStore = create<AppState>((set, get) => ({
   updatePreferences: (prefs) => {
     const user = get().user;
     if (user) {
-      set({ user: { ...user, preferences: prefs } });
+      const updated = { ...user, preferences: prefs };
+      set({ user: updated });
+      AsyncStorage.setItem('user', JSON.stringify(updated));
+    }
+  },
+
+  setMembership: (membership) => {
+    const user = get().user;
+    if (user) {
+      const updated = { ...user, membership: membership ?? undefined };
+      set({ user: updated });
+      AsyncStorage.setItem('user', JSON.stringify(updated));
     }
   },
 
@@ -82,6 +104,10 @@ export const useStore = create<AppState>((set, get) => ({
     }
   },
 
+  setMyTrips: (trips) => set({ myTrips: trips }),
+
+  setMyBookings: (bookings) => set({ myBookings: bookings }),
+
   setFeaturedDeals: (deals) => set({ featuredDeals: deals }),
 
   setLoading: (loading) => set({ isLoading: loading }),
@@ -95,6 +121,7 @@ export const useStore = create<AppState>((set, get) => ({
       isAuthenticated: false,
       savedPackages: [],
       myTrips: [],
+      myBookings: [],
     });
   },
 
@@ -102,7 +129,6 @@ export const useStore = create<AppState>((set, get) => ({
     const token = await AsyncStorage.getItem('token');
     const userStr = await AsyncStorage.getItem('user');
     const onboarding = await AsyncStorage.getItem('onboardingComplete');
-
     if (token) set({ token });
     if (userStr) {
       try {

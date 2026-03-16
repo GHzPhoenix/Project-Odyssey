@@ -184,7 +184,10 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
         updatePreferences(prefs);
         try {
           await preferencesAPI.save(prefs);
-        } catch {}
+        } catch (err) {
+          console.warn('Could not save preferences:', err);
+          // Continue even if preferences save fails — don't block onboarding
+        }
         await setOnboardingComplete(true);
         navigation.replace('Main');
       } catch (e) {

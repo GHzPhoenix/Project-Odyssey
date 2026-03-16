@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -14,21 +14,46 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import { COLORS, FONTS, SPACING, RADIUS } from '../../constants/theme';
 import { useStore } from '../../store/useStore';
-
-const MENU_ITEMS = [
-  { icon: 'person-outline', label: 'Edit Profile', section: 'account' },
-  { icon: 'heart-outline', label: 'Saved Packages', section: 'account' },
-  { icon: 'sparkles-outline', label: 'My Preferences', section: 'account' },
-  { icon: 'diamond-outline', label: 'Membership & Plans', section: 'account', accent: true },
-  { icon: 'notifications-outline', label: 'Notifications', section: 'settings' },
-  { icon: 'shield-outline', label: 'Privacy & Security', section: 'settings' },
-  { icon: 'help-circle-outline', label: 'Help & Support', section: 'settings' },
-  { icon: 'information-circle-outline', label: 'About', section: 'settings' },
-];
+import { preferencesAPI, subscriptionAPI } from '../../services/api';
 
 export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { user, logout } = useStore();
+  const { user, logout, updatePreferences, setMembership, savedPackages, myBookings } = useStore();
+
+  const loadProfile = useCallback(async () => {
+    try {
+      const [prefsRes, membershipRes] = await Promise.allSettled([
+        preferencesAPI.get(),
+        subscriptionAPI.getMembership(),
+      ]);
+
+      if (prefsRes.status === 'fulfilled' && prefsRes.value.data) {
+        const p = prefsRes.value.data;
+        updatePreferences({
+          cuisines: p.cuisines ? JSON.parse(p.cuisines) : [],
+          activities: p.activities ? JSON.parse(p.activities) : [],
+          travelStyle: p.travel_style || '',
+          budgetTier: p.budget_tier || '',
+          dietaryRestrictions: p.dietary_restrictions ? JSON.parse(p.dietary_restrictions) : [],
+          accommodation: p.accommodation || '',
+          companions: p.companions || '',
+          pacePreference: p.pace_preference || '',
+        });
+      }
+
+      if (membershipRes.status === 'fulfilled' && membershipRes.value.data?.membership_type) {
+        const m = membershipRes.value.data;
+        setMembership({
+          id: m.id,
+          type: m.membership_type,
+          expiresAt: m.membership_expires,
+          status: new Date(m.membership_expires) > new Date() ? 'active' : 'expired',
+        });
+      }
+    } catch {}
+  }, [updatePreferences, setMembership]);
+
+  useEffect(() => { loadProfile(); }, [loadProfile]);
 
   const handleLogout = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -44,19 +69,52 @@ export const ProfileScreen: React.FC = () => {
     ]);
   };
 
-  const accountItems = MENU_ITEMS.filter((i) => i.section === 'account');
-  const settingsItems = MENU_ITEMS.filter((i) => i.section === 'settings');
+  const handleMenuPress = (label: string) => {
+    switch (label) {
+      case 'Saved Packages':
+        (navigation as any).navigate('Main', { screen: 'Trips' });
+        break;
+      case 'My Preferences':
+        navigation.navigate('Onboarding');
+        break;
+      case 'Membership & Plans':
+        navigation.navigate('Plans');
+        break;
+      case 'Help & Support':
+        Alert.alert('Help & Support', 'For support, contact us at support@travelodyssey.com');
+        break;
+      case 'About':
+        Alert.alert('Travel Odyssey', 'Version 1.0.0\n\nAI-powered personalized travel experiences.');
+        break;
+      default:
+        Alert.alert(label, 'This feature is coming soon.');
+    }
+  };
 
   const getInitials = (name?: string) => {
     if (!name) return 'T';
     return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  const activeBookings = myBookings.filter((b) => !b.cancelled_at).length;
+
+  const accountItems = [
+    { icon: 'heart-outline', label: 'Saved Packages', section: 'account' },
+    { icon: 'sparkles-outline', label: 'My Preferences', section: 'account' },
+    { icon: 'diamond-outline', label: 'Membership & Plans', section: 'account', accent: true },
+  ];
+
+  const settingsItems = [
+    { icon: 'notifications-outline', label: 'Notifications', section: 'settings' },
+    { icon: 'shield-outline', label: 'Privacy & Security', section: 'settings' },
+    { icon: 'help-circle-outline', label: 'Help & Support', section: 'settings' },
+    { icon: 'information-circle-outline', label: 'About', section: 'settings' },
+  ];
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Profile</Text>
         </View>
@@ -72,35 +130,34 @@ export const ProfileScreen: React.FC = () => {
             {user?.membership ? (
               <View style={styles.memberBadge}>
                 <Ionicons name="diamond" size={10} color={COLORS.accent} />
-                <Text style={styles.memberBadgeText}>{user.membership.type} Member</Text>
+                <Text style={styles.memberBadgeText}>
+                  {user.membership.type.charAt(0).toUpperCase() + user.membership.type.slice(1)} Member
+                </Text>
               </View>
             ) : (
-              <TouchableOpacity
-                style={styles.upgradeBadge}
-                onPress={() => navigation.navigate('Plans')}
-              >
+              <TouchableOpacity style={styles.upgradeBadge} onPress={() => navigation.navigate('Plans')}>
                 <Text style={styles.upgradeBadgeText}>Upgrade to unlock all features</Text>
                 <Ionicons name="arrow-forward" size={10} color={COLORS.secondary} />
               </TouchableOpacity>
             )}
           </View>
-          <TouchableOpacity style={styles.editBtn}>
-            <Ionicons name="create-outline" size={18} color={COLORS.secondary} />
-          </TouchableOpacity>
         </View>
 
         {/* Stats Row */}
         <View style={styles.statsRow}>
           {[
-            { value: '3', label: 'Trips' },
-            { value: '5', label: 'Saved' },
-            { value: '12', label: 'Reviews' },
+            { value: String(activeBookings), label: 'Trips' },
+            { value: String(savedPackages.length), label: 'Saved' },
           ].map((stat, i) => (
             <View key={i} style={styles.stat}>
               <Text style={styles.statValue}>{stat.value}</Text>
               <Text style={styles.statLabel}>{stat.label}</Text>
             </View>
           ))}
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>{user?.membership ? '✦' : '—'}</Text>
+            <Text style={styles.statLabel}>Plan</Text>
+          </View>
         </View>
 
         {/* Preferences Preview */}
@@ -109,7 +166,7 @@ export const ProfileScreen: React.FC = () => {
             <View style={styles.prefsHeader}>
               <Ionicons name="sparkles" size={16} color={COLORS.accent} />
               <Text style={styles.prefsTitle}>Your Travel DNA</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Onboarding')}>
                 <Text style={styles.prefsEdit}>Edit</Text>
               </TouchableOpacity>
             </View>
@@ -136,20 +193,12 @@ export const ProfileScreen: React.FC = () => {
               <TouchableOpacity
                 key={i}
                 style={[styles.menuItem, i < accountItems.length - 1 && styles.menuItemBorder]}
-                onPress={() => {
-                  if (item.label === 'Membership & Plans') navigation.navigate('Plans');
-                }}
+                onPress={() => handleMenuPress(item.label)}
               >
                 <View style={[styles.menuIcon, item.accent && styles.menuIconAccent]}>
-                  <Ionicons
-                    name={item.icon as any}
-                    size={18}
-                    color={item.accent ? COLORS.accent : COLORS.textSecondary}
-                  />
+                  <Ionicons name={item.icon as any} size={18} color={item.accent ? COLORS.accent : COLORS.textSecondary} />
                 </View>
-                <Text style={[styles.menuLabel, item.accent && styles.menuLabelAccent]}>
-                  {item.label}
-                </Text>
+                <Text style={[styles.menuLabel, item.accent && styles.menuLabelAccent]}>{item.label}</Text>
                 <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
               </TouchableOpacity>
             ))}
@@ -164,6 +213,7 @@ export const ProfileScreen: React.FC = () => {
               <TouchableOpacity
                 key={i}
                 style={[styles.menuItem, i < settingsItems.length - 1 && styles.menuItemBorder]}
+                onPress={() => handleMenuPress(item.label)}
               >
                 <View style={styles.menuIcon}>
                   <Ionicons name={item.icon as any} size={18} color={COLORS.textSecondary} />
@@ -175,7 +225,6 @@ export const ProfileScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Sign Out */}
         <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={18} color={COLORS.error} />
           <Text style={styles.signOutText}>Sign Out</Text>
@@ -189,9 +238,7 @@ export const ProfileScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: {
-    paddingHorizontal: SPACING.lg, paddingTop: SPACING.xxl, paddingBottom: SPACING.md,
-  },
+  header: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.xxl, paddingBottom: SPACING.md },
   headerTitle: { color: COLORS.text, fontSize: FONTS.sizes.xxl, fontWeight: '800' },
   userCard: {
     flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
@@ -213,14 +260,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm, paddingVertical: 2, alignSelf: 'flex-start', marginTop: SPACING.xs,
   },
   memberBadgeText: { color: COLORS.accent, fontSize: FONTS.sizes.xs, fontWeight: '600' },
-  upgradeBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: SPACING.xs,
-  },
+  upgradeBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: SPACING.xs },
   upgradeBadgeText: { color: COLORS.secondary, fontSize: FONTS.sizes.xs, fontWeight: '600' },
-  editBtn: {
-    width: 36, height: 36, borderRadius: RADIUS.full,
-    backgroundColor: COLORS.surfaceLight, alignItems: 'center', justifyContent: 'center',
-  },
   statsRow: {
     flexDirection: 'row', marginHorizontal: SPACING.lg,
     backgroundColor: COLORS.surface, borderRadius: RADIUS.xl,

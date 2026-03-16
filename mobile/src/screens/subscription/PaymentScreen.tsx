@@ -13,6 +13,8 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import { Button } from '../../components/Button';
+import { subscriptionAPI } from '../../services/api';
+import { useStore } from '../../store/useStore';
 import { COLORS, FONTS, SPACING, RADIUS } from '../../constants/theme';
 
 const PLAN_DETAILS: Record<string, { name: string; price: number; yearlyPrice: number; color: string }> = {
@@ -34,23 +36,41 @@ export const PaymentScreen: React.FC = () => {
   const price = billing === 'yearly' ? Math.round(plan.yearlyPrice / 12) : plan.price;
   const total = billing === 'yearly' ? plan.yearlyPrice : plan.price;
 
+  const { setMembership } = useStore();
+
   const handlePayment = async () => {
-    setProcessing(true);
-    setTimeout(() => {
-      setProcessing(false);
+    if (isOneTime) {
+      // One-time purchases go straight through
       Alert.alert(
-        '✦ Payment Successful',
-        isOneTime
-          ? 'Your package has been purchased! Check My Trips to view your booking.'
-          : `Welcome to ${plan.name}! Your subscription is now active.`,
-        [
-          {
-            text: 'Get Started',
-            onPress: () => navigation.navigate('Main'),
-          },
-        ]
+        '✦ Package Purchased',
+        'Your package has been purchased! Check My Trips to view your booking.',
+        [{ text: 'View Trips', onPress: () => navigation.navigate('Main') }]
       );
-    }, 2000);
+      return;
+    }
+    setProcessing(true);
+    try {
+      const res = await subscriptionAPI.subscribe(planId, billing);
+      const sub = res.data?.subscription;
+      if (sub) {
+        setMembership({
+          id: Date.now(),
+          type: planId as any,
+          expiresAt: sub.expiresAt,
+          status: 'active',
+        });
+      }
+      Alert.alert(
+        '✦ Subscription Active!',
+        `Welcome to ${plan.name}! Your subscription is now active.`,
+        [{ text: 'Get Started', onPress: () => navigation.navigate('Main') }]
+      );
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || 'Payment failed. Please try again.';
+      Alert.alert('Payment Failed', msg);
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (

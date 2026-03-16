@@ -90,10 +90,10 @@ export const GeneratePackageScreen: React.FC = () => {
       pulseAnim.stopAnimation();
       const generatedPackage = res.data.package;
       navigation.navigate('PackageDetail', { packageId: generatedPackage.id });
-    } catch (err) {
+    } catch (err: any) {
       pulseAnim.stopAnimation();
-      // Use mock package for demo
-      navigation.navigate('PackageDetail', { packageId: 'generated-1' });
+      const msg = err?.response?.data?.error || 'Could not generate package. Please check your connection and try again.';
+      Alert.alert('Generation Failed', msg);
     } finally {
       setGenerating(false);
     }
