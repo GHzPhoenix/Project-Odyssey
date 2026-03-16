@@ -2,7 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: "Merriweather", serif;
-  background: linear-gradient(135deg, purple 30%, rgb(148, 0, 148) 100%);
+  background: linear-gradient(135deg, #6C3CE1 30%, #4A28B5 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -11,12 +11,12 @@ body {
 
 header {
   width: 100%;
-  background-color: purple;
+  background-color: #6C3CE1;
   color: white;
 }
 
 nav {
-  background-color: purple;
+  background-color: #6C3CE1;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -64,8 +64,8 @@ nav ul li a {
 }
 
 nav ul li a:hover {
-  background-color: #cd75ce;
-  color: yellow;
+  background-color: #4A28B5;
+  color: #F5A623;
 }
 
 nav ul li .dropdown {
@@ -73,7 +73,7 @@ nav ul li .dropdown {
   position: absolute;
   left: 0;
   top: 100%;
-  background-color: white;
+  background-color: #1C1535;
   min-width: 180px;
   border-radius: 5px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
@@ -86,13 +86,13 @@ nav ul li .dropdown {
 nav ul li .dropdown a {
   display: block;
   padding: 12px;
-  color: #333;
+  color: #FFFFFF;
   transition: background 0.3s ease-in-out;
   white-space: nowrap;
 }
 
 nav ul li .dropdown a:hover {
-  background-color: #f4f4f9;
+  background-color: #0D0A1E;
 }
 
 nav ul li:hover .dropdown {
@@ -110,7 +110,7 @@ nav ul li:hover .dropdown {
 .menu-toggle div {
   width: 30px;
   height: 3px;
-  background-color: white;
+  background-color: #1C1535;
   margin: 5px;
 }
 
@@ -137,7 +137,7 @@ nav ul li:hover .dropdown {
 .menu-toggle div {
   width: 30px;
   height: 3px;
-  background-color: white;
+  background-color: #1C1535;
   margin: 5px 0;
 }
 
@@ -145,7 +145,7 @@ nav ul li:hover .dropdown {
   nav ul {
     display: none;
     flex-direction: column;
-    background: purple;
+    background: #6C3CE1;
     position: absolute;
     top: 70px;
     left: 0;
@@ -171,7 +171,7 @@ nav ul li:hover .dropdown {
 }
 
 .login-container {
-  background: white;
+  background: #1C1535;
   padding: 40px;
   margin-top: 30px;
   border-radius: 15px;
@@ -184,7 +184,7 @@ nav ul li:hover .dropdown {
 .login-form h2 {
   margin-bottom: 25px;
   font-size: 2rem;
-  color: purple;
+  color: #6C3CE1;
 }
 
 .input-group {
@@ -196,19 +196,19 @@ nav ul li:hover .dropdown {
   display: block;
   margin-bottom: 8px;
   font-weight: bold;
-  color: purple;
+  color: #6C3CE1;
 }
 
 .input-group input {
   width: 100%;
   padding: 12px;
   border-radius: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #2E2650;
   font-size: 16px;
 }
 
 button[type="submit"] {
-  background: purple;
+  background: #6C3CE1;
   color: white;
   border: none;
   padding: 12px 25px;
@@ -220,7 +220,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-  background: rgb(148, 0, 148);
+  background: #4A28B5;
 }
 
 .signup-text {
@@ -229,7 +229,7 @@ button[type="submit"]:hover {
 }
 
 .signup-text a {
-  color: purple;
+  color: #6C3CE1;
   font-weight: bold;
   text-decoration: none;
 }
@@ -242,7 +242,7 @@ footer {
   margin-top: auto;
   padding: 20px;
   text-align: center;
-  background: purple;
+  background: #6C3CE1;
   color: white;
   font-size: 0.9rem;
 }

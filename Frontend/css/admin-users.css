@@ -8,13 +8,13 @@
 
 body {
   font-family: "Merriweather", serif;
-  background: #f4f4f9;
-  color: #333;
+  background: #0D0A1E;
+  color: #FFFFFF;
 }
 
 .action-btn,
 .action {
-  background: #6c63ff;
+  background: #6C3CE1;
   color: white;
   border: none;
   padding: 0.4rem 0.8rem;
@@ -26,7 +26,7 @@ body {
 
 .action-btn:hover,
 .action:hover {
-  background: #5950d4;
+  background: #4A28B5;
 }
 
 .modal-overlay {
@@ -44,7 +44,7 @@ body {
 }
 
 .modal {
-  background: #fff;
+  background: #1E1840;
   padding: 2rem;
   border-radius: 8px;
   width: 90%;
@@ -54,7 +54,7 @@ body {
 
 .modal h3 {
   margin-bottom: 1rem;
-  color: purple;
+  color: #6C3CE1;
 }
 
 .modal table {
@@ -66,11 +66,11 @@ body {
 .modal th,
 .modal td {
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid #2E2650;
 }
 
 .modal th {
-  background: #f9f9ff;
+  background: #1E1840;
 }
 
 .modal-footer {
@@ -79,7 +79,7 @@ body {
 }
 
 header nav {
-  background: purple;
+  background: #6C3CE1;
   padding: 1rem 2rem;
   display: flex;
   align-items: center;
@@ -102,14 +102,14 @@ header nav a {
   color: white;
   text-decoration: none;
   padding: 0.5rem 1rem;
-  background: #6c63ff;
+  background: #6C3CE1;
   border-radius: 4px;
   transition: background 0.2s;
 }
 
 header nav a.active,
 header nav a:hover {
-  background: #ff6f91;
+  background: #F5A623;
 }
 
 main {
@@ -119,7 +119,7 @@ main {
 }
 
 h2 {
-  color: purple;
+  color: #6C3CE1;
   margin-bottom: 1rem;
   text-align: center;
 }
@@ -127,7 +127,7 @@ h2 {
 table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: #1C1535;
   margin-top: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -135,23 +135,23 @@ table {
 th,
 td {
   padding: 0.75rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid #2E2650;
   text-align: left;
 }
 
 th {
-  background: purple;
+  background: #6C3CE1;
   color: white;
   font-weight: 600;
 }
 
 tr:nth-child(even) td {
-  background: #f9f9ff;
+  background: #1E1840;
 }
 
 .file-input-btn {
   display: inline-block;
-  background: #6c63ff;
+  background: #6C3CE1;
   color: #fff;
   padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -161,13 +161,13 @@ tr:nth-child(even) td {
 }
 
 .file-input-btn:hover {
-  background: #5950d4;
+  background: #4A28B5;
 }
 
 #modal-file-chosen {
   margin-left: 0.75rem;
   font-size: 0.9rem;
-  color: #555;
+  color: #A89BC2;
   vertical-align: middle;
 }
 

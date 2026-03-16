@@ -1,6 +1,7 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #0D0A1E;
+    color: #FFFFFF;
     margin: 0;
     padding: 0;
 }
@@ -8,14 +9,14 @@ body {
 .container {
     width: 50%;
     margin: 50px auto;
-    background-color: #fff;
+    background-color: #1E1840;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    color: #FFFFFF;
 }
 
 .section {
@@ -23,15 +24,15 @@ h1 {
 }
 
 .section h2 {
-    border-bottom: 2px solid #eee;
+    border-bottom: 2px solid #2E2650;
     padding-bottom: 10px;
-    color: #666;
+    color: #A89BC2;
 }
 
 label {
     display: block;
     margin-top: 10px;
-    color: #555;
+    color: #A89BC2;
 }
 
 input[type="text"],
@@ -39,21 +40,23 @@ input[type="email"] {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
-    border: 1px solid #ddd;
+    border: 1px solid #2E2650;
     border-radius: 5px;
     box-sizing: border-box;
+    background-color: #1C1535;
+    color: #FFFFFF;
 }
 
 hr {
     border: 0;
     height: 1px;
-    background: #eee;
+    background: #2E2650;
     margin: 20px 0;
 }
 
 .checkout-btn {
     width: 100%;
-    background-color:blue;
+    background-color: #6C3CE1;
     color: white;
     padding: 15px;
     border: none;
@@ -63,5 +66,5 @@ hr {
 }
 
 .checkout-btn:hover {
-    background-color: navy;
+    background-color: #4A28B5;
 }

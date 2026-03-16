@@ -1,10 +1,10 @@
 :root {
-  --color-primary: purple;
-  --color-accent: #ff6f91;
-  --color-bg-light: #f4f4f9;
-  --color-bg-lighter: #e0e0e3;
-  --color-text: #333;
-  --color-text-light: #555;
+  --color-primary: #6C3CE1;
+  --color-accent: #F5A623;
+  --color-bg-light: #0D0A1E;
+  --color-bg-lighter: #1C1535;
+  --color-text: #FFFFFF;
+  --color-text-light: #A89BC2;
   --radius: 1.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -64,7 +64,7 @@ main {
   max-width: 60rem;
   margin: var(--spacing-lg) auto;
   padding: var(--spacing-lg);
-  background: #fff;
+  background: #1E1840;
   border-radius: var(--radius);
   box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
 }
@@ -80,14 +80,14 @@ main {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-base);
-  background: #fdfdff;
+  background: #1E1840;
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.05);
 }
 
 .booking-table th,
 .booking-table td {
   padding: var(--spacing-md);
-  border: 1px solid #ddd;
+  border: 1px solid #2E2650;
   text-align: center;
 }
 
@@ -99,7 +99,7 @@ main {
 }
 
 .booking-table td {
-  background-color: #f9f9ff;
+  background-color: #1E1840;
   color: var(--color-text-light);
 }
 
@@ -128,7 +128,7 @@ main {
 }
 
 .image-card {
-  background: #fff;
+  background: #1E1840;
   border-radius: var(--radius);
   box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
   overflow: hidden;

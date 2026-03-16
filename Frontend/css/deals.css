@@ -6,9 +6,9 @@
 }
 
 .card {
-  background: #fff;
+  background: #1E1840;
   border-radius: 1rem;
-  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.3);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
@@ -17,7 +17,7 @@
 
 .card:hover {
   transform: translateY(-0.5rem);
-  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.4);
 }
 
 .card-image {
@@ -36,25 +36,25 @@
 .card-title {
   margin: 0 0 0.5rem;
   font-size: 1.25rem;
-  color: #333;
+  color: #FFFFFF;
 }
 
 .card-subtext {
   font-size: 0.9rem;
-  color: #666;
+  color: #A89BC2;
   margin: 0 0 1rem;
   flex: 1;
 }
 
 .card-dates {
   font-size: 0.85rem;
-  color: #999;
+  color: #A89BC2;
   margin-bottom: 1rem;
 }
 
 .card-button {
   align-self: start;
-  background-color: #6c63ff;
+  background-color: #6C3CE1;
   color: #fff;
   padding: 0.6rem 1.2rem;
   border-radius: 0.6rem;
@@ -64,11 +64,11 @@
 }
 
 .card-button:hover {
-  background-color: #5950d4;
+  background-color: #4A28B5;
 }
 .card-price {
   font-size: 1rem;
   font-weight: 700;
   margin: 0.5rem 0;
-  color: #6c63ff;
+  color: #F5A623;
 }

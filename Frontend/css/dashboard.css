@@ -1,10 +1,10 @@
 :root {
-  --color-primary: purple;
-  --color-accent: #ff6f91;
-  --color-bg-light: #f4f4f9;
-  --color-bg-lighter: #e0e0e3;
-  --color-text: #333;
-  --color-text-light: #555;
+  --color-primary: #6C3CE1;
+  --color-accent: #F5A623;
+  --color-bg-light: #0D0A1E;
+  --color-bg-lighter: #1C1535;
+  --color-text: #FFFFFF;
+  --color-text-light: #A89BC2;
   --radius: 1.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -14,7 +14,7 @@
 }
 body {
   font-family: "Merriweather", serif;
-  background: linear-gradient(to bottom, #f4f4f9, #e0e0e3);
+  background: linear-gradient(to bottom, #0D0A1E, #1C1535);
   margin: 0;
   padding: 0;
 }
@@ -63,7 +63,7 @@ nav a:hover {
 .menu-toggle div {
   width: 28px;
   height: 3px;
-  background-color: white;
+  background-color: #1C1535;
   margin: 4px 0;
 }
 
@@ -72,7 +72,7 @@ nav a:hover {
     flex-direction: column;
     width: 100%;
     display: none;
-    background-color: purple;
+    background-color: #6C3CE1;
     margin-top: 10px;
     padding: 10px 0;
   }
@@ -95,31 +95,31 @@ main {
   max-width: 1000px;
   margin: 30px auto;
   padding: 30px;
-  background-color: white;
+  background-color: #1C1535;
   border-radius: 12px;
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
-  color: purple;
+  color: #6C3CE1;
   font-size: 24px;
   margin-bottom: 20px;
   text-align: center;
-  border-bottom: 2px solid purple;
+  border-bottom: 2px solid #6C3CE1;
   padding-bottom: 10px;
 }
 
 .dashboard-section {
   margin: 20px 0;
   padding: 20px;
-  background-color: #f9f9ff;
+  background-color: #1E1840;
   border-radius: 10px;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-section h3 {
   font-size: 20px;
-  color: purple;
+  color: #6C3CE1;
   margin-bottom: 10px;
 }
 
@@ -132,7 +132,7 @@ h2 {
 }
 
 .deal-card {
-  background-color: #fff;
+  background-color: #1E1840;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -163,19 +163,19 @@ h2 {
 .deal-card-body h3 {
   margin: 0 0 0.5rem;
   font-size: 1.25rem;
-  color: purple;
+  color: #6C3CE1;
 }
 
 .deal-card-body p {
   margin: 0.25rem 0;
-  color: #555;
+  color: #A89BC2;
   font-size: 0.95rem;
   flex: 1;
 }
 
 .card-button {
   display: inline-block;
-  background-color: purple;
+  background-color: #6C3CE1;
   color: #fff;
   text-decoration: none;
   padding: 0.5rem 1rem;
@@ -188,14 +188,14 @@ h2 {
 }
 
 .card-button:hover {
-  background-color: #ff6f91;
+  background-color: #F5A623;
   color: #fff;
 }
 
 .no-deals {
   text-align: center;
   font-size: 1rem;
-  color: #555;
+  color: #A89BC2;
   margin-top: 2rem;
 }
 
@@ -210,11 +210,11 @@ h2 {
 
 .dashboard-section p {
   font-size: 16px;
-  color: #555;
+  color: #A89BC2;
 }
 
 .button {
-  background-color: purple;
+  background-color: #6C3CE1;
   color: white;
   padding: 10px 18px;
   border-radius: 25px;
@@ -226,11 +226,11 @@ h2 {
 }
 
 .button:hover {
-  background-color: #ff3b72;
+  background-color: #F5A623;
 }
 
 footer {
-  background-color: purple;
+  background-color: #6C3CE1;
   color: white;
   text-align: center;
   padding: 20px;

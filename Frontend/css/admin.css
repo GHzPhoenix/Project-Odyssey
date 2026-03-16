@@ -8,11 +8,11 @@
 
 body {
   font-family: "Merriweather", serif;
-  background: #f4f4f9;
-  color: #333;
+  background: #0D0A1E;
+  color: #FFFFFF;
 }
 .action {
-  background: #6c63ff;
+  background: #6C3CE1;
   color: white;
   border: none;
   padding: 0.4rem 0.8rem;
@@ -22,7 +22,7 @@ body {
   transition: background 0.2s ease;
 }
 .action:hover {
-  background: #5950d4;
+  background: #4A28B5;
 }
 .modal-overlay {
   display: none;
@@ -37,7 +37,7 @@ body {
   display: flex;
 }
 .modal {
-  background: #fff;
+  background: #1E1840;
   padding: 2rem;
   border-radius: 8px;
   width: 90%;
@@ -46,7 +46,7 @@ body {
 }
 .modal h2 {
   margin-bottom: 1rem;
-  color: purple;
+  color: #6C3CE1;
 }
 .modal .input-group {
   margin-bottom: 1rem;
@@ -60,7 +60,7 @@ body {
 .modal input[type="date"] {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: 1px solid #2E2650;
   border-radius: 4px;
 }
 
@@ -69,7 +69,7 @@ body {
   margin-top: 1rem;
 }
 .modal-actions button {
-  background: #6c63ff;
+  background: #6C3CE1;
   color: #fff;
   border: none;
   padding: 0.5rem 1rem;
@@ -79,15 +79,15 @@ body {
   transition: background 0.2s;
 }
 .modal-actions button#modal-cancel {
-  background: #ccc;
-  color: #333;
+  background: #2E2650;
+  color: #FFFFFF;
 }
 .modal-actions button:hover {
-  background: #5950d4;
+  background: #4A28B5;
 }
 
 header nav {
-  background: purple;
+  background: #6C3CE1;
   padding: 1rem 2rem;
   display: flex;
   align-items: center;
@@ -110,14 +110,14 @@ header nav a {
   color: white;
   text-decoration: none;
   padding: 0.5rem 1rem;
-  background: #6c63ff;
+  background: #6C3CE1;
   border-radius: 4px;
   transition: background 0.2s;
 }
 
 header nav a.active,
 header nav a:hover {
-  background: #ff6f91;
+  background: #F5A623;
 }
 
 main {
@@ -128,13 +128,13 @@ main {
 
 h1,
 h2 {
-  color: purple;
+  color: #6C3CE1;
   margin-bottom: 1rem;
   text-align: center;
 }
 
 form {
-  background: white;
+  background: #1C1535;
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -156,7 +156,7 @@ form input[type="number"],
 form textarea {
   width: 100%;
   padding: 0.6rem;
-  border: 1px solid #ccc;
+  border: 1px solid #2E2650;
   border-radius: 4px;
   font-size: 1rem;
 }
@@ -169,7 +169,7 @@ form textarea {
 .file-input-label {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: #007bff;
+  background: #6C3CE1;
   color: white;
   border-radius: 4px;
   cursor: pointer;
@@ -180,7 +180,7 @@ form textarea {
   margin-left: 0.5rem;
   font-size: 0.9rem;
   vertical-align: middle;
-  color: #555;
+  color: #A89BC2;
 }
 
 input[type="file"] {
@@ -220,7 +220,7 @@ button[type="submit"]:hover {
 table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: #1C1535;
   margin-top: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -228,22 +228,22 @@ table {
 th,
 td {
   padding: 0.75rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid #2E2650;
   text-align: left;
 }
 
 th {
-  background: purple;
+  background: #6C3CE1;
   color: white;
   font-weight: 600;
 }
 
 tr:nth-child(even) td {
-  background: #f9f9ff;
+  background: #1E1840;
 }
 
 .inquiry-actions button {
-  background: #6c63ff;
+  background: #6C3CE1;
   color: white;
   border: none;
   padding: 0.4rem 0.8rem;
@@ -254,11 +254,11 @@ tr:nth-child(even) td {
 }
 
 .inquiry-actions button:hover {
-  background: #5950d4;
+  background: #4A28B5;
 }
 
 .deal-card {
-  background: white;
+  background: #1C1535;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -285,7 +285,7 @@ tr:nth-child(even) td {
 }
 
 .deal-card-body .card-button {
-  background: #6c63ff;
+  background: #6C3CE1;
   color: white;
   padding: 0.4rem 0.8rem;
   border-radius: 4px;
@@ -293,19 +293,19 @@ tr:nth-child(even) td {
 }
 
 .deal-card-body .card-button:hover {
-  background: #5950d4;
+  background: #4A28B5;
 }
 
 .button-link {
   display: inline-block;
   margin-top: 1.5rem;
-  color: #6c63ff;
+  color: #6C3CE1;
   text-decoration: underline;
 }
 
 .file-input-btn {
   display: inline-block;
-  background: #6c63ff;
+  background: #6C3CE1;
   color: #fff;
   padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -314,13 +314,13 @@ tr:nth-child(even) td {
   transition: background 0.2s;
 }
 .file-input-btn:hover {
-  background: #5950d4;
+  background: #4A28B5;
 }
 
 #modal-file-chosen {
   margin-left: 0.75rem;
   font-size: 0.9rem;
-  color: #555;
+  color: #A89BC2;
   vertical-align: middle;
 }
 
@@ -334,7 +334,7 @@ tr:nth-child(even) td {
   flex-wrap: wrap;
 }
 .card {
-  background: #f8f9fa;
+  background: #1C1535;
   border-radius: 8px;
   padding: 1rem 2rem;
   text-align: center;
@@ -343,11 +343,11 @@ tr:nth-child(even) td {
 .card h2 {
   margin: 0.5rem 0;
   font-size: 2.5rem;
-  color: #007bff;
+  color: #6C3CE1;
 }
 .card p {
   margin: 0;
-  color: #6c757d;
+  color: #A89BC2;
 }
 button {
   margin-top: 1rem;
