@@ -1,0 +1,25 @@
+node_modules/
+.expo/
+*.db
+*.node
+
+# Environment variables — never commit these
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+
+# EAS / Expo
+google-play-service-account.json
+
+# Claude worktrees
+.claude/worktrees/
+
+# Editor history
+.history/
+
+# Cursor editor extensions
+.cursor/
+

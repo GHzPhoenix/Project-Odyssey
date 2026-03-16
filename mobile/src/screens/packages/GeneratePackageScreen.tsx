@@ -1,0 +1,503 @@
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  Animated,
+  Alert,
+  StatusBar,
+  ActivityIndicator,
+  Dimensions,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../types';
+import { Button } from '../../components/Button';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../constants/theme';
+import { useStore } from '../../store/useStore';
+import { packagesAPI } from '../../services/api';
+
+const { width } = Dimensions.get('window');
+
+const POPULAR_DESTINATIONS = [
+  { name: 'London', emoji: '🇬🇧' },
+  { name: 'Paris', emoji: '🇫🇷' },
+  { name: 'Tokyo', emoji: '🇯🇵' },
+  { name: 'Dubai', emoji: '🇦🇪' },
+  { name: 'Barcelona', emoji: '🇪🇸' },
+  { name: 'Rome', emoji: '🇮🇹' },
+  { name: 'Bali', emoji: '🇮🇩' },
+  { name: 'New York', emoji: '🇺🇸' },
+  { name: 'Sydney', emoji: '🇦🇺' },
+  { name: 'Santorini', emoji: '🇬🇷' },
+];
+
+const DURATION_OPTIONS = [3, 5, 7, 10, 14, 21];
+
+export const GeneratePackageScreen: React.FC = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { user } = useStore();
+  const [destination, setDestination] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [duration, setDuration] = useState(7);
+  const [guests, setGuests] = useState(2);
+  const [generating, setGenerating] = useState(false);
+  const [showDestSuggestions, setShowDestSuggestions] = useState(false);
+
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  const filteredDests = POPULAR_DESTINATIONS.filter((d) =>
+    d.name.toLowerCase().includes(destination.toLowerCase())
+  );
+
+  const startPulse = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1.05, duration: 600, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      ])
+    ).start();
+  };
+
+  const handleGenerate = async () => {
+    if (!destination.trim()) {
+      Alert.alert('Missing Destination', 'Please enter or select a destination.');
+      return;
+    }
+    if (!startDate.trim()) {
+      Alert.alert('Missing Date', 'Please enter your travel start date.');
+      return;
+    }
+
+    setGenerating(true);
+    startPulse();
+
+    const endDateObj = new Date(startDate);
+    endDateObj.setDate(endDateObj.getDate() + duration);
+    const endDate = endDateObj.toISOString().split('T')[0];
+
+    try {
+      const res = await packagesAPI.generate({
+        destination,
+        startDate,
+        endDate,
+        guests,
+      });
+      pulseAnim.stopAnimation();
+      const generatedPackage = res.data.package;
+      navigation.navigate('PackageDetail', { packageId: generatedPackage.id });
+    } catch (err: any) {
+      pulseAnim.stopAnimation();
+      const msg = err?.response?.data?.error || 'Could not generate package. Please check your connection and try again.';
+      Alert.alert('Generation Failed', msg);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={20} color={COLORS.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Generate Package</Text>
+        <View style={{ width: 38 }} />
+      </View>
+
+      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+        {/* Preferences Summary */}
+        {user?.preferences && (
+          <View style={styles.prefSummary}>
+            <Ionicons name="sparkles" size={16} color={COLORS.accent} />
+            <Text style={styles.prefText}>
+              Based on your preferences: {user.preferences.travelStyle},{' '}
+              {user.preferences.budgetTier} budget
+            </Text>
+          </View>
+        )}
+
+        {/* Destination Input */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Where to?</Text>
+          <View style={styles.searchContainer}>
+            <Ionicons name="location-outline" size={20} color={COLORS.secondary} style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search destinations..."
+              placeholderTextColor={COLORS.textMuted}
+              value={destination}
+              onChangeText={(t) => {
+                setDestination(t);
+                setShowDestSuggestions(t.length > 0);
+              }}
+              onFocus={() => setShowDestSuggestions(destination.length > 0 || true)}
+            />
+            {destination ? (
+              <TouchableOpacity onPress={() => { setDestination(''); setShowDestSuggestions(false); }}>
+                <Ionicons name="close-circle" size={18} color={COLORS.textMuted} />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+
+          {/* Destination Suggestions */}
+          {showDestSuggestions && (
+            <View style={styles.suggestions}>
+              {(destination ? filteredDests : POPULAR_DESTINATIONS).slice(0, 6).map((d) => (
+                <TouchableOpacity
+                  key={d.name}
+                  style={styles.suggestionItem}
+                  onPress={() => {
+                    setDestination(d.name);
+                    setShowDestSuggestions(false);
+                  }}
+                >
+                  <Text style={styles.suggestionEmoji}>{d.emoji}</Text>
+                  <Text style={styles.suggestionName}>{d.name}</Text>
+                  <Ionicons name="chevron-forward" size={14} color={COLORS.textMuted} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Start Date */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Departure Date</Text>
+          <View style={styles.inputRow}>
+            <Ionicons name="calendar-outline" size={20} color={COLORS.secondary} style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="YYYY-MM-DD (e.g. 2025-12-20)"
+              placeholderTextColor={COLORS.textMuted}
+              value={startDate}
+              onChangeText={setStartDate}
+              keyboardType="numbers-and-punctuation"
+            />
+          </View>
+        </View>
+
+        {/* Duration */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Duration (days)</Text>
+          <View style={styles.durationGrid}>
+            {DURATION_OPTIONS.map((d) => (
+              <TouchableOpacity
+                key={d}
+                style={[styles.durationChip, duration === d && styles.durationChipSelected]}
+                onPress={() => setDuration(d)}
+              >
+                <Text style={[styles.durationText, duration === d && styles.durationTextSelected]}>
+                  {d}d
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Guests */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Guests</Text>
+          <View style={styles.guestRow}>
+            <TouchableOpacity
+              style={styles.guestBtn}
+              onPress={() => setGuests(Math.max(1, guests - 1))}
+            >
+              <Ionicons name="remove" size={20} color={COLORS.text} />
+            </TouchableOpacity>
+            <View style={styles.guestCount}>
+              <Text style={styles.guestNumber}>{guests}</Text>
+              <Text style={styles.guestLabel}>{guests === 1 ? 'Guest' : 'Guests'}</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.guestBtn}
+              onPress={() => setGuests(Math.min(10, guests + 1))}
+            >
+              <Ionicons name="add" size={20} color={COLORS.text} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* What's Included */}
+        <View style={styles.includedSection}>
+          <Text style={styles.label}>What's Included</Text>
+          <View style={styles.includedGrid}>
+            {[
+              { icon: 'airplane', label: 'Flights' },
+              { icon: 'bed', label: 'Hotel' },
+              { icon: 'restaurant', label: 'Restaurants' },
+              { icon: 'ticket', label: 'Experiences' },
+            ].map((item) => (
+              <View key={item.label} style={styles.includedItem}>
+                <View style={styles.includedIcon}>
+                  <Ionicons name={item.icon as any} size={18} color={COLORS.secondary} />
+                </View>
+                <Text style={styles.includedLabel}>{item.label}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <View style={{ height: SPACING.xxxl }} />
+      </ScrollView>
+
+      {/* Generate Button */}
+      <View style={styles.footer}>
+        {generating ? (
+          <View style={styles.generatingContainer}>
+            <Animated.View style={[styles.generatingBadge, { transform: [{ scale: pulseAnim }] }]}>
+              <Ionicons name="sparkles" size={20} color={COLORS.accent} />
+            </Animated.View>
+            <View>
+              <Text style={styles.generatingTitle}>Crafting your package...</Text>
+              <Text style={styles.generatingSubtitle}>AI is personalizing your experience</Text>
+            </View>
+            <ActivityIndicator color={COLORS.secondary} size="small" />
+          </View>
+        ) : (
+          <Button
+            label="✦  Generate My Package"
+            onPress={handleGenerate}
+          />
+        )}
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.xxl,
+    paddingBottom: SPACING.md,
+  },
+  backBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    color: COLORS.text,
+    fontSize: FONTS.sizes.lg,
+    fontWeight: '700',
+  },
+  scroll: {
+    flex: 1,
+  },
+  prefSummary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    marginHorizontal: SPACING.lg,
+    marginBottom: SPACING.lg,
+    backgroundColor: 'rgba(108,60,225,0.15)',
+    borderRadius: RADIUS.md,
+    padding: SPACING.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(108,60,225,0.3)',
+  },
+  prefText: {
+    color: COLORS.textSecondary,
+    fontSize: FONTS.sizes.sm,
+    flex: 1,
+  },
+  section: {
+    paddingHorizontal: SPACING.lg,
+    marginBottom: SPACING.lg,
+  },
+  label: {
+    color: COLORS.textSecondary,
+    fontSize: FONTS.sizes.sm,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    marginBottom: SPACING.sm,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 2,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 2,
+  },
+  searchIcon: {
+    marginRight: SPACING.sm,
+  },
+  searchInput: {
+    flex: 1,
+    color: COLORS.text,
+    fontSize: FONTS.sizes.md,
+  },
+  suggestions: {
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginTop: SPACING.xs,
+    overflow: 'hidden',
+  },
+  suggestionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    gap: SPACING.md,
+  },
+  suggestionEmoji: {
+    fontSize: 20,
+  },
+  suggestionName: {
+    flex: 1,
+    color: COLORS.text,
+    fontSize: FONTS.sizes.md,
+    fontWeight: '500',
+  },
+  durationGrid: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    flexWrap: 'wrap',
+  },
+  durationChip: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    minWidth: 52,
+    alignItems: 'center',
+  },
+  durationChipSelected: {
+    backgroundColor: COLORS.secondary,
+    borderColor: COLORS.secondary,
+  },
+  durationText: {
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    fontSize: FONTS.sizes.sm,
+  },
+  durationTextSelected: {
+    color: COLORS.white,
+  },
+  guestRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xl,
+  },
+  guestBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  guestCount: {
+    alignItems: 'center',
+  },
+  guestNumber: {
+    color: COLORS.text,
+    fontSize: FONTS.sizes.xxl,
+    fontWeight: '800',
+  },
+  guestLabel: {
+    color: COLORS.textMuted,
+    fontSize: FONTS.sizes.xs,
+  },
+  includedSection: {
+    paddingHorizontal: SPACING.lg,
+    marginBottom: SPACING.lg,
+  },
+  includedGrid: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+  },
+  includedItem: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    alignItems: 'center',
+    gap: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  includedIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.md,
+    backgroundColor: 'rgba(108,60,225,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  includedLabel: {
+    color: COLORS.textSecondary,
+    fontSize: FONTS.sizes.xs,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  footer: {
+    padding: SPACING.lg,
+    paddingBottom: SPACING.xxl,
+    backgroundColor: COLORS.background,
+  },
+  generatingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.md,
+    gap: SPACING.md,
+    borderWidth: 1,
+    borderColor: 'rgba(108,60,225,0.3)',
+  },
+  generatingBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.full,
+    backgroundColor: 'rgba(108,60,225,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  generatingTitle: {
+    color: COLORS.text,
+    fontWeight: '700',
+    fontSize: FONTS.sizes.md,
+  },
+  generatingSubtitle: {
+    color: COLORS.textMuted,
+    fontSize: FONTS.sizes.xs,
+  },
+});

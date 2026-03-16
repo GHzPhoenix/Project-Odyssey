@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membership – Travel Odyssey</title>
+    <link rel="stylesheet" href="/Frontend/css/style.css" />
+    <link rel="stylesheet" href="/Frontend/css/membership.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .plans {
+        display: flex;
+        justify-content: center;
+        margin: 2rem 0;
+      }
+      .plan-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        max-width: 360px;
+        text-align: center;
+      }
+      .plan-card.featured {
+        border: 2px solid purple;
+      }
+      .plan-card h2 {
+        margin-bottom: 0.5rem;
+        color: purple;
+      }
+      .plan-card .price {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+      .plan-card ul {
+        list-style: none;
+        padding: 0;
+        margin: 1rem 0;
+        text-align: left;
+      }
+      .plan-card li {
+        margin-bottom: 0.5rem;
+        position: relative;
+        padding-left: 1.2rem;
+      }
+      .plan-card li::before {
+        content: "✔";
+        position: absolute;
+        left: 0;
+        color: purple;
+        font-weight: bold;
+      }
+      .join-btn {
+        display: inline-block;
+        background: purple;
+        color: #fff;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 700;
+        margin-top: 1rem;
+        transition: background 0.3s ease;
+      }
+      .join-btn:hover {
+        background: #5e0c5e;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">
+          <img src="/Frontend/assets/your-logo.png" alt="Logo" />
+          Travel Odyssey
+        </div>
+        <div class="menu-toggle" onclick="toggleMenu()">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <ul class="nav-menu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="deals.html">Deals</a></li>
+          <li class="dropdown-parent">
+            <a href="#">Services ▼</a>
+            <div class="dropdown">
+              <a href="membership.html">Memberships</a>
+              <a href="dream.html">Plan your Trip</a>
+              <a href="client-area.html">Client Area</a>
+            </div>
+          </li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="signup.html" class="signup-btn">Sign Up</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="membership-page">
+      <h1>Unlock Premium Membership</h1>
+      <p class="intro">
+        Get free lounge access, a personal trip advisor, and all Basic perks.
+      </p>
+
+      <div class="plans">
+        <div class="plan-card featured">
+          <h2>Premium</h2>
+          <div class="price">€99<small>/year</small></div>
+          <ul>
+            <li>Priority booking</li>
+            <li>Member-only deals</li>
+            <li>Email & 24/7 support</li>
+            <li>Free lounge access</li>
+            <li>Personal trip advisor</li>
+          </ul>
+          <a href="client-area.html" class="join-btn">Join Premium</a>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <h3>Travel Odyssey</h3>
+          <p>
+            Your gateway to unforgettable journeys. Discover, explore, and
+            experience the world with us.
+          </p>
+        </div>
+        <div class="footer-section">
+          <h3>Company</h3>
+          <ul>
+            <li><a href="aboutus.html">About Us</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="city.html">Blog</a></li>
+            <li><a href="affiliates.html">Affiliates</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Support</h3>
+          <ul>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="terms.html">Terms & Conditions</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Follow Us</h3>
+          <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+      </div>
+      <hr />
+      <div class="footer-bottom">
+        <p>© 2025 Travel Odyssey, Inc. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      function toggleMenu() {
+        document.querySelector(".nav-menu").classList.toggle("active");
+      }
+    </script>
+  </body>
+</html>
