@@ -94,6 +94,49 @@ CREATE TABLE IF NOT EXISTS bookings (
     preferences TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS user_preferences (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER UNIQUE NOT NULL,
+    travel_style TEXT,
+    activities TEXT,
+    cuisines TEXT,
+    dietary_restrictions TEXT,
+    budget_tier TEXT,
+    companions TEXT,
+    pace_preference TEXT,
+    accommodation TEXT,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS generated_packages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    destination TEXT NOT NULL,
+    start_date TEXT NOT NULL,
+    end_date TEXT NOT NULL,
+    duration INTEGER NOT NULL,
+    guests INTEGER NOT NULL,
+    price REAL,
+    itinerary TEXT,
+    flight_info TEXT,
+    hotel_info TEXT,
+    status TEXT DEFAULT 'draft',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS subscriptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER UNIQUE NOT NULL,
+    plan_id TEXT NOT NULL,
+    billing_period TEXT NOT NULL DEFAULT 'monthly',
+    status TEXT NOT NULL DEFAULT 'active',
+    started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at TEXT,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
 `);
 
 function runAll(sql, params = []) {
@@ -973,6 +1016,341 @@ app.get("/api/paypal/transactions", verifyToken, verifyAdmin, (req, res) => {
     res.status(500).json({ error: "Failed to fetch transactions" });
   }
 });
+
+// ─── USER PREFERENCES ────────────────────────────────────────────────────────
+
+app.post("/api/preferences", verifyToken, (req, res) => {
+  const userId = req.user.id;
+  const {
+    travelStyle, activities, cuisines, dietaryRestrictions,
+    budgetTier, companions, pacePreference, accommodation,
+  } = req.body;
+
+  try {
+    const stmt = db.prepare(`
+      INSERT INTO user_preferences
+        (user_id, travel_style, activities, cuisines, dietary_restrictions, budget_tier, companions, pace_preference, accommodation)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(user_id) DO UPDATE SET
+        travel_style = excluded.travel_style,
+        activities = excluded.activities,
+        cuisines = excluded.cuisines,
+        dietary_restrictions = excluded.dietary_restrictions,
+        budget_tier = excluded.budget_tier,
+        companions = excluded.companions,
+        pace_preference = excluded.pace_preference,
+        accommodation = excluded.accommodation,
+        updated_at = CURRENT_TIMESTAMP
+    `);
+    stmt.run(
+      userId,
+      travelStyle || null,
+      JSON.stringify(activities || []),
+      JSON.stringify(cuisines || []),
+      JSON.stringify(dietaryRestrictions || []),
+      budgetTier || null,
+      companions || null,
+      pacePreference || null,
+      accommodation || null
+    );
+    res.json({ success: true, message: "Preferences saved" });
+  } catch (err) {
+    console.error("Save preferences error:", err);
+    res.status(500).json({ error: "Failed to save preferences" });
+  }
+});
+
+app.get("/api/preferences", verifyToken, (req, res) => {
+  const userId = req.user.id;
+  try {
+    const prefs = db.prepare("SELECT * FROM user_preferences WHERE user_id = ?").get(userId);
+    if (!prefs) return res.json(null);
+
+    res.json({
+      travelStyle: prefs.travel_style,
+      activities: JSON.parse(prefs.activities || "[]"),
+      cuisines: JSON.parse(prefs.cuisines || "[]"),
+      dietaryRestrictions: JSON.parse(prefs.dietary_restrictions || "[]"),
+      budgetTier: prefs.budget_tier,
+      companions: prefs.companions,
+      pacePreference: prefs.pace_preference,
+      accommodation: prefs.accommodation,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch preferences" });
+  }
+});
+
+// ─── AI PACKAGE GENERATION ───────────────────────────────────────────────────
+
+app.post("/api/packages/generate", verifyToken, async (req, res) => {
+  const userId = req.user.id;
+  const { destination, startDate, endDate, guests } = req.body;
+
+  if (!destination || !startDate || !endDate) {
+    return res.status(400).json({ error: "destination, startDate, and endDate are required" });
+  }
+
+  try {
+    // Fetch user preferences
+    const prefs = db.prepare("SELECT * FROM user_preferences WHERE user_id = ?").get(userId);
+    const startDt = new Date(startDate);
+    const endDt = new Date(endDate);
+    const duration = Math.ceil((endDt - startDt) / (1000 * 60 * 60 * 24));
+
+    // Build AI prompt for package generation
+    const preferenceContext = prefs ? `
+      Travel style: ${prefs.travel_style || "flexible"}
+      Activities: ${prefs.activities || "[]"}
+      Cuisines: ${JSON.parse(prefs.cuisines || '[]').join(", ") || "any"}
+      Dietary restrictions: ${JSON.parse(prefs.dietary_restrictions || '[]').join(", ") || "none"}
+      Budget tier: ${prefs.budget_tier || "moderate"}
+      Traveling with: ${prefs.companions || "partner"}
+    ` : "No specific preferences set.";
+
+    let itinerary = [];
+    let flightInfo = null;
+    let hotelInfo = null;
+    let price = 0;
+
+    // Try Claude API if key is available
+    if (process.env.ANTHROPIC_API_KEY) {
+      const Anthropic = require("@anthropic-ai/sdk");
+      const client = new Anthropic();
+
+      const prompt = `You are a luxury travel concierge. Create a detailed ${duration}-day travel package to ${destination} for ${guests} guest(s).
+
+User preferences:
+${preferenceContext}
+
+Travel dates: ${startDate} to ${endDate}
+
+Generate a complete JSON package with:
+1. A day-by-day itinerary (array of objects with: day, date, title, description, activities[], meals[])
+2. Flight info (outbound and return flight details)
+3. Hotel recommendation
+4. Total price estimate in EUR per person
+
+Each meal should include: type (breakfast/lunch/dinner), restaurant name, cuisine, description, priceRange
+Each activity should include: name, type, duration, description, icon (Ionicons name)
+
+Respond ONLY with valid JSON in this format:
+{
+  "itinerary": [...],
+  "flight": { "outbound": {...}, "return": {...}, "class": "Economy" },
+  "hotel": { "name": "...", "stars": 4, "location": "...", "description": "...", "amenities": [...] },
+  "price": 2500,
+  "summary": "One sentence description of the trip"
+}`;
+
+      try {
+        const message = await client.messages.create({
+          model: "claude-sonnet-4-6",
+          max_tokens: 4096,
+          messages: [{ role: "user", content: prompt }],
+        });
+
+        const content = message.content[0].type === "text" ? message.content[0].text : "";
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          itinerary = parsed.itinerary || [];
+          flightInfo = parsed.flight || null;
+          hotelInfo = parsed.hotel || null;
+          price = parsed.price || 0;
+        }
+      } catch (aiErr) {
+        console.error("AI generation error:", aiErr.message);
+        // Fall through to mock generation
+      }
+    }
+
+    // Mock generation if AI not available or failed
+    if (itinerary.length === 0) {
+      price = prefs?.budget_tier === "luxury" ? 5500 :
+              prefs?.budget_tier === "premium" ? 3500 :
+              prefs?.budget_tier === "budget" ? 1200 : 2200;
+
+      itinerary = Array.from({ length: Math.min(duration, 7) }, (_, i) => {
+        const d = new Date(startDt);
+        d.setDate(d.getDate() + i);
+        return {
+          day: i + 1,
+          date: d.toISOString().split("T")[0],
+          title: `Day ${i + 1} in ${destination}`,
+          description: `Explore ${destination} with curated experiences`,
+          activities: [
+            { name: "Morning walk", type: "leisure", duration: "1h", description: "Start your day exploring the city", icon: "walk" },
+            { name: "Local lunch", type: "food", duration: "1.5h", description: "Authentic local cuisine", icon: "restaurant" },
+            { name: "Evening experience", type: "culture", duration: "2h", description: "Curated evening activity", icon: "ticket" },
+          ],
+          meals: [
+            { type: "breakfast", restaurant: "Hotel Restaurant", cuisine: "Continental", description: "Hotel breakfast", priceRange: "€€" },
+            { type: "lunch", restaurant: "Local Bistro", cuisine: "Local", description: "Authentic local food", priceRange: "€€" },
+            { type: "dinner", restaurant: "Recommended Restaurant", cuisine: "Fine Dining", description: "Evening dining", priceRange: "€€€" },
+          ],
+        };
+      });
+
+      flightInfo = {
+        outbound: { airline: "Air France", flightNumber: "AF123", departure: "09:00", arrival: "13:00", duration: "3h", stops: 0 },
+        return: { airline: "Air France", flightNumber: "AF456", departure: "16:00", arrival: "20:00", duration: "3h", stops: 0 },
+        class: "Economy",
+      };
+
+      hotelInfo = {
+        name: `${destination} Boutique Hotel`,
+        stars: prefs?.budget_tier === "luxury" ? 5 : 4,
+        location: `Central ${destination}`,
+        description: `A carefully selected hotel in the heart of ${destination}`,
+        amenities: ["WiFi", "Breakfast", "Gym", "Concierge"],
+      };
+    }
+
+    // Save to database
+    const result = db.prepare(`
+      INSERT INTO generated_packages
+        (user_id, destination, start_date, end_date, duration, guests, price, itinerary, flight_info, hotel_info, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'generated')
+    `).run(
+      userId, destination, startDate, endDate, duration, guests || 1, price,
+      JSON.stringify(itinerary), JSON.stringify(flightInfo), JSON.stringify(hotelInfo)
+    );
+
+    const packageId = result.lastInsertRowid.toString();
+
+    res.json({
+      package: {
+        id: packageId,
+        destination,
+        country: destination,
+        startDate,
+        endDate,
+        duration,
+        price,
+        rating: 4.8,
+        reviewCount: 0,
+        isAIGenerated: true,
+        badge: "AI Curated",
+        summary: `A personalized ${duration}-day ${destination} experience crafted for you`,
+        itinerary,
+        flight: flightInfo,
+        hotel: hotelInfo,
+        included: ["Flights", "Hotel", "Restaurant Reservations", "Experience Tickets"],
+        highlights: [`${duration} days in ${destination}`, "Curated for your preferences", "AI-powered itinerary"],
+      },
+    });
+  } catch (err) {
+    console.error("Package generation error:", err);
+    res.status(500).json({ error: "Failed to generate package" });
+  }
+});
+
+app.get("/api/packages/:id", verifyToken, (req, res) => {
+  const { id } = req.params;
+  try {
+    const pkg = db.prepare("SELECT * FROM generated_packages WHERE id = ?").get(id);
+    if (!pkg) return res.status(404).json({ error: "Package not found" });
+
+    res.json({
+      ...pkg,
+      itinerary: JSON.parse(pkg.itinerary || "[]"),
+      flight: JSON.parse(pkg.flight_info || "null"),
+      hotel: JSON.parse(pkg.hotel_info || "null"),
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch package" });
+  }
+});
+
+// ─── SUBSCRIPTIONS ────────────────────────────────────────────────────────────
+
+app.get("/api/subscription/plans", (req, res) => {
+  res.json([
+    {
+      id: "explorer",
+      name: "Explorer",
+      price: 29,
+      yearlyPrice: 249,
+      features: ["1 AI package/month", "Curated deals", "Basic matching", "Email support"],
+    },
+    {
+      id: "voyager",
+      name: "Voyager",
+      price: 59,
+      yearlyPrice: 499,
+      highlighted: true,
+      features: ["3 AI packages/month", "Full personalization", "Priority reservations", "Chat support"],
+    },
+    {
+      id: "elite",
+      name: "Elite",
+      price: 129,
+      yearlyPrice: 999,
+      features: ["Unlimited AI packages", "Hyper-personalization", "VIP access", "24/7 concierge"],
+    },
+  ]);
+});
+
+app.post("/api/subscription/subscribe", verifyToken, (req, res) => {
+  const userId = req.user.id;
+  const { planId, billingPeriod = "monthly" } = req.body;
+
+  if (!["explorer", "voyager", "elite"].includes(planId)) {
+    return res.status(400).json({ error: "Invalid plan" });
+  }
+
+  try {
+    const expiresAt = new Date();
+    if (billingPeriod === "yearly") {
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+    } else {
+      expiresAt.setMonth(expiresAt.getMonth() + 1);
+    }
+
+    const stmt = db.prepare(`
+      INSERT INTO subscriptions (user_id, plan_id, billing_period, status, expires_at)
+      VALUES (?, ?, ?, 'active', ?)
+      ON CONFLICT(user_id) DO UPDATE SET
+        plan_id = excluded.plan_id,
+        billing_period = excluded.billing_period,
+        status = 'active',
+        expires_at = excluded.expires_at
+    `);
+    stmt.run(userId, planId, billingPeriod, expiresAt.toISOString());
+
+    // Also update memberships table for compatibility
+    const membershipStmt = db.prepare(`
+      INSERT INTO memberships (user_id, membership_type, membership_expires)
+      VALUES (?, ?, ?)
+      ON CONFLICT(user_id) DO UPDATE SET
+        membership_type = excluded.membership_type,
+        membership_expires = excluded.membership_expires
+    `);
+    membershipStmt.run(userId, planId, expiresAt.toISOString());
+
+    res.json({
+      success: true,
+      subscription: { planId, billingPeriod, expiresAt: expiresAt.toISOString() },
+    });
+  } catch (err) {
+    console.error("Subscribe error:", err);
+    res.status(500).json({ error: "Failed to create subscription" });
+  }
+});
+
+app.get("/api/subscription", verifyToken, (req, res) => {
+  const userId = req.user.id;
+  try {
+    const sub = db.prepare("SELECT * FROM subscriptions WHERE user_id = ?").get(userId);
+    if (!sub) return res.json(null);
+    res.json(sub);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch subscription" });
+  }
+});
+
+// ─── ERROR HANDLER ────────────────────────────────────────────────────────────
 
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
