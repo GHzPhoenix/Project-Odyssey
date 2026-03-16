@@ -8,6 +8,12 @@
       "port": 5001
     },
     {
+      "name": "frontend",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", ".", "-l", "3000", "--no-clipboard"],
+      "port": 3000
+    },
+    {
       "name": "mobile",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["start", "--prefix", "mobile"],
