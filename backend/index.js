@@ -239,7 +239,17 @@ app.post("/api/register", async (req, res) => {
       [name.trim(), email.trim(), hashedPassword]
     );
 
-    return res.status(201).json(result.rows[0]);
+    const user = result.rows[0];
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    return res.status(201).json({
+      token,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    });
   } catch (err) {
     console.error("Registration error:", err);
     return res.status(500).json({ error: "Registration failed" });
