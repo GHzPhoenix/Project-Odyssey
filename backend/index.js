@@ -1423,6 +1423,28 @@ app.get("/api/packages/my-requests", verifyToken, async (req, res) => {
   }
 });
 
+// ─── ADMIN: LIST ALL TRIP REQUESTS ───────────────────────────────────────────
+
+app.get("/api/admin/packages", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT gp.id, gp.destination, gp.departure_location, gp.start_date, gp.end_date,
+              gp.duration, gp.guests, gp.price, gp.status, gp.created_at,
+              u.name AS user_name, u.email AS user_email
+       FROM generated_packages gp
+       JOIN users u ON u.id = gp.user_id
+       ORDER BY
+         CASE gp.status WHEN 'pending' THEN 0 WHEN 'ready' THEN 1 ELSE 2 END,
+         gp.created_at DESC`,
+      []
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Admin packages fetch error:", err);
+    res.status(500).json({ error: "Failed to fetch packages" });
+  }
+});
+
 // ─── ADMIN: MARK TRIP AS READY ────────────────────────────────────────────────
 
 app.put("/api/packages/:id/ready", verifyToken, verifyAdmin, async (req, res) => {

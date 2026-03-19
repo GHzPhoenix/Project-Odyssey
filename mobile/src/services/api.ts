@@ -106,4 +106,11 @@ export const pushAPI = {
   saveToken: (token: string) => api.post('/push-token', { token }),
 };
 
+// Admin
+export const adminAPI = {
+  getAllPackages: () => api.get('/admin/packages'),
+  markReady: (packageId: number, price: number) =>
+    api.put(`/packages/${packageId}/ready`, { price }),
+};
+
 export default api;

@@ -136,6 +136,7 @@ export type RootStackParamList = {
   Payment: { planId: string; isOneTime?: boolean; packageId?: string };
   PrivacySecurity: undefined;
   NotificationSettings: undefined;
+  AdminPanel: undefined;
 };
 
 export interface RequestedPackage {

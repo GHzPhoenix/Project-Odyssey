@@ -92,6 +92,9 @@ export const ProfileScreen: React.FC = () => {
       case 'About':
         Alert.alert('Travel Odyssey', 'Version 1.0.0\n\nHandcrafted, personalised travel experiences.');
         break;
+      case 'Admin Panel':
+        navigation.navigate('AdminPanel');
+        break;
       default:
         Alert.alert(label, 'This feature is coming soon.');
     }
@@ -231,6 +234,19 @@ export const ProfileScreen: React.FC = () => {
           </View>
         </View>
 
+        {/* Admin Panel — only visible to admin users */}
+        {user?.role === 'admin' && (
+          <TouchableOpacity
+            style={styles.adminBtn}
+            onPress={() => navigation.navigate('AdminPanel')}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="shield-checkmark" size={18} color={COLORS.white} />
+            <Text style={styles.adminBtnText}>Admin Panel — Trip Requests</Text>
+            <Ionicons name="chevron-forward" size={16} color={COLORS.white} />
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={18} color={COLORS.error} />
           <Text style={styles.signOutText}>Sign Out</Text>
@@ -300,6 +316,12 @@ const styles = StyleSheet.create({
   menuIconAccent: { backgroundColor: 'rgba(245,166,35,0.15)' },
   menuLabel: { color: COLORS.text, fontSize: FONTS.sizes.md, flex: 1 },
   menuLabelAccent: { color: COLORS.accent },
+  adminBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
+    marginHorizontal: SPACING.lg, marginBottom: SPACING.md,
+    backgroundColor: COLORS.secondary, borderRadius: RADIUS.xl, padding: SPACING.md,
+  },
+  adminBtnText: { color: COLORS.white, fontSize: FONTS.sizes.md, fontWeight: '700', flex: 1 },
   signOutBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: SPACING.sm,
     marginHorizontal: SPACING.lg, backgroundColor: 'rgba(244,67,54,0.08)',

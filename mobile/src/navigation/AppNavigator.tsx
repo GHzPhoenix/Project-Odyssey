@@ -19,6 +19,7 @@ import { PaymentScreen } from '../screens/subscription/PaymentScreen';
 import AIChatScreen from '../screens/chat/AIChatScreen';
 import { PrivacySecurityScreen } from '../screens/profile/PrivacySecurityScreen';
 import { NotificationSettingsScreen } from '../screens/profile/NotificationSettingsScreen';
+import { AdminPanelScreen } from '../screens/admin/AdminPanelScreen';
 
 import { RootStackParamList, MainTabParamList } from '../types';
 import { COLORS, FONTS } from '../constants/theme';
@@ -157,6 +158,7 @@ export function AppNavigator() {
         <Stack.Screen name="Payment" component={PaymentScreen} />
         <Stack.Screen name="PrivacySecurity" component={PrivacySecurityScreen} />
         <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
+        <Stack.Screen name="AdminPanel" component={AdminPanelScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
