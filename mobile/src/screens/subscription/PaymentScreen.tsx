@@ -22,7 +22,7 @@ const PLAN_DETAILS: Record<string, { name: string; price: number; yearlyPrice: n
   explorer:  { name: 'Explorer',          price: 29,  yearlyPrice: 249,  color: '#4A90D9' },
   voyager:   { name: 'Voyager',           price: 59,  yearlyPrice: 499,  color: '#6C3CE1' },
   elite:     { name: 'Elite',             price: 129, yearlyPrice: 999,  color: '#F5A623' },
-  'one-time':{ name: 'One-Time Package',  price: 0,   yearlyPrice: 0,    color: '#6C3CE1' },
+  'one-time':{ name: 'One-Time Package',  price: 0,   yearlyPrice: 0,    color: '#6C3CE1' }, // handled via Trips tab — not routed here
 };
 
 export const PaymentScreen: React.FC = () => {

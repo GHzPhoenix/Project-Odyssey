@@ -212,7 +212,7 @@ export const PlansScreen: React.FC = () => {
             </View>
             <TouchableOpacity
               style={styles.oneTimeCard}
-              onPress={() => navigation.navigate('Payment', { planId: 'one-time', isOneTime: true })}
+              onPress={() => navigation.navigate('GeneratePackage')}
               activeOpacity={0.8}
             >
               <View style={styles.oneTimeLeft}>
@@ -221,7 +221,7 @@ export const PlansScreen: React.FC = () => {
                 </View>
                 <View>
                   <Text style={styles.oneTimeTitle}>Pay Per Package</Text>
-                  <Text style={styles.oneTimeSub}>No subscription needed. Buy individual packages.</Text>
+                  <Text style={styles.oneTimeSub}>Request a trip — price set per package once crafted.</Text>
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} />
