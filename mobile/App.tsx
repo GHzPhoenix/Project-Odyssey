@@ -5,14 +5,16 @@ import { StripeProvider } from '@stripe/stripe-react-native';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { stripeAPI } from './src/services/api';
 
+const ENV_STRIPE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+
 export default function App() {
-  const [stripeKey, setStripeKey] = useState<string | null>(null);
+  const [stripeKey, setStripeKey] = useState<string | null>(ENV_STRIPE_KEY ?? null);
 
   useEffect(() => {
+    if (ENV_STRIPE_KEY) return; // already have it from env
     stripeAPI.getConfig()
       .then((res) => setStripeKey(res.data.publishableKey))
       .catch(() => {
-        // Stripe not configured — payments will show an error at checkout
         console.warn('Stripe publishable key not available');
       });
   }, []);

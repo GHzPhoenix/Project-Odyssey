@@ -22,7 +22,8 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://project-odyssey-production.up.railway.app/api"
+        "EXPO_PUBLIC_API_URL": "https://project-odyssey-production.up.railway.app/api",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_live_51LVDnKHgsajKKdjhnEJJ1ReYzhN2DR1AGAf4lo5VaO4z6ZnA5xhquMfUCvXS4tGKJfcFV6ETwy6U4pHAOB88tnDx00JrJ3AO3p"
       }
     }
   },
