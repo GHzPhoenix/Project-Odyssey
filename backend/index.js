@@ -1294,6 +1294,24 @@ Respond ONLY with valid JSON in this format:
   }
 });
 
+// ─── MY TRIP REQUESTS ──────────────────────────────────────────────────────────
+
+app.get("/api/packages/my-requests", verifyToken, async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT id, destination, departure_location, start_date, end_date, duration, guests, price, status, created_at
+       FROM generated_packages
+       WHERE user_id = $1 AND status IN ('pending','ready','confirmed')
+       ORDER BY created_at DESC`,
+      [req.userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Fetch my requests error:", err);
+    res.status(500).json({ error: "Failed to fetch trip requests" });
+  }
+});
+
 app.get("/api/packages/:id", verifyToken, async (req, res) => {
   try {
     const result = await query(
@@ -1402,24 +1420,6 @@ app.post("/api/push-token", verifyToken, async (req, res) => {
   } catch (err) {
     console.error("Save push token error:", err);
     res.status(500).json({ error: "Failed to save push token" });
-  }
-});
-
-// ─── MY TRIP REQUESTS ──────────────────────────────────────────────────────────
-
-app.get("/api/packages/my-requests", verifyToken, async (req, res) => {
-  try {
-    const result = await query(
-      `SELECT id, destination, departure_location, start_date, end_date, duration, guests, price, status, created_at
-       FROM generated_packages
-       WHERE user_id = $1 AND status IN ('pending','ready','confirmed')
-       ORDER BY created_at DESC`,
-      [req.userId]
-    );
-    res.json(result.rows);
-  } catch (err) {
-    console.error("Fetch my requests error:", err);
-    res.status(500).json({ error: "Failed to fetch trip requests" });
   }
 });
 
