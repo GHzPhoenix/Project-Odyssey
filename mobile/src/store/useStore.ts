@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, TravelPackage, UserPreferences, Membership } from '../types';
+import { User, TravelPackage, UserPreferences, Membership, RequestedPackage } from '../types';
 
 export interface BookingItem {
   id: number;
@@ -23,6 +23,8 @@ interface AppState {
   myBookings: BookingItem[];
   featuredDeals: any[];
   isLoading: boolean;
+  requestedPackages: RequestedPackage[];
+  unreadCount: number;
 
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
@@ -36,6 +38,7 @@ interface AppState {
   setMyBookings: (bookings: BookingItem[]) => void;
   setFeaturedDeals: (deals: any[]) => void;
   setLoading: (loading: boolean) => void;
+  setRequestedPackages: (pkgs: RequestedPackage[]) => void;
   logout: () => void;
   loadFromStorage: () => Promise<void>;
 }
@@ -50,6 +53,8 @@ export const useStore = create<AppState>((set, get) => ({
   myBookings: [],
   featuredDeals: [],
   isLoading: false,
+  requestedPackages: [],
+  unreadCount: 0,
 
   setUser: (user) => {
     set({ user, isAuthenticated: !!user });
@@ -112,6 +117,11 @@ export const useStore = create<AppState>((set, get) => ({
 
   setLoading: (loading) => set({ isLoading: loading }),
 
+  setRequestedPackages: (pkgs) => set({
+    requestedPackages: pkgs,
+    unreadCount: pkgs.filter((p) => p.status === 'ready').length,
+  }),
+
   logout: async () => {
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('user');
@@ -122,6 +132,8 @@ export const useStore = create<AppState>((set, get) => ({
       savedPackages: [],
       myTrips: [],
       myBookings: [],
+      requestedPackages: [],
+      unreadCount: 0,
     });
   },
 

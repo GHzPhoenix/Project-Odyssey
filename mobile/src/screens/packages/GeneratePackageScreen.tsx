@@ -24,16 +24,42 @@ import { packagesAPI } from '../../services/api';
 const { width } = Dimensions.get('window');
 
 const POPULAR_DESTINATIONS = [
-  { name: 'London', emoji: '🇬🇧' },
-  { name: 'Paris', emoji: '🇫🇷' },
-  { name: 'Tokyo', emoji: '🇯🇵' },
-  { name: 'Dubai', emoji: '🇦🇪' },
-  { name: 'Barcelona', emoji: '🇪🇸' },
-  { name: 'Rome', emoji: '🇮🇹' },
-  { name: 'Bali', emoji: '🇮🇩' },
-  { name: 'New York', emoji: '🇺🇸' },
-  { name: 'Sydney', emoji: '🇦🇺' },
-  { name: 'Santorini', emoji: '🇬🇷' },
+  { name: 'London',        emoji: '🇬🇧' },
+  { name: 'Paris',         emoji: '🇫🇷' },
+  { name: 'Tokyo',         emoji: '🇯🇵' },
+  { name: 'Dubai',         emoji: '🇦🇪' },
+  { name: 'Barcelona',     emoji: '🇪🇸' },
+  { name: 'Rome',          emoji: '🇮🇹' },
+  { name: 'Bali',          emoji: '🇮🇩' },
+  { name: 'New York',      emoji: '🇺🇸' },
+  { name: 'Sydney',        emoji: '🇦🇺' },
+  { name: 'Santorini',     emoji: '🇬🇷' },
+  { name: 'Maldives',      emoji: '🇲🇻' },
+  { name: 'Amsterdam',     emoji: '🇳🇱' },
+  { name: 'Lisbon',        emoji: '🇵🇹' },
+  { name: 'Prague',        emoji: '🇨🇿' },
+  { name: 'Vienna',        emoji: '🇦🇹' },
+  { name: 'Kyoto',         emoji: '🇯🇵' },
+  { name: 'Bangkok',       emoji: '🇹🇭' },
+  { name: 'Singapore',     emoji: '🇸🇬' },
+  { name: 'Marrakech',     emoji: '🇲🇦' },
+  { name: 'Amalfi Coast',  emoji: '🇮🇹' },
+  { name: 'Istanbul',      emoji: '🇹🇷' },
+  { name: 'Mykonos',       emoji: '🇬🇷' },
+  { name: 'Cappadocia',    emoji: '🇹🇷' },
+  { name: 'Maldives',      emoji: '🇲🇻' },
+  { name: 'Phuket',        emoji: '🇹🇭' },
+  { name: 'Cape Town',     emoji: '🇿🇦' },
+  { name: 'New Zealand',   emoji: '🇳🇿' },
+  { name: 'Venice',        emoji: '🇮🇹' },
+  { name: 'Budapest',      emoji: '🇭🇺' },
+  { name: 'Dubrovnik',     emoji: '🇭🇷' },
+];
+
+const DEPARTURE_CITIES = [
+  'Athens', 'Thessaloniki', 'London', 'Paris', 'Amsterdam', 'Berlin', 'Frankfurt',
+  'Rome', 'Milan', 'Madrid', 'Barcelona', 'Lisbon', 'Vienna', 'Zurich', 'Brussels',
+  'Stockholm', 'Copenhagen', 'Dublin', 'Warsaw', 'Budapest', 'Bucharest',
 ];
 
 // Converts DD/MM/YYYY → YYYY-MM-DD for the API
@@ -59,17 +85,22 @@ const formatDateInput = (text: string, prev: string): string => {
 export const GeneratePackageScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useStore();
-  const [destination, setDestination] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [duration, setDuration] = useState(7);
-  const [guests, setGuests] = useState(2);
-  const [generating, setGenerating] = useState(false);
+  const [destination, setDestination]         = useState('');
+  const [departureLocation, setDepartureLocation] = useState('');
+  const [startDate, setStartDate]             = useState('');
+  const [duration, setDuration]               = useState(7);
+  const [guests, setGuests]                   = useState(2);
+  const [generating, setGenerating]           = useState(false);
   const [showDestSuggestions, setShowDestSuggestions] = useState(false);
+  const [showDepSuggestions, setShowDepSuggestions]   = useState(false);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const filteredDests = POPULAR_DESTINATIONS.filter((d) =>
     d.name.toLowerCase().includes(destination.toLowerCase())
+  );
+  const filteredDep = DEPARTURE_CITIES.filter((c) =>
+    c.toLowerCase().includes(departureLocation.toLowerCase())
   );
 
   const startPulse = () => {
@@ -113,12 +144,13 @@ export const GeneratePackageScreen: React.FC = () => {
         startDate: isoStart,
         endDate,
         guests,
+        departureLocation: departureLocation.trim() || undefined,
       });
       pulseAnim.stopAnimation();
       Alert.alert(
         '✈️ Request Received!',
         `Your ${duration}-day trip to ${destination} has been submitted.\n\nOur travel experts will craft your personalised package and contact you within 24 hours.`,
-        [{ text: 'Back to Home', onPress: () => navigation.navigate('MainTabs' as any) }]
+        [{ text: 'Back to Home', onPress: () => navigation.navigate('Main') }]
       );
     } catch (err: any) {
       pulseAnim.stopAnimation();
@@ -138,7 +170,7 @@ export const GeneratePackageScreen: React.FC = () => {
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={20} color={COLORS.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Generate Package</Text>
+        <Text style={styles.headerTitle}>Request a Trip</Text>
         <View style={{ width: 38 }} />
       </View>
 
@@ -146,10 +178,9 @@ export const GeneratePackageScreen: React.FC = () => {
         {/* Preferences Summary */}
         {user?.preferences && (
           <View style={styles.prefSummary}>
-            <Ionicons name="sparkles" size={16} color={COLORS.accent} />
+            <Ionicons name="person-circle-outline" size={16} color={COLORS.accent} />
             <Text style={styles.prefText}>
-              Based on your preferences: {user.preferences.travelStyle},{' '}
-              {user.preferences.budgetTier} budget
+              Your preferences are saved — our experts will tailor your trip accordingly.
             </Text>
           </View>
         )}
@@ -191,6 +222,48 @@ export const GeneratePackageScreen: React.FC = () => {
                 >
                   <Text style={styles.suggestionEmoji}>{d.emoji}</Text>
                   <Text style={styles.suggestionName}>{d.name}</Text>
+                  <Ionicons name="chevron-forward" size={14} color={COLORS.textMuted} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Departure City */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Flying From (optional)</Text>
+          <View style={styles.searchContainer}>
+            <Ionicons name="airplane-outline" size={20} color={COLORS.secondary} style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="e.g. Athens, London..."
+              placeholderTextColor={COLORS.textMuted}
+              value={departureLocation}
+              onChangeText={(t) => {
+                setDepartureLocation(t);
+                setShowDepSuggestions(t.length > 0);
+              }}
+              onFocus={() => setShowDepSuggestions(departureLocation.length > 0 || true)}
+            />
+            {departureLocation ? (
+              <TouchableOpacity onPress={() => { setDepartureLocation(''); setShowDepSuggestions(false); }}>
+                <Ionicons name="close-circle" size={18} color={COLORS.textMuted} />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+          {showDepSuggestions && (
+            <View style={styles.suggestions}>
+              {(departureLocation ? filteredDep : DEPARTURE_CITIES).slice(0, 5).map((city) => (
+                <TouchableOpacity
+                  key={city}
+                  style={styles.suggestionItem}
+                  onPress={() => {
+                    setDepartureLocation(city);
+                    setShowDepSuggestions(false);
+                  }}
+                >
+                  <Ionicons name="airplane-outline" size={16} color={COLORS.textMuted} />
+                  <Text style={styles.suggestionName}>{city}</Text>
                   <Ionicons name="chevron-forward" size={14} color={COLORS.textMuted} />
                 </TouchableOpacity>
               ))}

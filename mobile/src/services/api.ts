@@ -45,11 +45,13 @@ export const packagesAPI = {
   getFeatured: () => api.get('/deals'),
   getById: (id: string) => api.get(`/deals/${id}`),
   getGenerated: (id: string) => api.get(`/packages/${id}`),
+  getMyRequests: () => api.get('/packages/my-requests'),
   generate: (params: {
     destination: string;
     startDate: string;
     endDate: string;
     guests: number;
+    departureLocation?: string;
   }) => api.post('/packages/generate', params),
 };
 
@@ -86,6 +88,19 @@ export const stripeAPI = {
   getConfig: () => api.get('/config/stripe'),
   createPaymentIntent: (planId: string, billingPeriod: 'monthly' | 'yearly') =>
     api.post('/stripe/create-payment-intent', { planId, billingPeriod }),
+  createTripPaymentIntent: (packageId: number) =>
+    api.post('/stripe/create-trip-payment-intent', { packageId }),
+};
+
+// AI Chat
+export const chatAPI = {
+  sendMessage: (messages: { role: 'user' | 'assistant'; content: string }[], packageId?: number) =>
+    api.post('/chat', { messages, packageId }),
+};
+
+// Push notifications
+export const pushAPI = {
+  saveToken: (token: string) => api.post('/push-token', { token }),
 };
 
 export default api;

@@ -143,6 +143,9 @@ async function initDB() {
       expires_at TEXT
     );
   `);
+  // Add columns introduced in v2 (idempotent on existing DBs)
+  await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS push_token TEXT`);
+  await query(`ALTER TABLE generated_packages ADD COLUMN IF NOT EXISTS departure_location TEXT`);
   console.log("✅ PostgreSQL tables initialized");
 }
 
@@ -182,6 +185,32 @@ function createPayPalClient() {
       ? new paypal.core.LiveEnvironment(PAYPAL_CLIENT_ID, PAYPAL_SECRET)
       : new paypal.core.SandboxEnvironment(PAYPAL_CLIENT_ID, PAYPAL_SECRET);
   return new paypal.core.PayPalHttpClient(env);
+}
+
+// ─── EXPO PUSH NOTIFICATIONS ──────────────────────────────────────────────────
+
+async function sendExpoPushNotification(pushToken, title, body, data = {}) {
+  if (!pushToken || !pushToken.startsWith("ExponentPushToken")) return;
+  const https   = require("https");
+  const payload = JSON.stringify({ to: pushToken, sound: "default", title, body, data });
+  return new Promise((resolve) => {
+    const req = https.request(
+      {
+        hostname: "exp.host",
+        path:     "/--/api/v2/push/send",
+        method:   "POST",
+        headers:  { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(payload) },
+      },
+      (res) => {
+        let d = "";
+        res.on("data", (chunk) => { d += chunk; });
+        res.on("end", () => resolve(d));
+      }
+    );
+    req.on("error", (e) => { console.error("Push notification error:", e.message); resolve(null); });
+    req.write(payload);
+    req.end();
+  });
 }
 
 // ─── AUTH MIDDLEWARE ───────────────────────────────────────────────────────────
@@ -891,6 +920,21 @@ app.post("/api/stripe/webhook", async (req, res) => {
 
   if (event.type === "payment_intent.succeeded") {
     const pi = event.data.object;
+
+    // ── Custom trip payment ──────────────────────────────────────────────────
+    if (pi.metadata?.type === "trip_payment") {
+      const { packageId } = pi.metadata;
+      try {
+        await query(
+          `UPDATE generated_packages SET status = 'confirmed' WHERE id = $1`,
+          [packageId]
+        );
+      } catch (dbErr) {
+        console.error("Trip payment DB error:", dbErr);
+      }
+      return res.sendStatus(200);
+    }
+
     const { userId, planId, billingPeriod } = pi.metadata;
 
     try {
@@ -1004,7 +1048,7 @@ app.get("/api/preferences", verifyToken, async (req, res) => {
 // ─── AI PACKAGE GENERATION ────────────────────────────────────────────────────
 
 app.post("/api/packages/generate", verifyToken, async (req, res) => {
-  const { destination, startDate, endDate, guests } = req.body;
+  const { destination, startDate, endDate, guests, departureLocation } = req.body;
 
   if (!destination || !startDate || !endDate) {
     return res.status(400).json({ error: "destination, startDate, and endDate are required" });
@@ -1025,9 +1069,9 @@ app.post("/api/packages/generate", verifyToken, async (req, res) => {
     // ── Save request as pending ──────────────────────────────────────────────
     const reqResult = await query(
       `INSERT INTO generated_packages
-         (user_id, destination, start_date, end_date, duration, guests, price, itinerary, flight_info, hotel_info, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pending') RETURNING id`,
-      [req.userId, destination, startDate, endDate, duration, guests || 1, 0, '[]', '{}', '{}']
+         (user_id, destination, departure_location, start_date, end_date, duration, guests, price, itinerary, flight_info, hotel_info, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'pending') RETURNING id`,
+      [req.userId, destination, departureLocation || null, startDate, endDate, duration, guests || 1, 0, '[]', '{}', '{}']
     );
     const requestId = reqResult.rows[0].id;
 
@@ -1052,6 +1096,7 @@ app.post("/api/packages/generate", verifyToken, async (req, res) => {
               <table style="width:100%;border-collapse:collapse;">
                 <tr><td style="padding:8px 0;color:#888;width:140px;">👤 Customer</td><td style="color:#fff;font-weight:600;">${userInfo.name || 'Unknown'} (${userInfo.email || 'Unknown'})</td></tr>
                 <tr><td style="padding:8px 0;color:#888;">📍 Destination</td><td style="color:#fff;font-weight:600;">${destination}</td></tr>
+                ${departureLocation ? `<tr><td style="padding:8px 0;color:#888;">🛫 Flying From</td><td style="color:#fff;font-weight:600;">${departureLocation}</td></tr>` : ''}
                 <tr><td style="padding:8px 0;color:#888;">📅 Departure</td><td style="color:#fff;font-weight:600;">${formatDate(startDate)}</td></tr>
                 <tr><td style="padding:8px 0;color:#888;">📅 Return</td><td style="color:#fff;font-weight:600;">${formatDate(endDate)}</td></tr>
                 <tr><td style="padding:8px 0;color:#888;">⏱ Duration</td><td style="color:#fff;font-weight:600;">${duration} days</td></tr>
@@ -1343,6 +1388,213 @@ app.get("/api/subscription", verifyToken, async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch subscription" });
+  }
+});
+
+// ─── PUSH TOKEN ────────────────────────────────────────────────────────────────
+
+app.post("/api/push-token", verifyToken, async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ error: "Token required" });
+    await query("UPDATE users SET push_token = $1 WHERE id = $2", [token, req.userId]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Save push token error:", err);
+    res.status(500).json({ error: "Failed to save push token" });
+  }
+});
+
+// ─── MY TRIP REQUESTS ──────────────────────────────────────────────────────────
+
+app.get("/api/packages/my-requests", verifyToken, async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT id, destination, departure_location, start_date, end_date, duration, guests, price, status, created_at
+       FROM generated_packages
+       WHERE user_id = $1 AND status IN ('pending','ready','confirmed')
+       ORDER BY created_at DESC`,
+      [req.userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Fetch my requests error:", err);
+    res.status(500).json({ error: "Failed to fetch trip requests" });
+  }
+});
+
+// ─── ADMIN: MARK TRIP AS READY ────────────────────────────────────────────────
+
+app.put("/api/packages/:id/ready", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const packageId = Number(req.params.id);
+    if (isNaN(packageId)) return res.status(400).json({ error: "Invalid package ID" });
+
+    const { price } = req.body;
+    if (!price || isNaN(parseFloat(price))) {
+      return res.status(400).json({ error: "A valid price is required" });
+    }
+
+    // Update status + price
+    const result = await query(
+      `UPDATE generated_packages SET status = 'ready', price = $1 WHERE id = $2
+       RETURNING id, user_id, destination, departure_location, start_date, end_date, duration, guests, price`,
+      [parseFloat(price), packageId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: "Package not found" });
+
+    const pkg        = result.rows[0];
+    const userResult = await query("SELECT name, email, push_token FROM users WHERE id = $1", [pkg.user_id]);
+    const user       = userResult.rows[0] || {};
+
+    // ── Push notification ────────────────────────────────────────────────────
+    if (user.push_token) {
+      await sendExpoPushNotification(
+        user.push_token,
+        "✈️ Your trip is ready!",
+        `Your ${pkg.destination} package is ready. Tap to view and pay.`,
+        { screen: "Trips", packageId: pkg.id }
+      );
+    }
+
+    // ── Email notification via Resend ────────────────────────────────────────
+    if (process.env.RESEND_API_KEY && user.email) {
+      try {
+        const { Resend } = require("resend");
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const formatDate = (d) => {
+          const dt = new Date(d);
+          return `${String(dt.getDate()).padStart(2,"0")}/${String(dt.getMonth()+1).padStart(2,"0")}/${dt.getFullYear()}`;
+        };
+        await resend.emails.send({
+          from:    "Travel Odyssey <onboarding@resend.dev>",
+          to:      user.email,
+          subject: `✈️ Your ${pkg.destination} trip is ready — €${parseFloat(price).toFixed(0)}`,
+          html: `
+            <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#0A0A0F;color:#fff;padding:32px;border-radius:12px;">
+              <h1 style="color:#C9A84C;margin-bottom:4px;">Your Trip Is Ready!</h1>
+              <p style="color:#888;margin-top:0;">Hi ${user.name || "there"}, your personalised package has been crafted.</p>
+              <hr style="border-color:#222;margin:24px 0;"/>
+              <table style="width:100%;border-collapse:collapse;">
+                <tr><td style="padding:8px 0;color:#888;width:140px;">📍 Destination</td><td style="color:#fff;font-weight:600;">${pkg.destination}</td></tr>
+                ${pkg.departure_location ? `<tr><td style="padding:8px 0;color:#888;">🛫 Flying From</td><td style="color:#fff;font-weight:600;">${pkg.departure_location}</td></tr>` : ""}
+                <tr><td style="padding:8px 0;color:#888;">📅 Dates</td><td style="color:#fff;font-weight:600;">${formatDate(pkg.start_date)} → ${formatDate(pkg.end_date)}</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">⏱ Duration</td><td style="color:#fff;font-weight:600;">${pkg.duration} days</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">👥 Guests</td><td style="color:#fff;font-weight:600;">${pkg.guests}</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">💰 Total Price</td><td style="color:#C9A84C;font-weight:700;font-size:18px;">€${parseFloat(price).toFixed(0)}</td></tr>
+              </table>
+              <hr style="border-color:#222;margin:24px 0;"/>
+              <p style="color:#888;">Open the <strong style="color:#fff;">Travel Odyssey app</strong>, go to <strong style="color:#fff;">Trips → Requested</strong> and tap <strong style="color:#C9A84C;">Pay Now</strong> to confirm your booking.</p>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.error("Ready email error:", emailErr.message);
+      }
+    }
+
+    res.json({ success: true, package: pkg });
+  } catch (err) {
+    console.error("Mark ready error:", err);
+    res.status(500).json({ error: "Failed to mark trip as ready" });
+  }
+});
+
+// ─── AI CHAT ───────────────────────────────────────────────────────────────────
+
+app.post("/api/chat", verifyToken, async (req, res) => {
+  try {
+    const { messages, packageId } = req.body;
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: "messages array required" });
+    }
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(503).json({ error: "AI not available" });
+    }
+
+    const Anthropic = require("@anthropic-ai/sdk");
+    const client    = new Anthropic();
+
+    // Build context from user prefs + active trip
+    const prefsResult = await query("SELECT * FROM user_preferences WHERE user_id = $1", [req.userId]);
+    const prefs = prefsResult.rows[0] || null;
+
+    let tripContext = "";
+    if (packageId) {
+      const pkgResult = await query(
+        "SELECT destination, departure_location, start_date, end_date, duration, guests FROM generated_packages WHERE id = $1 AND user_id = $2",
+        [packageId, req.userId]
+      );
+      if (pkgResult.rows.length > 0) {
+        const p = pkgResult.rows[0];
+        tripContext = `\nThe user has an active trip to ${p.destination}${p.departure_location ? ` from ${p.departure_location}` : ""} (${p.start_date} to ${p.end_date}, ${p.duration} days, ${p.guests} guest(s)).`;
+      }
+    }
+
+    const prefsContext = prefs
+      ? `\nUser preferences: travel style=${prefs.travel_style || "any"}, budget=${prefs.budget_tier || "moderate"}, companions=${prefs.companions || "partner"}.`
+      : "";
+
+    const systemPrompt = `You are Odyssey, a friendly and knowledgeable AI travel assistant for Travel Odyssey — a premium travel concierge service. You help users with destination advice, local tips, activity recommendations, restaurant suggestions, cultural insights, and general travel guidance.${prefsContext}${tripContext}\n\nKeep responses concise, warm, and helpful. Format with bullet points where appropriate. Never make up specific prices — say "prices vary" instead.`;
+
+    const response = await client.messages.create({
+      model:      "claude-sonnet-4-6",
+      max_tokens: 1024,
+      system:     systemPrompt,
+      messages:   messages.map((m) => ({ role: m.role, content: m.content })),
+    });
+
+    const reply = response.content[0]?.type === "text" ? response.content[0].text : "I'm sorry, I couldn't process that. Please try again.";
+    res.json({ reply });
+  } catch (err) {
+    console.error("Chat error:", err);
+    res.status(500).json({ error: "Chat failed" });
+  }
+});
+
+// ─── STRIPE: TRIP PAYMENT INTENT ──────────────────────────────────────────────
+
+app.post("/api/stripe/create-trip-payment-intent", verifyToken, async (req, res) => {
+  try {
+    if (!stripe) return res.status(503).json({ error: "Stripe not configured" });
+
+    const { packageId } = req.body;
+    if (!packageId) return res.status(400).json({ error: "packageId required" });
+
+    const pkgResult = await query(
+      `SELECT id, price, destination, status FROM generated_packages WHERE id = $1 AND user_id = $2`,
+      [packageId, req.userId]
+    );
+    if (pkgResult.rows.length === 0) return res.status(404).json({ error: "Package not found" });
+
+    const pkg = pkgResult.rows[0];
+    if (pkg.status !== "ready") {
+      return res.status(400).json({ error: "Trip is not ready for payment" });
+    }
+    if (!pkg.price || pkg.price <= 0) {
+      return res.status(400).json({ error: "Invalid price on package" });
+    }
+
+    const userResult = await query("SELECT email FROM users WHERE id = $1", [req.userId]);
+    const userEmail  = userResult.rows[0]?.email;
+
+    const amountCents = Math.round(parseFloat(pkg.price) * 100);
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount:        amountCents,
+      currency:      "eur",
+      receipt_email: userEmail,
+      metadata: {
+        userId:    req.userId.toString(),
+        packageId: packageId.toString(),
+        type:      "trip_payment",
+      },
+    });
+
+    res.json({ clientSecret: paymentIntent.client_secret, paymentIntentId: paymentIntent.id, amount: amountCents });
+  } catch (err) {
+    console.error("Trip payment intent error:", err);
+    res.status(500).json({ error: "Failed to create payment intent" });
   }
 });
 

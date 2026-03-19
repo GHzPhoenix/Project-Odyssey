@@ -136,9 +136,22 @@ export type RootStackParamList = {
   Payment: { planId: string; isOneTime?: boolean; packageId?: string };
 };
 
+export interface RequestedPackage {
+  id: number;
+  destination: string;
+  departure_location: string | null;
+  start_date: string;
+  end_date: string;
+  duration: number;
+  guests: number;
+  price: number | null;
+  status: 'pending' | 'ready' | 'confirmed';
+  created_at: string;
+}
+
 export type MainTabParamList = {
   Home: undefined;
-  Explore: undefined;
+  AIChat: undefined;
   Generate: undefined;
   Trips: undefined;
   Profile: undefined;

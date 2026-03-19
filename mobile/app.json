@@ -47,6 +47,14 @@
           "merchantIdentifier": "merchant.com.travelodyssey.app",
           "enableGooglePay": false
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#6C3CE1",
+          "sounds": []
+        }
       ]
     ],
     "extra": {
