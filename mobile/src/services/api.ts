@@ -111,6 +111,9 @@ export const adminAPI = {
   getAllPackages: () => api.get('/admin/packages'),
   markReady: (packageId: number, price: number) =>
     api.put(`/packages/${packageId}/ready`, { price }),
+  uploadImage: (base64: string, mimeType: string) =>
+    api.post('/admin/upload-image', { base64, mimeType }),
+  createDeal: (data: any) => api.post('/deals', data),
 };
 
 export default api;

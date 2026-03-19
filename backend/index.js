@@ -146,6 +146,17 @@ async function initDB() {
   // Add columns introduced in v2 (idempotent on existing DBs)
   await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS push_token TEXT`);
   await query(`ALTER TABLE generated_packages ADD COLUMN IF NOT EXISTS departure_location TEXT`);
+  // Rich deal/package fields
+  await query(`ALTER TABLE deals ADD COLUMN IF NOT EXISTS country TEXT DEFAULT ''`);
+  await query(`ALTER TABLE deals ADD COLUMN IF NOT EXISTS summary TEXT DEFAULT ''`);
+  await query(`ALTER TABLE deals ADD COLUMN IF NOT EXISTS departure_location TEXT DEFAULT ''`);
+  await query(`ALTER TABLE deals ADD COLUMN IF NOT EXISTS duration INTEGER DEFAULT 7`);
+  await query(`ALTER TABLE deals ADD COLUMN IF NOT EXISTS itinerary_json TEXT DEFAULT '[]'`);
+  await query(`ALTER TABLE deals ADD COLUMN IF NOT EXISTS flight_json TEXT DEFAULT 'null'`);
+  await query(`ALTER TABLE deals ADD COLUMN IF NOT EXISTS hotel_json TEXT DEFAULT 'null'`);
+  await query(`ALTER TABLE deals ADD COLUMN IF NOT EXISTS highlights_json TEXT DEFAULT '[]'`);
+  await query(`ALTER TABLE deals ADD COLUMN IF NOT EXISTS included_json TEXT DEFAULT '[]'`);
+  await query(`ALTER TABLE deals ADD COLUMN IF NOT EXISTS review_count INTEGER DEFAULT 0`);
   console.log("✅ PostgreSQL tables initialized");
 }
 
@@ -552,25 +563,86 @@ app.get("/api/deals/:id", async (req, res) => {
   }
 });
 
+// ─── ADMIN: IMAGE UPLOAD ──────────────────────────────────────────────────────
+
+app.post("/api/admin/upload-image", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { base64, mimeType = "image/jpeg" } = req.body;
+    if (!base64) return res.status(400).json({ error: "No image data provided" });
+
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !serviceKey) {
+      return res.status(500).json({ error: "Image upload not configured. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to Railway env vars." });
+    }
+
+    const buffer   = Buffer.from(base64, "base64");
+    const ext      = mimeType.includes("png") ? "png" : "jpg";
+    const filename = `packages/${Date.now()}.${ext}`;
+    const urlObj   = new URL(`${supabaseUrl}/storage/v1/object/package-images/${filename}`);
+
+    await new Promise((resolve, reject) => {
+      const https = require("https");
+      const options = {
+        hostname: urlObj.hostname,
+        path:     urlObj.pathname,
+        method:   "POST",
+        headers: {
+          "Authorization": `Bearer ${serviceKey}`,
+          "Content-Type":  mimeType,
+          "Content-Length": buffer.length,
+          "x-upsert":      "true",
+        },
+      };
+      const r = https.request(options, (resp) => {
+        let data = "";
+        resp.on("data", (c) => (data += c));
+        resp.on("end", () => {
+          if (resp.statusCode < 200 || resp.statusCode >= 300) reject(new Error(data));
+          else resolve(data);
+        });
+      });
+      r.on("error", reject);
+      r.write(buffer);
+      r.end();
+    });
+
+    res.json({ url: `${supabaseUrl}/storage/v1/object/public/package-images/${filename}` });
+  } catch (err) {
+    console.error("Image upload error:", err);
+    res.status(500).json({ error: "Image upload failed: " + err.message });
+  }
+});
+
+// ─── DEALS ────────────────────────────────────────────────────────────────────
+
 app.post("/api/deals", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const {
       title, name, location, activities, start_date, end_date,
-      image_url, price, description, rating, badge, link,
+      image_url, price, description, rating, badge,
+      country, summary, departure_location, duration,
+      itinerary_json, flight_json, hotel_json, highlights_json, included_json, review_count,
     } = req.body;
     const dealTitle = title || name;
 
     if (!dealTitle || !image_url || price == null) {
-      return res.status(400).json({ error: "Missing required fields: title/name, image_url, and price are required" });
+      return res.status(400).json({ error: "Missing required fields: title/name, image_url, and price" });
     }
     const p = parseFloat(price);
     if (isNaN(p) || p < 0) return res.status(400).json({ error: "Invalid price" });
 
     const result = await query(
       `INSERT INTO deals
-         (title, name, location, activities, start_date, end_date, image_url, price, description, rating, badge, link)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
-      [dealTitle, name, location, activities, start_date, end_date, image_url, p, description, rating, badge, link]
+         (title, name, location, activities, start_date, end_date, image_url, price, description, rating, badge,
+          country, summary, departure_location, duration, itinerary_json, flight_json, hotel_json,
+          highlights_json, included_json, review_count)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21) RETURNING *`,
+      [dealTitle, name || dealTitle, location, activities, start_date, end_date, image_url, p,
+       description || summary, rating || 4.8, badge,
+       country || location, summary || description, departure_location, duration || 7,
+       itinerary_json || "[]", flight_json || "null", hotel_json || "null",
+       highlights_json || "[]", included_json || "[]", review_count || 0]
     );
     return res.status(201).json(result.rows[0]);
   } catch (err) {

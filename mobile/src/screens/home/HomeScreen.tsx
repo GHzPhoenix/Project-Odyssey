@@ -42,26 +42,41 @@ const DEST_IMAGES: Record<string, string> = {
   Barcelona: 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=800',
 };
 
-const dealToPackage = (deal: any) => ({
-  id: String(deal.id),
-  destination: deal.location || deal.title,
-  country: deal.location || '',
-  startDate: deal.start_date || '',
-  endDate: deal.end_date || '',
-  duration: deal.start_date && deal.end_date
-    ? Math.max(1, Math.ceil((new Date(deal.end_date).getTime() - new Date(deal.start_date).getTime()) / 86400000))
-    : 7,
-  coverImage: deal.image_url || DEST_IMAGES[deal.location] || DEST_IMAGES[deal.title] || 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=800',
-  price: deal.price,
-  rating: deal.rating || 4.5,
-  reviewCount: Math.floor(Math.random() * 300 + 50),
-  badge: deal.badge || undefined,
-  isAIGenerated: false,
-  summary: deal.description || '',
-  itinerary: [],
-  included: deal.activities ? deal.activities.split(',').map((a: string) => a.trim()) : [],
-  highlights: [],
-});
+const safeParseJSON = (raw: any, fallback: any) => {
+  if (!raw || raw === 'null') return fallback;
+  if (typeof raw !== 'string') return raw;
+  try { return JSON.parse(raw); } catch { return fallback; }
+};
+
+const dealToPackage = (deal: any) => {
+  const loc = deal.location || deal.title || '';
+  const duration = deal.duration ||
+    (deal.start_date && deal.end_date
+      ? Math.max(1, Math.ceil((new Date(deal.end_date).getTime() - new Date(deal.start_date).getTime()) / 86400000))
+      : 7);
+  const included = safeParseJSON(deal.included_json, null);
+  const highlights = safeParseJSON(deal.highlights_json, []);
+  return {
+    id: String(deal.id),
+    destination: loc,
+    country: deal.country || loc,
+    startDate: deal.start_date || '',
+    endDate: deal.end_date || '',
+    duration,
+    coverImage: deal.image_url || DEST_IMAGES[loc] || 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=800',
+    price: deal.price,
+    rating: deal.rating || 4.5,
+    reviewCount: deal.review_count || Math.floor(Math.random() * 300 + 50),
+    badge: deal.badge || undefined,
+    isAIGenerated: false,
+    summary: deal.summary || deal.description || '',
+    itinerary: safeParseJSON(deal.itinerary_json, []),
+    included: included || (deal.activities ? deal.activities.split(',').map((a: string) => a.trim()) : []),
+    highlights,
+    flight: safeParseJSON(deal.flight_json, null),
+    hotel: safeParseJSON(deal.hotel_json, null),
+  };
+};
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();

@@ -34,31 +34,45 @@ const DEST_IMAGES: Record<string, string> = {
   default: 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=800',
 };
 
+const safeParseJSON = (raw: any, fallback: any) => {
+  if (!raw || raw === 'null') return fallback;
+  if (typeof raw !== 'string') return raw;
+  try { return JSON.parse(raw); } catch { return fallback; }
+};
+
 const normalizePkg = (data: any, isDeal: boolean) => {
   if (isDeal) {
     const loc = data.location || data.title || '';
+    const country = data.country || loc;
+    const itinerary = safeParseJSON(data.itinerary_json, []);
+    const flight = safeParseJSON(data.flight_json, null);
+    const hotel = safeParseJSON(data.hotel_json, null);
+    const highlights = safeParseJSON(data.highlights_json, []);
+    const included = safeParseJSON(data.included_json, null);
+    const duration = data.duration ||
+      (data.start_date && data.end_date
+        ? Math.max(1, Math.ceil((new Date(data.end_date).getTime() - new Date(data.start_date).getTime()) / 86400000))
+        : 7);
     return {
       id: String(data.id),
       destination: loc,
-      country: loc,
+      country,
       startDate: data.start_date || '',
       endDate: data.end_date || '',
-      duration: data.start_date && data.end_date
-        ? Math.max(1, Math.ceil((new Date(data.end_date).getTime() - new Date(data.start_date).getTime()) / 86400000))
-        : 7,
+      duration,
       coverImage: data.image_url || DEST_IMAGES[loc] || DEST_IMAGES.default,
       price: data.price,
       originalPrice: undefined,
       rating: data.rating || 4.5,
-      reviewCount: 120,
+      reviewCount: data.review_count || 120,
       badge: data.badge || undefined,
       isAIGenerated: false,
-      summary: data.description || '',
-      included: data.activities ? data.activities.split(',').map((a: string) => a.trim()) : ['Flights', 'Hotel', 'Activities'],
-      highlights: data.activities ? data.activities.split(',').map((a: string) => a.trim()) : [],
-      itinerary: [],
-      flight: null,
-      hotel: null,
+      summary: data.summary || data.description || '',
+      included: included || (data.activities ? data.activities.split(',').map((a: string) => a.trim()) : ['Flights', 'Hotel', 'Activities']),
+      highlights: highlights.length > 0 ? highlights : (data.activities ? data.activities.split(',').map((a: string) => a.trim()) : []),
+      itinerary,
+      flight,
+      hotel,
     };
   }
   // AI generated package

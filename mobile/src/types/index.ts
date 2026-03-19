@@ -137,6 +137,7 @@ export type RootStackParamList = {
   PrivacySecurity: undefined;
   NotificationSettings: undefined;
   AdminPanel: undefined;
+  CreatePackage: undefined;
 };
 
 export interface RequestedPackage {

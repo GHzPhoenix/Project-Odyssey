@@ -44,7 +44,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export const AdminPanelScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const [packages, setPackages]   = useState<AdminPackage[]>([]);
   const [loading, setLoading]     = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -191,7 +191,9 @@ export const AdminPanelScreen: React.FC = () => {
           <Ionicons name="arrow-back" size={20} color={COLORS.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Trip Requests</Text>
-        <View style={{ width: 38 }} />
+        <TouchableOpacity style={styles.createBtn} onPress={() => navigation.navigate('CreatePackage')}>
+          <Ionicons name="add" size={20} color={COLORS.white} />
+        </TouchableOpacity>
       </View>
 
       {/* Stats row */}
@@ -259,6 +261,10 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 38, height: 38, borderRadius: RADIUS.full,
     backgroundColor: COLORS.surface, alignItems: 'center', justifyContent: 'center',
+  },
+  createBtn: {
+    width: 38, height: 38, borderRadius: RADIUS.full,
+    backgroundColor: COLORS.secondary, alignItems: 'center', justifyContent: 'center',
   },
   headerTitle: { color: COLORS.text, fontSize: FONTS.sizes.lg, fontWeight: '700' },
 
