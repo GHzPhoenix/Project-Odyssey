@@ -108,19 +108,22 @@ export const GeneratePackageScreen: React.FC = () => {
     const endDate = endDateObj.toISOString().split('T')[0];
 
     try {
-      const res = await packagesAPI.generate({
+      await packagesAPI.generate({
         destination,
         startDate: isoStart,
         endDate,
         guests,
       });
       pulseAnim.stopAnimation();
-      const generatedPackage = res.data.package;
-      navigation.navigate('PackageDetail', { packageId: generatedPackage.id });
+      Alert.alert(
+        '✈️ Request Received!',
+        `Your ${duration}-day trip to ${destination} has been submitted.\n\nOur travel experts will craft your personalised package and contact you within 24 hours.`,
+        [{ text: 'Back to Home', onPress: () => navigation.navigate('MainTabs' as any) }]
+      );
     } catch (err: any) {
       pulseAnim.stopAnimation();
-      const msg = err?.response?.data?.error || 'Could not generate package. Please check your connection and try again.';
-      Alert.alert('Generation Failed', msg);
+      const msg = err?.response?.data?.error || 'Could not submit request. Please check your connection and try again.';
+      Alert.alert('Request Failed', msg);
     } finally {
       setGenerating(false);
     }
@@ -289,14 +292,14 @@ export const GeneratePackageScreen: React.FC = () => {
               <Ionicons name="sparkles" size={20} color={COLORS.accent} />
             </Animated.View>
             <View>
-              <Text style={styles.generatingTitle}>Crafting your package...</Text>
-              <Text style={styles.generatingSubtitle}>AI is personalizing your experience</Text>
+              <Text style={styles.generatingTitle}>Submitting your request...</Text>
+              <Text style={styles.generatingSubtitle}>Sending to our travel experts</Text>
             </View>
             <ActivityIndicator color={COLORS.secondary} size="small" />
           </View>
         ) : (
           <Button
-            label="✦  Generate My Package"
+            label="✦  Request My Package"
             onPress={handleGenerate}
           />
         )}

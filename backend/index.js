@@ -1015,6 +1015,90 @@ app.post("/api/packages/generate", verifyToken, async (req, res) => {
       "SELECT * FROM user_preferences WHERE user_id = $1",
       [req.userId]
     );
+    const userResult = await query("SELECT name, email FROM users WHERE id = $1", [req.userId]);
+    const userInfo = userResult.rows[0] || {};
+    const prefs   = prefsResult.rows[0] || null;
+    const startDt = new Date(startDate);
+    const endDt   = new Date(endDate);
+    const duration = Math.ceil((endDt - startDt) / (1000 * 60 * 60 * 24));
+
+    // ── Save request as pending ──────────────────────────────────────────────
+    const reqResult = await query(
+      `INSERT INTO generated_packages
+         (user_id, destination, start_date, end_date, duration, guests, price, itinerary, flight_info, hotel_info, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pending') RETURNING id`,
+      [req.userId, destination, startDate, endDate, duration, guests || 1, 0, '[]', '{}', '{}']
+    );
+    const requestId = reqResult.rows[0].id;
+
+    // ── Send email notification to admin ─────────────────────────────────────
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const { Resend } = require("resend");
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const formatDate = (d) => {
+          const dt = new Date(d);
+          return `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
+        };
+        await resend.emails.send({
+          from: "Travel Odyssey <onboarding@resend.dev>",
+          to: "pavlos_ant_@hotmail.com",
+          subject: `✈️ New Trip Request #${requestId} — ${destination}`,
+          html: `
+            <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#0A0A0F;color:#fff;padding:32px;border-radius:12px;">
+              <h1 style="color:#C9A84C;margin-bottom:4px;">New Trip Request</h1>
+              <p style="color:#888;margin-top:0;">Request #${requestId}</p>
+              <hr style="border-color:#222;margin:24px 0;"/>
+              <table style="width:100%;border-collapse:collapse;">
+                <tr><td style="padding:8px 0;color:#888;width:140px;">👤 Customer</td><td style="color:#fff;font-weight:600;">${userInfo.name || 'Unknown'} (${userInfo.email || 'Unknown'})</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">📍 Destination</td><td style="color:#fff;font-weight:600;">${destination}</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">📅 Departure</td><td style="color:#fff;font-weight:600;">${formatDate(startDate)}</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">📅 Return</td><td style="color:#fff;font-weight:600;">${formatDate(endDate)}</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">⏱ Duration</td><td style="color:#fff;font-weight:600;">${duration} days</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">👥 Guests</td><td style="color:#fff;font-weight:600;">${guests || 1}</td></tr>
+                ${prefs ? `
+                <tr><td style="padding:8px 0;color:#888;">🎒 Travel Style</td><td style="color:#fff;">${prefs.travel_style || '—'}</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">💰 Budget Tier</td><td style="color:#fff;">${prefs.budget_tier || '—'}</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">🍽 Cuisines</td><td style="color:#fff;">${JSON.parse(prefs.cuisines || '[]').join(', ') || '—'}</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">🏃 Activities</td><td style="color:#fff;">${JSON.parse(prefs.activities || '[]').join(', ') || '—'}</td></tr>
+                <tr><td style="padding:8px 0;color:#888;">👫 Companions</td><td style="color:#fff;">${prefs.companions || '—'}</td></tr>
+                ` : '<tr><td colspan="2" style="color:#888;padding:8px 0;">No preferences saved</td></tr>'}
+              </table>
+              <hr style="border-color:#222;margin:24px 0;"/>
+              <p style="color:#888;font-size:13px;">Reply to <strong style="color:#fff;">${userInfo.email}</strong> with the crafted package.</p>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.error("Email send error:", emailErr.message);
+      }
+    }
+
+    // ── Return confirmation to user ──────────────────────────────────────────
+    return res.json({
+      status: "pending",
+      requestId,
+      message: "Your trip request has been received! Our travel experts will craft your personalised package and get back to you within 24 hours.",
+    });
+
+  } catch (err) {
+    console.error("Package request error:", err);
+    res.status(500).json({ error: "Failed to submit request" });
+  }
+});
+
+app.post("/api/packages/generate-ai", verifyToken, async (req, res) => {
+  const { destination, startDate, endDate, guests } = req.body;
+
+  if (!destination || !startDate || !endDate) {
+    return res.status(400).json({ error: "destination, startDate, and endDate are required" });
+  }
+
+  try {
+    const prefsResult = await query(
+      "SELECT * FROM user_preferences WHERE user_id = $1",
+      [req.userId]
+    );
     const prefs   = prefsResult.rows[0] || null;
     const startDt = new Date(startDate);
     const endDt   = new Date(endDate);
