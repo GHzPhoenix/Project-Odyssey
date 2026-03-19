@@ -35,7 +35,7 @@ const DESTINATION_IMAGES: Record<string, string> = {
 export const PackageCard: React.FC<Props> = ({ package: pkg, onPress, size = 'large' }) => {
   const { savedPackages, savePackage, unsavePackage } = useStore();
   const isSaved = savedPackages.some((p) => p.id === pkg.id);
-  const imageUrl = DESTINATION_IMAGES[pkg.destination] || DESTINATION_IMAGES.default;
+  const imageUrl = pkg.coverImage || DESTINATION_IMAGES[pkg.destination] || DESTINATION_IMAGES.default;
 
   const cardWidth = size === 'large' ? width - SPACING.lg * 2 : size === 'medium' ? width * 0.65 : width * 0.45;
   const cardHeight = size === 'large' ? 240 : size === 'medium' ? 200 : 160;
@@ -86,7 +86,7 @@ export const PackageCard: React.FC<Props> = ({ package: pkg, onPress, size = 'la
           <Text style={styles.destination}>{pkg.destination}</Text>
           <View style={styles.rating}>
             <Ionicons name="star" size={12} color={COLORS.accent} />
-            <Text style={styles.ratingText}>{pkg.rating.toFixed(1)}</Text>
+            <Text style={styles.ratingText}>{(pkg.rating ?? 4.5).toFixed(1)}</Text>
           </View>
         </View>
         <View style={styles.infoBottom}>
