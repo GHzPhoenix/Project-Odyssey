@@ -8,7 +8,7 @@ module.exports = ({ config }) => ({
     ...config.extra,
     apiUrl: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5001/api',
     eas: {
-      projectId: process.env.EAS_PROJECT_ID || 'YOUR_EAS_PROJECT_ID',
+      projectId: process.env.EAS_PROJECT_ID || '9c7c09f0-9918-4006-9065-515ef4606ee9',
     },
   },
 });
