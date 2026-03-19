@@ -36,7 +36,25 @@ const POPULAR_DESTINATIONS = [
   { name: 'Santorini', emoji: '🇬🇷' },
 ];
 
-const DURATION_OPTIONS = [3, 5, 7, 10, 14, 21];
+// Converts DD/MM/YYYY → YYYY-MM-DD for the API
+const parseEuroDate = (input: string): string | null => {
+  const parts = input.split('/');
+  if (parts.length !== 3) return null;
+  const [dd, mm, yyyy] = parts;
+  if (dd.length !== 2 || mm.length !== 2 || yyyy.length !== 4) return null;
+  const iso = `${yyyy}-${mm}-${dd}`;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  return iso;
+};
+
+// Auto-inserts slashes as user types: 20121995 → 20/12/1995
+const formatDateInput = (text: string, prev: string): string => {
+  const digits = text.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+};
 
 export const GeneratePackageScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -69,21 +87,30 @@ export const GeneratePackageScreen: React.FC = () => {
       return;
     }
     if (!startDate.trim()) {
-      Alert.alert('Missing Date', 'Please enter your travel start date.');
+      Alert.alert('Missing Date', 'Please enter your departure date.');
+      return;
+    }
+    const isoStart = parseEuroDate(startDate);
+    if (!isoStart) {
+      Alert.alert('Invalid Date', 'Please enter the date in DD/MM/YYYY format (e.g. 20/12/2025).');
+      return;
+    }
+    if (duration < 3) {
+      Alert.alert('Minimum Duration', 'Trip duration must be at least 3 days.');
       return;
     }
 
     setGenerating(true);
     startPulse();
 
-    const endDateObj = new Date(startDate);
+    const endDateObj = new Date(isoStart);
     endDateObj.setDate(endDateObj.getDate() + duration);
     const endDate = endDateObj.toISOString().split('T')[0];
 
     try {
       const res = await packagesAPI.generate({
         destination,
-        startDate,
+        startDate: isoStart,
         endDate,
         guests,
       });
@@ -175,30 +202,36 @@ export const GeneratePackageScreen: React.FC = () => {
             <Ionicons name="calendar-outline" size={20} color={COLORS.secondary} style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
-              placeholder="YYYY-MM-DD (e.g. 2025-12-20)"
+              placeholder="DD/MM/YYYY (e.g. 20/12/2025)"
               placeholderTextColor={COLORS.textMuted}
               value={startDate}
-              onChangeText={setStartDate}
-              keyboardType="numbers-and-punctuation"
+              onChangeText={(text) => setStartDate(formatDateInput(text, startDate))}
+              keyboardType="number-pad"
+              maxLength={10}
             />
           </View>
         </View>
 
         {/* Duration */}
         <View style={styles.section}>
-          <Text style={styles.label}>Duration (days)</Text>
-          <View style={styles.durationGrid}>
-            {DURATION_OPTIONS.map((d) => (
-              <TouchableOpacity
-                key={d}
-                style={[styles.durationChip, duration === d && styles.durationChipSelected]}
-                onPress={() => setDuration(d)}
-              >
-                <Text style={[styles.durationText, duration === d && styles.durationTextSelected]}>
-                  {d}d
-                </Text>
-              </TouchableOpacity>
-            ))}
+          <Text style={styles.label}>Duration (days · min. 3)</Text>
+          <View style={styles.guestRow}>
+            <TouchableOpacity
+              style={[styles.guestBtn, duration <= 3 && styles.guestBtnDisabled]}
+              onPress={() => setDuration(Math.max(3, duration - 1))}
+            >
+              <Ionicons name="remove" size={20} color={duration <= 3 ? COLORS.textMuted : COLORS.text} />
+            </TouchableOpacity>
+            <View style={styles.guestCount}>
+              <Text style={styles.guestNumber}>{duration}</Text>
+              <Text style={styles.guestLabel}>{duration === 1 ? 'Day' : 'Days'}</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.guestBtn}
+              onPress={() => setDuration(duration + 1)}
+            >
+              <Ionicons name="add" size={20} color={COLORS.text} />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -423,6 +456,9 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  guestBtnDisabled: {
+    opacity: 0.4,
   },
   guestCount: {
     alignItems: 'center',
