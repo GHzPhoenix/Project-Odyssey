@@ -134,6 +134,8 @@ export type RootStackParamList = {
   GeneratePackage: undefined;
   Plans: undefined;
   Payment: { planId: string; isOneTime?: boolean; packageId?: string };
+  PrivacySecurity: undefined;
+  NotificationSettings: undefined;
 };
 
 export interface RequestedPackage {

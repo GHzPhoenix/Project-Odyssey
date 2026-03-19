@@ -25,7 +25,7 @@ interface Message {
 const INITIAL_MESSAGE: Message = {
   id: 'welcome',
   role: 'assistant',
-  content: "Hi! I'm Odyssey, your personal travel assistant ✈️\n\nI can help you with destination advice, local tips, activity recommendations, and anything else travel-related.\n\nWhere are you dreaming of going?",
+  content: "Hi! I'm Odyssey, your personal travel assistant ✈️\n\nI'm here to help you design your perfect trip. Tell me:\n\n• Where are you dreaming of going?\n• When are you thinking of travelling?\n• Who are you going with?\n\nOr just ask me anything — local tips, what to pack, best time to visit, hidden gems — I'm here for it all!",
 };
 
 export default function AIChatScreen() {

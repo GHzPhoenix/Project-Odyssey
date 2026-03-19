@@ -132,7 +132,7 @@ export const HomeScreen: React.FC = () => {
         {/* Hero Banner */}
         <TouchableOpacity
           style={styles.heroBanner}
-          onPress={() => navigation.navigate('GeneratePackage')}
+          onPress={() => (navigation as any).navigate('AIChat')}
           activeOpacity={0.9}
         >
           <Image
@@ -143,13 +143,13 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.heroOverlay} />
           <View style={styles.heroContent}>
             <View style={styles.aiBadge}>
-              <Ionicons name="sparkles" size={14} color={COLORS.accent} />
-              <Text style={styles.aiBadgeText}>AI Powered</Text>
+              <Ionicons name="chatbubble-ellipses" size={14} color={COLORS.accent} />
+              <Text style={styles.aiBadgeText}>Odyssey Assistant</Text>
             </View>
-            <Text style={styles.heroTitle}>Generate Your{'\n'}Perfect Trip</Text>
-            <Text style={styles.heroSubtitle}>Pick a destination & dates — we'll craft the rest</Text>
+            <Text style={styles.heroTitle}>Plan Your{'\n'}Perfect Trip</Text>
+            <Text style={styles.heroSubtitle}>Chat with our travel expert — tell us your dream and we'll make it happen</Text>
             <View style={styles.heroBtn}>
-              <Text style={styles.heroBtnText}>Try it now</Text>
+              <Text style={styles.heroBtnText}>Start planning</Text>
               <Ionicons name="arrow-forward" size={14} color={COLORS.primary} />
             </View>
           </View>
@@ -201,8 +201,8 @@ export const HomeScreen: React.FC = () => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Curated for You</Text>
-            <TouchableOpacity onPress={() => (navigation as any).navigate('Main', { screen: 'Explore' })}>
-              <Text style={styles.seeAll}>See all</Text>
+            <TouchableOpacity onPress={() => (navigation as any).navigate('Trips')}>
+              <Text style={styles.seeAll}>My Trips</Text>
             </TouchableOpacity>
           </View>
           {loading ? (

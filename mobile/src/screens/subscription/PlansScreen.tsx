@@ -27,9 +27,9 @@ const PLANS = [
     icon: 'compass',
     tagline: 'Perfect for occasional travelers',
     features: [
-      '1 AI-generated package/month',
+      '1 custom trip package/month',
       'Access to curated deals',
-      'Basic preference matching',
+      'Personalised curation',
       'Email support',
       'Cancel anytime',
     ],
@@ -45,7 +45,7 @@ const PLANS = [
     tagline: 'For the regular traveler',
     highlighted: true,
     features: [
-      '3 AI-generated packages/month',
+      '3 custom trip packages/month',
       'Full preference personalization',
       'Priority restaurant reservations',
       'Exclusive experiences access',
@@ -63,7 +63,7 @@ const PLANS = [
     icon: 'diamond',
     tagline: 'The ultimate travel lifestyle',
     features: [
-      'Unlimited AI packages',
+      'Unlimited custom trip packages',
       'Hyper-personalized curation',
       'Priority restaurant & hotel booking',
       'VIP experience access',
@@ -110,7 +110,7 @@ export const PlansScreen: React.FC = () => {
           {/* Headline */}
           <Text style={styles.title}>Travel More,{'\n'}Stress Less</Text>
           <Text style={styles.subtitle}>
-            Subscribe to unlock AI-powered personalized travel experiences
+            Subscribe to unlock handcrafted, personalised travel experiences
           </Text>
 
           {/* Billing Toggle */}

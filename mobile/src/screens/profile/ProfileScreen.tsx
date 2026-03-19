@@ -80,11 +80,17 @@ export const ProfileScreen: React.FC = () => {
       case 'Membership & Plans':
         navigation.navigate('Plans');
         break;
+      case 'Notifications':
+        navigation.navigate('NotificationSettings');
+        break;
+      case 'Privacy & Security':
+        navigation.navigate('PrivacySecurity');
+        break;
       case 'Help & Support':
         Alert.alert('Help & Support', 'For support, contact us at support@travelodyssey.com');
         break;
       case 'About':
-        Alert.alert('Travel Odyssey', 'Version 1.0.0\n\nAI-powered personalized travel experiences.');
+        Alert.alert('Travel Odyssey', 'Version 1.0.0\n\nHandcrafted, personalised travel experiences.');
         break;
       default:
         Alert.alert(label, 'This feature is coming soon.');
