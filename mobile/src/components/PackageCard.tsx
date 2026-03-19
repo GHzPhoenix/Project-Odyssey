@@ -86,7 +86,7 @@ export const PackageCard: React.FC<Props> = ({ package: pkg, onPress, size = 'la
           <Text style={styles.destination}>{pkg.destination}</Text>
           <View style={styles.rating}>
             <Ionicons name="star" size={12} color={COLORS.accent} />
-            <Text style={styles.ratingText}>{(pkg.rating ?? 4.5).toFixed(1)}</Text>
+            <Text style={styles.ratingText}>{Number(pkg.rating ?? 4.5).toFixed(1)}</Text>
           </View>
         </View>
         <View style={styles.infoBottom}>

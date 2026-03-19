@@ -236,7 +236,7 @@ export const PackageDetailScreen: React.FC = () => {
             <View style={styles.heroMeta}>
               <View style={styles.metaPill}>
                 <Ionicons name="star" size={12} color={COLORS.accent} />
-                <Text style={styles.metaText}>{pkg.rating} ({pkg.reviewCount})</Text>
+                <Text style={styles.metaText}>{Number(pkg.rating ?? 4.5).toFixed(1)} ({pkg.reviewCount})</Text>
               </View>
               <View style={styles.metaPill}>
                 <Ionicons name="calendar-outline" size={12} color={COLORS.textSecondary} />
