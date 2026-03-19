@@ -19,7 +19,10 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const msg = error.response?.data?.error || '';
+    // Clear token if unauthorized OR if the token is invalid/expired
+    if (status === 401 || (status === 403 && msg === 'Invalid token')) {
       AsyncStorage.removeItem('token');
     }
     return Promise.reject(error);
