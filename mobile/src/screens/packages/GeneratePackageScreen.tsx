@@ -10,7 +10,10 @@ import {
   Alert,
   StatusBar,
   ActivityIndicator,
+  Modal,
+  Platform,
 } from 'react-native';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -20,25 +23,22 @@ import { COLORS, FONTS, SPACING, RADIUS } from '../../constants/theme';
 import { useStore } from '../../store/useStore';
 import { packagesAPI } from '../../services/api';
 
-// Converts DD/MM/YYYY → YYYY-MM-DD for the API
-const parseEuroDate = (input: string): string | null => {
-  const parts = input.split('/');
-  if (parts.length !== 3) return null;
-  const [dd, mm, yyyy] = parts;
-  if (dd.length !== 2 || mm.length !== 2 || yyyy.length !== 4) return null;
-  const iso = `${yyyy}-${mm}-${dd}`;
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return null;
-  return iso;
+// Tomorrow (minimum selectable date)
+const tomorrow = (() => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  d.setHours(0, 0, 0, 0);
+  return d;
+})();
+
+const formatDisplay = (date: Date): string => {
+  const dd   = String(date.getDate()).padStart(2, '0');
+  const mm   = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
 };
 
-// Auto-inserts slashes as user types: 20122025 → 20/12/2025
-const formatDateInput = (text: string): string => {
-  const digits = text.replace(/\D/g, '').slice(0, 8);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-};
+const toISO = (date: Date): string => date.toISOString().split('T')[0];
 
 // Simple labelled input row
 const Field = ({
@@ -82,12 +82,16 @@ const Field = ({
 export const GeneratePackageScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useStore();
-  const [destination, setDestination]         = useState('');
+
+  const [destination, setDestination]             = useState('');
   const [departureLocation, setDepartureLocation] = useState('');
-  const [startDate, setStartDate]             = useState('');
-  const [duration, setDuration]               = useState(7);
-  const [guests, setGuests]                   = useState(2);
-  const [generating, setGenerating]           = useState(false);
+  const [selectedDate, setSelectedDate]           = useState<Date | null>(null);
+  const [showPicker, setShowPicker]               = useState(false);
+  // iOS: temp date while the picker is open (confirmed on "Done")
+  const [tempDate, setTempDate]                   = useState<Date>(tomorrow);
+  const [duration, setDuration]                   = useState(7);
+  const [guests, setGuests]                       = useState(2);
+  const [generating, setGenerating]               = useState(false);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -100,6 +104,17 @@ export const GeneratePackageScreen: React.FC = () => {
     ).start();
   };
 
+  // Android: picker dismisses automatically on selection
+  // iOS: picker stays open; confirmed via "Done" button
+  const onDateChange = (event: DateTimePickerEvent, date?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowPicker(false);
+      if (event.type === 'set' && date) setSelectedDate(date);
+    } else {
+      if (date) setTempDate(date);
+    }
+  };
+
   const handleGenerate = async () => {
     if (!destination.trim()) {
       Alert.alert('Missing Destination', 'Please enter your destination.');
@@ -109,13 +124,8 @@ export const GeneratePackageScreen: React.FC = () => {
       Alert.alert('Missing Departure City', 'Please enter the city you are flying from.');
       return;
     }
-    if (!startDate.trim()) {
-      Alert.alert('Missing Date', 'Please enter your departure date (DD/MM/YYYY).');
-      return;
-    }
-    const isoStart = parseEuroDate(startDate);
-    if (!isoStart) {
-      Alert.alert('Invalid Date', 'Please enter the date in DD/MM/YYYY format, e.g. 20/12/2025.');
+    if (!selectedDate) {
+      Alert.alert('Missing Date', 'Please select your departure date.');
       return;
     }
     if (duration < 3) {
@@ -126,14 +136,15 @@ export const GeneratePackageScreen: React.FC = () => {
     setGenerating(true);
     startPulse();
 
-    const endDateObj = new Date(isoStart);
+    const isoStart  = toISO(selectedDate);
+    const endDateObj = new Date(selectedDate);
     endDateObj.setDate(endDateObj.getDate() + duration);
-    const endDate = endDateObj.toISOString().split('T')[0];
+    const endDate = toISO(endDateObj);
 
     try {
       await packagesAPI.generate({
-        destination: destination.trim(),
-        startDate:   isoStart,
+        destination:       destination.trim(),
+        startDate:         isoStart,
         endDate,
         guests,
         departureLocation: departureLocation.trim(),
@@ -195,17 +206,64 @@ export const GeneratePackageScreen: React.FC = () => {
           onChangeText={setDepartureLocation}
         />
 
-        {/* Departure Date */}
-        <Field
-          icon="calendar-outline"
-          label="Departure Date *"
-          placeholder="DD/MM/YYYY"
-          value={startDate}
-          onChangeText={(t) => setStartDate(formatDateInput(t))}
-          keyboardType="number-pad"
-          maxLength={10}
-          autoCapitalize="none"
-        />
+        {/* Departure Date — calendar picker */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Departure Date *</Text>
+          <TouchableOpacity
+            style={styles.dateBtn}
+            onPress={() => {
+              setTempDate(selectedDate ?? tomorrow);
+              setShowPicker(true);
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="calendar-outline" size={20} color={COLORS.secondary} style={styles.inputIcon} />
+            <Text style={[styles.dateBtnText, !selectedDate && styles.datePlaceholder]}>
+              {selectedDate ? formatDisplay(selectedDate) : 'Select departure date'}
+            </Text>
+            <Ionicons name="chevron-down" size={16} color={COLORS.textMuted} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Android: native date dialog shown directly */}
+        {Platform.OS === 'android' && showPicker && (
+          <DateTimePicker
+            value={tempDate}
+            mode="date"
+            display="default"
+            minimumDate={tomorrow}
+            onChange={onDateChange}
+          />
+        )}
+
+        {/* iOS: date picker inside a modal with Done button */}
+        {Platform.OS === 'ios' && (
+          <Modal visible={showPicker} transparent animationType="slide">
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalCard}>
+                <View style={styles.modalHeader}>
+                  <TouchableOpacity onPress={() => setShowPicker(false)}>
+                    <Text style={styles.modalCancel}>Cancel</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.modalTitle}>Departure Date</Text>
+                  <TouchableOpacity onPress={() => { setSelectedDate(tempDate); setShowPicker(false); }}>
+                    <Text style={styles.modalDone}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+                <DateTimePicker
+                  value={tempDate}
+                  mode="date"
+                  display="inline"
+                  minimumDate={tomorrow}
+                  onChange={onDateChange}
+                  themeVariant="dark"
+                  accentColor={COLORS.secondary}
+                  style={styles.iosPicker}
+                />
+              </View>
+            </View>
+          </Modal>
+        )}
 
         {/* Duration stepper */}
         <View style={styles.section}>
@@ -325,6 +383,36 @@ const styles = StyleSheet.create({
   },
   inputIcon: { marginRight: SPACING.sm },
   input: { flex: 1, color: COLORS.text, fontSize: FONTS.sizes.md },
+
+  // Date picker button
+  dateBtn: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: COLORS.surface, borderRadius: RADIUS.md,
+    borderWidth: 1, borderColor: COLORS.border,
+    paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm + 2,
+  },
+  dateBtnText:   { flex: 1, color: COLORS.text, fontSize: FONTS.sizes.md },
+  datePlaceholder: { color: COLORS.textMuted },
+
+  // iOS modal
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalCard: {
+    backgroundColor: COLORS.surface,
+    borderTopLeftRadius: RADIUS.xl, borderTopRightRadius: RADIUS.xl,
+    paddingBottom: SPACING.xxl,
+  },
+  modalHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
+    borderBottomWidth: 1, borderBottomColor: COLORS.border,
+  },
+  modalTitle:  { color: COLORS.text, fontSize: FONTS.sizes.md, fontWeight: '700' },
+  modalCancel: { color: COLORS.textMuted, fontSize: FONTS.sizes.md },
+  modalDone:   { color: COLORS.secondary, fontSize: FONTS.sizes.md, fontWeight: '700' },
+  iosPicker:   { alignSelf: 'center' },
 
   stepperRow:   { flexDirection: 'row', alignItems: 'center', gap: SPACING.xl },
   stepperBtn: {
