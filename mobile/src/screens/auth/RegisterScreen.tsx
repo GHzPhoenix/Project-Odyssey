@@ -126,8 +126,13 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             <Ionicons name="shield-checkmark-outline" size={14} color={COLORS.textMuted} />
             <Text style={styles.termsText}>
               By creating an account you agree to our{' '}
-              <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
-              <Text style={styles.termsLink}>Privacy Policy</Text>
+              <Text style={styles.termsLink} onPress={() => navigation.navigate('TermsOfService')}>
+                Terms of Service
+              </Text>
+              {' '}and{' '}
+              <Text style={styles.termsLink} onPress={() => navigation.navigate('PrivacyPolicy')}>
+                Privacy Policy
+              </Text>
             </Text>
           </View>
 
