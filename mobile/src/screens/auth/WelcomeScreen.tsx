@@ -72,7 +72,7 @@ export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={styles.headline}>Your Journey,</Text>
           <Text style={styles.headlineAccent}>Perfectly Crafted</Text>
           <Text style={styles.subheadline}>
-            AI-powered travel experiences tailored to your tastes, budget, and dreams.
+            Handcrafted travel experiences tailored to your tastes, budget, and dreams.
           </Text>
         </View>
 
