@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import { Button } from '../../components/Button';
@@ -81,9 +81,10 @@ const Field = ({
 
 export const GeneratePackageScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'GeneratePackage'>>();
   const { user } = useStore();
 
-  const [destination, setDestination]             = useState('');
+  const [destination, setDestination]             = useState(route.params?.destination ?? '');
   const [departureLocation, setDepartureLocation] = useState('');
   const [selectedDate, setSelectedDate]           = useState<Date | null>(null);
   const [showPicker, setShowPicker]               = useState(false);

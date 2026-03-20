@@ -131,7 +131,7 @@ export type RootStackParamList = {
   Onboarding: undefined;
   Main: undefined;
   PackageDetail: { packageId: string };
-  GeneratePackage: undefined;
+  GeneratePackage: { destination?: string; country?: string } | undefined;
   Plans: undefined;
   Payment: { planId: string; isOneTime?: boolean; packageId?: string };
   PrivacySecurity: undefined;
