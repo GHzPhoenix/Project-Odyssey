@@ -17,8 +17,8 @@
       "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow Travel Odyssey to access your camera to upload a profile photo.",
-        "NSLocationWhenInUseUsageDescription": "Allow Travel Odyssey to use your location to suggest nearby destinations.",
-        "NSPhotoLibraryUsageDescription": "Allow Travel Odyssey to access your photo library to upload a profile photo."
+        "NSPhotoLibraryUsageDescription": "Allow Travel Odyssey to access your photo library to upload a profile photo.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
