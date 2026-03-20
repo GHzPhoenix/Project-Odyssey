@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Travel Odyssey</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0D0A1E;
+      color: #E8E8F0;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    .hero {
+      background: linear-gradient(160deg, #1A1035 0%, #0D0A1E 100%);
+      border-bottom: 1px solid rgba(108, 60, 225, 0.2);
+      padding: 60px 24px 48px;
+      text-align: center;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .logo-badge {
+      width: 40px;
+      height: 40px;
+      background: #6C3CE1;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      color: rgba(255,255,255,0.5);
+      font-size: 15px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(108, 60, 225, 0.15);
+      border: 1px solid rgba(108, 60, 225, 0.35);
+      color: #A78BFA;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .summary-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .summary-card .icon {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .summary-card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .summary-card p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.5;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .section-num {
+      width: 30px;
+      height: 30px;
+      background: rgba(108, 60, 225, 0.2);
+      border: 1px solid rgba(108, 60, 225, 0.4);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #A78BFA;
+      flex-shrink: 0;
+    }
+
+    .section h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .section p, .section li {
+      font-size: 15px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.75;
+    }
+
+    .section ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 10px;
+    }
+
+    .section ul li {
+      padding: 6px 0 6px 22px;
+      position: relative;
+    }
+
+    .section ul li::before {
+      content: '•';
+      color: #6C3CE1;
+      position: absolute;
+      left: 4px;
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    .highlight-box {
+      background: rgba(108, 60, 225, 0.08);
+      border: 1px solid rgba(108, 60, 225, 0.2);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-top: 12px;
+    }
+
+    .highlight-box p {
+      color: rgba(255,255,255,0.55) !important;
+      font-size: 14px !important;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 14px;
+    }
+
+    th {
+      background: rgba(108, 60, 225, 0.12);
+      color: rgba(255,255,255,0.7);
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    th:first-child { border-radius: 8px 0 0 0; }
+    th:last-child  { border-radius: 0 8px 0 0; }
+
+    td {
+      padding: 10px 14px;
+      color: rgba(255,255,255,0.55);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .tag-no  { background: rgba(76,175,80,0.15);  color: #81C784; border: 1px solid rgba(76,175,80,0.3); }
+    .tag-yes { background: rgba(108,60,225,0.15); color: #A78BFA; border: 1px solid rgba(108,60,225,0.3); }
+
+    .contact-card {
+      background: linear-gradient(135deg, rgba(108,60,225,0.12), rgba(108,60,225,0.06));
+      border: 1px solid rgba(108,60,225,0.25);
+      border-radius: 16px;
+      padding: 28px;
+      text-align: center;
+      margin-top: 48px;
+    }
+
+    .contact-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .contact-card p {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .contact-card a {
+      display: inline-block;
+      background: #6C3CE1;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 28px;
+      border-radius: 100px;
+      transition: opacity 0.2s;
+    }
+
+    .contact-card a:hover { opacity: 0.85; }
+
+    .footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 28px 24px;
+      text-align: center;
+    }
+
+    .footer p {
+      color: rgba(255,255,255,0.25);
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+      table { font-size: 13px; }
+      td, th { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="logo">
+      <div class="logo-badge">✦</div>
+      <span class="logo-text">Travel Odyssey</span>
+    </div>
+    <div class="badge">Legal</div>
+    <h1>Privacy Policy</h1>
+    <p>Last updated: March 2026. We keep this simple — here's exactly what we collect and why.</p>
+  </div>
+
+  <div class="container">
+
+    <!-- Summary cards -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="icon">🔒</div>
+        <h3>We don't sell your data</h3>
+        <p>Your personal information is never sold to third parties.</p>
+      </div>
+      <div class="summary-card">
+        <div class="icon">📍</div>
+        <h3>No location tracking</h3>
+        <p>We don't collect or track your device's GPS location.</p>
+      </div>
+      <div class="summary-card">
+        <div class="icon">💳</div>
+        <h3>Payments via Stripe</h3>
+        <p>We never store card details. All payments go through Stripe.</p>
+      </div>
+      <div class="summary-card">
+        <div class="icon">✉️</div>
+        <h3>You're in control</h3>
+        <p>Request deletion of your account and data at any time.</p>
+      </div>
+    </div>
+
+    <!-- 1. Who we are -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <h2>Who We Are</h2>
+      </div>
+      <p>Travel Odyssey is a personal travel concierge service that crafts custom trip packages for you. This Privacy Policy explains how we collect, use, and protect your personal data when you use our mobile app.</p>
+      <div class="highlight-box">
+        <p>📧 Contact: <strong style="color:rgba(255,255,255,0.75)">support@travelodyssey.app</strong></p>
+      </div>
+    </div>
+
+    <!-- 2. Data we collect -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <h2>Data We Collect</h2>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Why We Collect It</th>
+            <th>Collected?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Name &amp; email address</td><td>Account creation and login</td><td><span class="tag tag-yes">Yes</span></td></tr>
+          <tr><td>Travel preferences</td><td>Personalising your trip packages</td><td><span class="tag tag-yes">Yes</span></td></tr>
+          <tr><td>Trip request details</td><td>Building your custom itinerary</td><td><span class="tag tag-yes">Yes</span></td></tr>
+          <tr><td>Payment information</td><td>Processed by Stripe — we store no card details</td><td><span class="tag tag-yes">Yes</span></td></tr>
+          <tr><td>Push notification token</td><td>Sending you trip-ready alerts</td><td><span class="tag tag-yes">Yes</span></td></tr>
+          <tr><td>GPS / precise location</td><td>Not used</td><td><span class="tag tag-no">No</span></td></tr>
+          <tr><td>Contacts</td><td>Not used</td><td><span class="tag tag-no">No</span></td></tr>
+          <tr><td>Browsing history</td><td>Not used</td><td><span class="tag tag-no">No</span></td></tr>
+          <tr><td>Camera / microphone</td><td>Profile photo only (with your permission)</td><td><span class="tag tag-yes">Optional</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3. How we use it -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <h2>How We Use Your Data</h2>
+      </div>
+      <ul>
+        <li>To create and manage your account</li>
+        <li>To build personalised travel packages based on your preferences and requests</li>
+        <li>To send push notifications when your trip package is ready</li>
+        <li>To process membership and trip payments securely via Stripe</li>
+        <li>To respond to your support requests</li>
+        <li>To improve the quality and relevance of our service</li>
+      </ul>
+      <p style="margin-top:14px;">We do <strong style="color:rgba(255,255,255,0.8)">not</strong> use your data for advertising, profiling for third parties, or any automated decision-making.</p>
+    </div>
+
+    <!-- 4. Third parties -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <h2>Third-Party Services</h2>
+      </div>
+      <p>We only share your data with trusted third parties where strictly necessary:</p>
+      <table style="margin-top:14px">
+        <thead>
+          <tr><th>Service</th><th>Purpose</th><th>Data shared</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong style="color:rgba(255,255,255,0.8)">Stripe</strong></td><td>Payment processing</td><td>Payment info only</td></tr>
+          <tr><td><strong style="color:rgba(255,255,255,0.8)">Expo</strong></td><td>Push notifications</td><td>Device push token</td></tr>
+          <tr><td><strong style="color:rgba(255,255,255,0.8)">Resend</strong></td><td>Transactional emails</td><td>Email address only</td></tr>
+          <tr><td><strong style="color:rgba(255,255,255,0.8)">Travel providers</strong></td><td>Fulfilling your booked trip</td><td>Booking details only</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:14px;">We do not sell, rent, or trade your personal data to any third party.</p>
+    </div>
+
+    <!-- 5. Data retention -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <h2>Data Retention</h2>
+      </div>
+      <p>We retain your personal data for as long as your account is active. If you delete your account, we will delete your personal data within 30 days, except where we are required to retain it by law (e.g. financial records for tax purposes).</p>
+    </div>
+
+    <!-- 6. Security -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">6</div>
+        <h2>Security</h2>
+      </div>
+      <p>We take reasonable technical and organisational measures to protect your data, including:</p>
+      <ul>
+        <li>Encrypted data transmission (HTTPS/TLS)</li>
+        <li>Passwords stored using industry-standard hashing (bcrypt)</li>
+        <li>JWT-based authentication with expiring tokens</li>
+        <li>Hosted on secure cloud infrastructure</li>
+      </ul>
+    </div>
+
+    <!-- 7. Your rights -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">7</div>
+        <h2>Your Rights</h2>
+      </div>
+      <p>You have the right to:</p>
+      <ul>
+        <li><strong style="color:rgba(255,255,255,0.75)">Access</strong> — request a copy of the personal data we hold about you</li>
+        <li><strong style="color:rgba(255,255,255,0.75)">Correct</strong> — update inaccurate data via your Profile in the app</li>
+        <li><strong style="color:rgba(255,255,255,0.75)">Delete</strong> — request deletion of your account and all associated data</li>
+        <li><strong style="color:rgba(255,255,255,0.75)">Portability</strong> — request your data in a machine-readable format</li>
+        <li><strong style="color:rgba(255,255,255,0.75)">Object</strong> — object to certain uses of your data</li>
+      </ul>
+      <p style="margin-top:14px;">To exercise any of these rights, email us at <strong style="color:rgba(255,255,255,0.75)">support@travelodyssey.app</strong>. We will respond within 30 days.</p>
+    </div>
+
+    <!-- 8. Children -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">8</div>
+        <h2>Children's Privacy</h2>
+      </div>
+      <p>Travel Odyssey is not directed at children under 13. We do not knowingly collect personal data from children. If you believe a child has provided us with their data, please contact us and we will delete it immediately.</p>
+    </div>
+
+    <!-- 9. Changes -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">9</div>
+        <h2>Changes to This Policy</h2>
+      </div>
+      <p>We may update this Privacy Policy from time to time. When we do, we will update the "Last updated" date at the top of this page and notify you via push notification or email if the changes are significant. Continued use of the app after changes are posted constitutes your acceptance.</p>
+    </div>
+
+    <!-- Contact -->
+    <div class="contact-card">
+      <h3>Questions about your privacy?</h3>
+      <p>We're happy to help. Send us an email and we'll respond within 2 business days.</p>
+      <a href="mailto:support@travelodyssey.app">support@travelodyssey.app</a>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>© 2026 Travel Odyssey. All rights reserved.</p>
+  </div>
+
+</body>
+</html>
